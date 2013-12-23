@@ -1,4 +1,5 @@
 import Control.Monad
+import Data.Default
 
 {- 
 Level: 9 Rooms, one exit, and always a path from top to bottom
@@ -14,47 +15,30 @@ Player commands:
   - throw <direction> (L/R/U/D)
   - climb (rope)
   - go <direction> (L/R/D typically, U if jetpack)
-  - 
+  - ???
 -}
+
+--- Types ------------------------------
 type Position = (Int, Int) -- (x, y)
 
 data Level = Level [(Room, Position)]
 
 data Dir = U | D | L | R deriving Eq
-instance Show Dir where
-    show R = "to your right"
-    show L = "to your left"
-    show U = "above you"
-    show D = "below you"
 
 data Size = Small | Large deriving Eq
-instance Show Size where
-    show Small = "small"
-    show Large = "large"
 
-data Jewel =   Ruby Size
+data Jewel =   Ruby     Size
              | Sapphire Size
-             | Emerald Size
+             | Emerald  Size
              | Diamond --always big
              deriving Eq
-instance Show Jewel where
-  show (Ruby s)     = show s ++ " ruby"
-  show (Sapphire s) = show s ++ " sapphire"
-  show (Emerald s)  = show s ++ " emerald"
-  show Diamond      = "diamond"
 
 data Item = ClimbingGloves deriving Eq
-instance Show Item where
-  show ClimbingGloves = "climbing gloves"
 
 data Consumable = BombBag 
                 | RopePile 
                 | BombBox
                 deriving Eq
-instance Show Consumable where
-  show BombBag  = "bomb bag"
-  show BombBox  = "bomb box"
-  show RopePile = "rope pile"
 
 data Block =   Dirt
              | GoldDirt Size -- # gold
@@ -68,18 +52,6 @@ data Block =   Dirt
              | Web 
              | Exit
              deriving Eq
-instance Show Block where
-  show Dirt                = "some dirt"
-  show (GoldDirt s)        = "a " ++ show s ++ " amount of gold in some dirt"
-  show CrushBlock          = "a crushing block"
-  show Spikes              = "some spikes"
-  show (JewelDirt j)       = "a "  ++ show j ++ " in some dirt"
-  show (ItemBlock i)       = "an " ++ show i ++ " in some dirt"
-  show (ConsubableBlock c) = "a " ++ show c  ++ " in some dirt"
-  show (ArrowTrap f)       = "an arrowtrap"
-  show PowderKeg           = "a powderkeg"
-  show Web                 = "a spider web"
-  show Exit                = "the exit"
 
 data Enemy =  Snake
             | Bat
@@ -93,18 +65,6 @@ data Enemy =  Snake
             | Shopkeeper
             | Boulder
             deriving Eq
-instance Show Enemy where
-  show Snake       = "green snake" 
-  show Bat         = "bat"
-  show Spider      = "spider"
-  show Cobra       = "spitting snake"
-  show SpinSpider  = "web-spinning spider"
-  show Skeleton    = "skeleton"
-  show BigSpider   = "large spider"
-  show Scorpion    = "scorpion"
-  show Caveman     = "caveman"
-  show Shopkeeper  = "shopkeeper"
-  show Boulder     = "boulder"
 
 data Entity = Empty deriving (Show, Eq) --yet to be implemented
 
@@ -117,23 +77,13 @@ data GroundItem =  Pot Entity   --what's in the pot?
                  | Idol
                  | Floor Consumable
                  deriving Eq
-instance Show GroundItem where
-  show (Pot _)     = "pot" 
-  show (Crate _ )  = "crate"
-  show (Chest _)   = "chest"
-  show Key         = "key on the ground"
-  show GoldChest   = "gold chest"
-  show Damsel      = "damsel"
-  show Idol        = "golden idol head"
-  show (Floor c)   = show c
-
 data Player = Player{
   hp :: Int,
   bombs :: Int,
   ropes :: Int,
   gold  :: Int,
   items :: [Item],
-  holding :: Entity, --current item
+  holding :: Maybe Entity, --current item
   favor :: Int -- kali favor
 }
 
@@ -148,9 +98,85 @@ data Room = Room{
   isExit :: Bool
 }
 
-{- override this, i.e defaultRoom{ exits = [Left] }, eg. -}
-defaultRoom = Room [] [] [] [] [] False False False
+data GameState = GameState{
+  player  :: Player,
+  level   :: Level ,
+  room    :: Room  
+}
 
+-------------------- Default instances ---
+
+-- starting player
+instance Default Player where
+  def = Player 4 4 4 0 [] Nothing 0
+
+-- completely void room
+instance Default Room where
+  def = Room [] [] [] [] [] False False False
+
+----------- Show Instances ---------------
+
+instance Show Dir where
+    show R = "to your right"
+    show L = "to your left"
+    show U = "above you"
+    show D = "below you"
+
+instance Show Size where
+    show Small = "small"
+    show Large = "large"
+
+instance Show Jewel where
+  show (Ruby s)     = show s ++ " ruby"
+  show (Sapphire s) = show s ++ " sapphire"
+  show (Emerald s)  = show s ++ " emerald"
+  show Diamond      = "diamond"
+
+instance Show Item where
+  show ClimbingGloves = "climbing gloves"
+
+instance Show Consumable where
+  show BombBag  = "bomb bag"
+  show BombBox  = "bomb box"
+  show RopePile = "rope pile"
+
+instance Show Block where
+  show Dirt                = "some dirt"
+  show (GoldDirt s)        = "a " ++ show s ++ " amount of gold in some dirt"
+  show CrushBlock          = "a crushing block"
+  show Spikes              = "some spikes"
+  show (JewelDirt j)       = "a "  ++ show j ++ " in some dirt"
+  show (ItemBlock i)       = "an " ++ show i ++ " in some dirt"
+  show (ConsubableBlock c) = "a " ++ show c  ++ " in some dirt"
+  show (ArrowTrap f)       = "an arrowtrap"
+  show PowderKeg           = "a powderkeg"
+  show Web                 = "a spider web"
+  show Exit                = "the exit"
+
+instance Show Enemy where
+  show Snake       = "green snake" 
+  show Bat         = "bat"
+  show Spider      = "spider"
+  show Cobra       = "spitting snake"
+  show SpinSpider  = "web-spinning spider"
+  show Skeleton    = "skeleton"
+  show BigSpider   = "large spider"
+  show Scorpion    = "scorpion"
+  show Caveman     = "caveman"
+  show Shopkeeper  = "shopkeeper"
+  show Boulder     = "boulder"
+
+instance Show GroundItem where
+  show (Pot _)     = "pot" 
+  show (Crate _ )  = "crate"
+  show (Chest _)   = "chest"
+  show Key         = "key on the ground"
+  show GoldChest   = "gold chest"
+  show Damsel      = "damsel"
+  show Idol        = "golden idol head"
+  show (Floor c)   = show c
+
+-- too lazy right now to make this a show instance, I goofed a little by making this an IO op. first off
 write (Room es blks rgis rmis ems kali shop exit) = do
     forM_ es $ \dir ->          putStrLn $ "There is an exit "         ++ show dir
     forM_ blks $ \(blk, dir) -> putStrLn $ "You see a " ++ show blk    ++ " to your " ++ show dir
@@ -163,8 +189,16 @@ write (Room es blks rgis rmis ems kali shop exit) = do
           else return ()
     return ()
 
-testRoom = defaultRoom{
+------ Extra stuff ---------------------
+
+alive :: Player -> Bool
+alive = (<=0) . hp
+
+-- a simple test room
+testRoom :: Room
+testRoom = def{
   exits = [R, D],
   enemies = [(Spider, U)],
   roomGroundItems = [(Pot Empty, L), (Floor BombBag, R)]
 }
+---------------------------------------
