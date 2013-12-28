@@ -25,12 +25,6 @@ data WeightedQuadTree w a =
   | Leaf
   deriving (Show, Eq)
 
-instance Show Direction where 
-  show U = "up"
-  show D = "down"
-  show L = "left"
-  show R = "right"
-
 example :: WeightedQuadTree (Maybe Char) Int 
 example = WQTree 0 (Leaf, Nothing) (Leaf, Nothing) (Leaf, Nothing) (Leaf, Nothing)
 
@@ -47,13 +41,15 @@ move dir (WQTree _ l r u d) = fst $ case dir of
   R -> r
   U -> u 
   D -> d
+  M -> error "Attempt to move to middle of node."
 
 setEdge :: Direction -> WeightedQuadTree w a ->  w -> WeightedQuadTree w a
-setEdge dir (WQTree x (l, a) (r, b) (u, c) (d, e)) w = case dir of
+setEdge dir t@(WQTree x (l, a) (r, b) (u, c) (d, e)) w = case dir of
   L -> WQTree x (l, w) (r, b) (u, c) (d, e)
   R -> WQTree x (l, a) (r, w) (u, c) (d, e)
   U -> WQTree x (l, a) (r, b) (u, w) (d, e)
   D -> WQTree x (l, a) (r, b) (u, c) (d, w)
+  M -> error "Attempt to modify \"middle\" edge"
 setEdge _ Leaf _ = error "Attempt to modify edge value of a leaf node."
 
 getEdge :: Direction -> WeightedQuadTree w a -> w
