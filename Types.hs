@@ -1,6 +1,5 @@
 module Types (
     Direction(..),
-    Position(..),
     Level(..),
     Size(..),
     Jewel(..),
@@ -24,9 +23,8 @@ data Direction = U | D | L | R | M deriving (Ord, Eq)
 
 type Space = (Direction, Direction) 
 
-type Position = (Int, Int) -- (x, y)
-
-data Level = Level [(Room, Position)]
+-- A list of rooms and their orientation on the (3 x 3) map
+data Level = Level [(Space, Room)]
 
 data Size = Small | Large deriving Eq
 
@@ -105,6 +103,7 @@ data Room = Room{
     isShop'       :: Bool,
     isExit'       :: Bool
 }
+
 
 data GameState = GameState{
   player  :: Player,
@@ -220,7 +219,7 @@ instance Show Player where
 srt :: (Ord a) => (a, a) -> (a, a)
 srt (a, b) = let [a', b'] = sort [a, b] in (a', b')
 
--- NB. We assume U, D will never be a thing, L, R will never be a thing. So x \in (U, D), y in (L, R).
+-- NB. We assume U, D will never be a thing, L, R will never be a thing. So x in {U, D, M}, y in {L, R, M}.
 -- | Shows the direction of a space in a room (one of nine spaces)
 showRelativeDirection :: Space -> String
 showRelative (M, M) = "dead center"
