@@ -17,9 +17,10 @@ module Types (
 
 import Data.Default
 import Data.List(intercalate, sort)
+import Data.Maybe(isJust)
 
 -- NB. derive `Ord` for sorting later on.
-data Direction = U | D | L | R | M deriving (Ord, Eq)
+data Direction = U  | D | M | L | R deriving (Ord, Eq)
 
 type Space = (Direction, Direction) 
 
@@ -70,6 +71,7 @@ data Enemy =  Snake
 data Entity = 
    Jewel' Jewel
  | Item' Item
+ | GroundItem' GroundItem
  | Consumable' Consumable
  | Block' Block
  | Enemy' Enemy
@@ -186,6 +188,7 @@ instance Show GroundItem where
 instance Show Entity where
     show (Jewel' j)      = show j
     show (Item' i )      = show i
+    show (GroundItem' g)  = show g
     show (Enemy' e)      = show e
     show (Consumable' c) = show c
     show (Block'      b) = show b
@@ -194,13 +197,20 @@ instance Show Entity where
 
 instance Show Room where
     show (Room es kali shop exit) = intercalate "\n" $  (extra: map show' es)
-        where show' (spc, entity) = "There is a "  ++ show entity ++ " in the " ++ showRelativeDirection spc ++ "."
+        where show' (spc, entity) = case entity of
+                Player' p -> playerSnippet p spc
+                _         -> "There is a "  ++ show entity ++ " in the " ++ showRelativeDirection spc ++ "."
               extra = if kali then "You see an altar to Kali."
                         else if shop then "You have found a shop!"
                           else if exit then "You have found the exit!"
                             else []
+              playerSnippet p spc = "You are in the " ++ (showRelativeDirection spc) ++ "."
+                                ++ 
+                                case holding p of
+                                  Just x -> "\nYou are holding a " ++ show x ++ "."
+                                  _      -> []
 
--- NB. Full show, exclude favor since it's hidden
+-- NB. Full show, exclude favor since it's a hidden stat
 instance Show Player where
   show (Player health bmbs rps gld itms hdg _) = intercalate "\n" $ filter (not . null)
     ["You have " ++ show health ++ " hp remaining.",
