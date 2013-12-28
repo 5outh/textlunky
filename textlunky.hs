@@ -1,6 +1,8 @@
+import WeightedQuadTree
+
 import Control.Monad
 import Data.Default
-
+import Data.List(intercalate)
 {- 
 Level: 9 Rooms, one exit, and always a path from top to bottom
 Player commands:
@@ -22,8 +24,6 @@ Player commands:
 type Position = (Int, Int) -- (x, y)
 
 data Level = Level [(Room, Position)]
-
-data Dir = U | D | L | R deriving Eq
 
 data Size = Small | Large deriving Eq
 
@@ -87,12 +87,13 @@ data Player = Player{
   favor :: Int -- kali favor
 }
 
+--What I want is for Room to actually be nine blocks
 data Room = Room{ 
-  exits :: [Dir], --encapsulates next rooms
-  blocks :: [(Block, Dir)],
-  roomGroundItems :: [(GroundItem, Dir)],
-  roomItems :: [(Item, Dir)],
-  enemies :: [(Enemy, Dir)],
+  exits :: [Direction], --encapsulates next rooms
+  blocks :: [(Block, Direction)],
+  roomGroundItems :: [(GroundItem, Direction)],
+  roomItems :: [(Item, Direction)],
+  enemies :: [(Enemy, Direction)],
   isKaliAltar :: Bool, -- allow sacrifices to Kali for an item
   isShop :: Bool,
   isExit :: Bool
@@ -115,12 +116,6 @@ instance Default Room where
   def = Room [] [] [] [] [] False False False
 
 ----------- Show Instances ---------------
-
-instance Show Dir where
-    show R = "to your right"
-    show L = "to your left"
-    show U = "above you"
-    show D = "below you"
 
 instance Show Size where
     show Small = "small"
@@ -176,21 +171,22 @@ instance Show GroundItem where
   show Idol        = "golden idol head"
   show (Floor c)   = show c
 
--- too lazy right now to make this a show instance, I goofed a little by making this an IO op. first off
-write (Room es blks rgis rmis ems kali shop exit) = do
-    forM_ es $ \dir ->          putStrLn $ "There is an exit "         ++ show dir
-    forM_ blks $ \(blk, dir) -> putStrLn $ "You see a " ++ show blk    ++ " to your " ++ show dir
-    forM_ rgis $ \(itm, dir) -> putStrLn $ "You see a " ++ show itm    ++ " on the ground " ++ show dir
-    forM_ rmis $ \(itm, dir) -> putStrLn $ "You see a " ++ show itm    ++ " on the ground " ++ show dir
-    forM_ ems  $ \(emy, dir) -> putStrLn $ "You see a " ++ show emy    ++  " "              ++ show dir
-    if kali then putStrLn "You see an altar in the center of the room" 
-      else if shop then putStrLn "You have found a shop!" 
-        else if exit then putStrLn "You have found the exit!" 
-          else return ()
-    return ()
+instance Show Room where 
+  show (Room es blks rgis rmis ems kali shop exit) = rm
+    where rm = intercalate "\n" $ fmap (intercalate "\n") $ filter (not . null) $
+                [
+                 map (\dir -> "There is an exit "         ++ show dir) es, 
+                 map (\(blk, dir) -> "You see a " ++ show blk    ++ " to your "       ++ show dir) blks,
+                 map (\(itm, dir) -> "You see a " ++ show itm    ++ " on the ground " ++ show dir) rgis,
+                 map (\(itm, dir) -> "You see a " ++ show itm    ++ " on the ground " ++ show dir) rmis,
+                 map (\(emy, dir) -> "You see a " ++ show emy    ++  " "              ++ show dir) ems,
+                 if kali then ["You see an altar in the center of the room"]
+                    else if shop then ["You have found a shop!"]
+                      else if exit then ["You have found the exit!"]
+                        else []
+                ]
 
 ------ Extra stuff ---------------------
-
 alive :: Player -> Bool
 alive = (<=0) . hp
 
