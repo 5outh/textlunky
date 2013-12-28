@@ -13,6 +13,8 @@ module WeightedQuadTree(
   )
 where 
 
+import Types(Direction(..))
+
 -- | w is the weight of each edge
 data WeightedQuadTree w a = 
   WQTree a 
@@ -22,8 +24,6 @@ data WeightedQuadTree w a =
     ( (WeightedQuadTree w a), w )
   | Leaf
   deriving (Show, Eq)
-
-data Direction = U | D | L | R deriving Eq
 
 instance Show Direction where 
   show U = "up"
