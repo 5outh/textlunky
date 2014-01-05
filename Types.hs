@@ -91,6 +91,7 @@ data LevelType = NormalLevel
               | Dark
               | SkinCrawling
               | SnakePit
+              | ChestAndKey
                 deriving Eq
  
 data GroundItem =  Pot Entity   --what's in the pot?
