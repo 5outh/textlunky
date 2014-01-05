@@ -4,6 +4,7 @@ import Control.Monad
 import Data.List(sort)
 import Data.Default
 import Types
+import Generators
 {- 
 Level: 9 Rooms, one exit, and always a path from top to bottom
 Player commands:

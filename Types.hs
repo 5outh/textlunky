@@ -14,6 +14,10 @@ module Types (
     Room(..),
     RoomType(..),
     GameState(..),
+    srt,
+    levelMessage,
+    showRelativeDirection,
+    dirs
 ) where
 
 import Data.Default
@@ -21,7 +25,7 @@ import Data.List(intercalate, sort)
 import Data.Maybe(isJust)
 
 -- NB. derive `Ord` for sorting later on.
-data Direction = U  | D | M | L | R deriving (Ord, Eq)
+data Direction = U  | D | M | L | R deriving (Bounded, Ord, Eq)
 
 type Space = (Direction, Direction) 
 
@@ -250,7 +254,14 @@ levelMessage t = case t of
 srt :: (Ord a) => (a, a) -> (a, a)
 srt (a, b) = let [a', b'] = sort [a, b] in (a', b')
 
--- NB. We assume U, D will never be a thing, L, R will never be a thing. So x in {U, D, M}, y in {L, R, M}.
+--NB. All block locations
+dirs :: [(Direction, Direction)]
+dirs = do
+  a <- [L, R, M]
+  b <- [M, U, D]
+  return (a, b)
+  
+-- NB. We assume U, D will never be a thing, L, R will never be a thing. So x in {U, D, M}, y in {M, L, R} (ordered sets)
 -- | Shows the direction of a space in a room (one of nine spaces)
 showRelativeDirection :: Space -> String
 showRelative (M, M) = "dead center"
