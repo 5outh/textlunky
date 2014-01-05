@@ -14,6 +14,7 @@ module Types (
     Room(..),
     RoomType(..),
     GameState(..),
+    Collectable(..),
     srt,
     levelMessage,
     showRelativeDirection,
@@ -23,40 +24,42 @@ module Types (
 import Data.Default
 import Data.List(intercalate, sort)
 import Data.Maybe(isJust)
+import Control.Monad(join, replicateM)
+import Control.Applicative
 
 -- NB. derive `Ord` for sorting later on.
 data Direction = U  | D | M | L | R deriving (Bounded, Ord, Eq)
 
 type Space = (Direction, Direction) 
 
-data Size = Small | Large deriving Eq
+data Size = Small | Large deriving (Enum, Eq)
 
 data Jewel =   Ruby     Size
              | Sapphire Size
              | Emerald  Size
              | Diamond --always big
              deriving Eq
-
+             
 data Item = ClimbingGloves deriving Eq
 
 data Consumable = BombBag 
                 | RopePile 
                 | BombBox
-                deriving Eq
-
+                deriving (Enum, Eq)
+                
 data Block =   Dirt
-             | GoldDirt Size -- # gold
              | CrushBlock
              | Spikes
-             | JewelDirt Jewel -- Jewel type
-             | ItemBlock Item
-             | ConsubableBlock Consumable
-             | ArrowTrap Bool -- fired
              | PowderKeg
              | Web 
              | Exit
+             | GoldDirt Size -- # gold
+             | JewelDirt Jewel -- Jewel type
+             | ItemBlock Item
+             | ConsumableBlock Consumable
+             | ArrowTrap Bool -- fired
              deriving Eq
-
+             
 data Enemy =  Snake
             | Bat
             | Spider
@@ -68,7 +71,7 @@ data Enemy =  Snake
             | Caveman
             | Shopkeeper
             | Boulder
-            deriving Eq
+            deriving (Enum, Eq)
 
 data Entity = 
    Jewel' Jewel
@@ -80,30 +83,32 @@ data Entity =
  | Player' Player
  | Empty
  deriving Eq
-
+ 
 data RoomType = NormalRoom
               | KaliAltar
               | Shop
               | LevelExit
-                deriving Eq
+                deriving (Enum, Eq)
                 
 data LevelType = NormalLevel
-              | Dark
-              | SkinCrawling
-              | SnakePit
-              | ChestAndKey
-                deriving Eq
+               | Dark
+               | SkinCrawling
+               | SnakePit
+               | ChestAndKey
+                 deriving (Enum, Eq)
  
-data GroundItem =  Pot Entity   --what's in the pot?
-                 | Crate Item
-                 | Chest [Jewel] 
-                 | Key
+data GroundItem =  Key
                  | GoldChest
                  | Damsel
                  | Idol
+                 | PotEmpty
+                 | PotJewel Jewel
+                 | PotEnemy Enemy
+                 | Crate Item
+                 | Chest [Jewel] 
                  | Floor Consumable
                  deriving Eq
-
+                 
 data Player = Player{
   hp :: Int,
   bombs :: Int,
@@ -139,6 +144,54 @@ instance Default Player where
 instance Default Room where
   def = Room [] NormalRoom
 
+----------- Collections ------------------
+
+instance Collectable Jewel where
+  collection = Diamond : join [[Sapphire x, Ruby x, Emerald x] | x <- [Small, Large]]
+
+instance Collectable Item where
+  collection = [ClimbingGloves]
+  
+instance Collectable Consumable where
+  collection = enumFrom BombBag
+
+instance Collectable Block where
+  collection = (consts++) . join $ 
+                [GoldDirt        <$> sizes,
+                 JewelDirt       <$> js,
+                 ItemBlock       <$> items,
+                 ConsumableBlock <$> cs,
+                 ArrowTrap       <$> bs]
+   where consts = [Dirt, CrushBlock, Spikes, PowderKeg, Web, Exit, ArrowTrap True]
+         sizes = collection :: [Size]
+         js    = collection :: [Jewel]
+         items = collection :: [Item]
+         cs    = collection :: [Consumable]
+         bs    = [True, False]
+
+instance Collectable Enemy where
+  collection = enumFrom Snake
+
+instance Collectable LevelType where
+  collection = enumFrom NormalLevel
+
+instance Collectable RoomType where
+  collection = enumFrom NormalRoom
+  
+instance Collectable GroundItem where
+  collection =  ([Key, GoldChest, Damsel, Idol, PotEmpty]++) . join $ 
+                  [ PotJewel <$> js,
+                    PotEnemy <$> es,
+                    Crate    <$> items,
+                    Chest    <$> jewelLists,
+                    Floor    <$> cs
+                  ]
+    where js    = collection :: [Jewel]
+          es    = collection :: [Enemy]
+          items = collection :: [Item]
+          cs    = collection :: [Consumable]
+          jewelLists = join [ [ [a], [a,b], [a,b,c] ] | (a, b, c) <- zip3 js js js]
+  
 ----------- Show Instances ---------------
 
 instance Show Direction where 
@@ -172,8 +225,8 @@ instance Show Block where
   show CrushBlock          = "a crushing block"
   show Spikes              = "some spikes"
   show (JewelDirt j)       = "a "  ++ show j ++ " in some dirt"
-  show (ItemBlock i)       = "an " ++ show i ++ " in some dirt"
-  show (ConsubableBlock c) = "a " ++ show c  ++ " in some dirt"
+  show (ItemBlock i)       = show i ++ " in some dirt"
+  show (ConsumableBlock c) = "a "  ++ show c  ++ " in some dirt"
   show (ArrowTrap f)       = "an arrowtrap"
   show PowderKeg           = "a powderkeg"
   show Web                 = "a spider web"
@@ -193,14 +246,16 @@ instance Show Enemy where
   show Boulder     = "boulder"
 
 instance Show GroundItem where
-  show (Pot _)     = "pot" 
-  show (Crate _ )  = "crate"
-  show (Chest _)   = "chest"
-  show Key         = "key on the ground"
-  show GoldChest   = "gold chest"
-  show Damsel      = "damsel"
-  show Idol        = "golden idol head"
-  show (Floor c)   = show c
+  show (PotEmpty)   = "pot"
+  show (PotJewel _) = "pot"
+  show (PotEnemy _) = "pot"
+  show (Crate _ )   = "crate"
+  show (Chest _)    = "chest"
+  show Key          = "key on the ground"
+  show GoldChest    = "gold chest"
+  show Damsel       = "damsel"
+  show Idol         = "golden idol head"
+  show (Floor c)    = show c
 
 instance Show Entity where
     show (Jewel' j)      = show j
@@ -242,6 +297,19 @@ instance Show Player where
     ]
 
 --- Extras ---
+
+-- Collectables
+
+--NB. Don't worry about enum instances, we don't need them. 
+--    Just a collection of all types of field is fine for our purposes.
+class Collectable a where
+  collection :: [a]
+  
+instance Collectable Direction where
+  collection = [U, D, L, R, M]
+
+instance Collectable Size where
+  collection = [Small, Large]
 
 -- NB. Shows message upon entrance
 levelMessage :: LevelType -> String

@@ -29,7 +29,7 @@ alive = (<=0) . hp
 -- a simple test room
 testRoom' :: Room
 testRoom' = def{
-  entities = [( (L, D) , Enemy' Spider ), ( (M, D), Player' def{ holding = Just (GroundItem' (Pot Empty)), items = [ClimbingGloves]})],
+  entities = [( (L, D) , Enemy' Spider ), ( (M, D), Player' def{ holding = Just (GroundItem' (PotEmpty)), items = [ClimbingGloves]})],
   rType    = KaliAltar
 }
 ---------------------------------------
