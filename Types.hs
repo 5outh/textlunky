@@ -12,6 +12,7 @@ module Types (
     GroundItem(..),
     Player(..),
     Room(..),
+    RoomType(..),
     GameState(..),
 ) where
 
@@ -23,9 +24,6 @@ import Data.Maybe(isJust)
 data Direction = U  | D | M | L | R deriving (Ord, Eq)
 
 type Space = (Direction, Direction) 
-
--- A list of rooms and their orientation on the (3 x 3) map
-data Level = Level [(Space, Room)]
 
 data Size = Small | Large deriving Eq
 
@@ -79,6 +77,18 @@ data Entity =
  | Empty
  deriving Eq
 
+data RoomType = NormalRoom
+              | KaliAltar
+              | Shop
+              | LevelExit
+                deriving Eq
+                
+data LevelType = NormalLevel
+              | Dark
+              | SkinCrawling
+              | SnakePit
+                deriving Eq
+ 
 data GroundItem =  Pot Entity   --what's in the pot?
                  | Crate Item
                  | Chest [Jewel] 
@@ -101,11 +111,13 @@ data Player = Player{
 
 data Room = Room{
     entities :: [(Space, Entity)],
-    isKaliAltar'  :: Bool,
-    isShop'       :: Bool,
-    isExit'       :: Bool
+    rType    :: RoomType
 }
 
+data Level = Level{
+  rooms :: [(Space, Room)],
+  lType :: LevelType
+}
 
 data GameState = GameState{
   player  :: Player,
@@ -120,7 +132,7 @@ instance Default Player where
   def = Player 4 4 4 0 [] Nothing 0
 --completely void room
 instance Default Room where
-  def = Room [] False False False
+  def = Room [] NormalRoom
 
 ----------- Show Instances ---------------
 
@@ -196,14 +208,15 @@ instance Show Entity where
     show Empty           = []
 
 instance Show Room where
-    show (Room es kali shop exit) = intercalate "\n" $  (extra: map show' es)
+    show (Room es r_type) = intercalate "\n" $  (extra: map show' es)
         where show' (spc, entity) = case entity of
                 Player' p -> playerSnippet p spc
                 _         -> "There is a "  ++ show entity ++ " in the " ++ showRelativeDirection spc ++ "."
-              extra = if kali then "You see an altar to Kali."
-                        else if shop then "You have found a shop!"
-                          else if exit then "You have found the exit!"
-                            else []
+              extra = case r_type of
+                KaliAltar      -> "You see an altar to Kali."
+                Shop           -> "You have found a shop!"
+                LevelExit      -> "You have found the exit!"
+                _         -> []
               playerSnippet p spc = "You are in the " ++ (showRelativeDirection spc) ++ "."
                                 ++ 
                                 case holding p of
@@ -224,6 +237,14 @@ instance Show Player where
     ]
 
 --- Extras ---
+
+-- NB. Shows message upon entrance
+levelMessage :: LevelType -> String
+levelMessage t = case t of
+  Dark         -> "I can't see a thing!"
+  SkinCrawling -> "My skin is crawling!"
+  SnakePit     -> "I hear snakes. I hate snakes!"
+  _            -> []
 
 -- NB. This is used in `showRelativeDirection`
 srt :: (Ord a) => (a, a) -> (a, a)
