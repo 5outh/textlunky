@@ -153,7 +153,7 @@ instance Universe Size where
   universe = [Small, Large]
   
 instance Universe Jewel where
-  universe = Diamond : join [[Sapphire x, Ruby x, Emerald x] | x <- [Small, Large]]
+  universe = (Diamond :) $ [Sapphire, Ruby, Emerald] <*> [Small, Large]
 
 instance Universe Item where
   universe = [ClimbingGloves]
@@ -196,6 +196,7 @@ instance Universe GroundItem where
           es    = universe :: [Enemy]
           items = universe :: [Item]
           cs    = universe :: [Consumable]
+          --NB. 1, 2, or 3 jewels per chest; each can be small or large (except diamonds).
           jewelLists = join [ [ [a], [a,b], [a,b,c] ] | (a, b, c) <- zip3 js js js]
   
 ----------- Show Instances ---------------
