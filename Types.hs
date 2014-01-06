@@ -14,7 +14,6 @@ module Types (
     Room(..),
     RoomType(..),
     GameState(..),
-    Collectable(..),
     srt,
     levelMessage,
     showRelativeDirection,
@@ -26,6 +25,7 @@ import Data.List(intercalate, sort)
 import Data.Maybe(isJust)
 import Control.Monad(join, replicateM)
 import Control.Applicative
+import Data.Universe
 
 -- NB. derive `Ord` for sorting later on.
 data Direction = U  | D | M | L | R deriving (Bounded, Ord, Eq)
@@ -144,52 +144,58 @@ instance Default Player where
 instance Default Room where
   def = Room [] NormalRoom
 
------------ Collections ------------------
+----------- Universes ------------------
 
-instance Collectable Jewel where
-  collection = Diamond : join [[Sapphire x, Ruby x, Emerald x] | x <- [Small, Large]]
+instance Universe Direction where
+  universe = [U, D, L, R, M]
 
-instance Collectable Item where
-  collection = [ClimbingGloves]
+instance Universe Size where
+  universe = [Small, Large]
   
-instance Collectable Consumable where
-  collection = enumFrom BombBag
+instance Universe Jewel where
+  universe = Diamond : join [[Sapphire x, Ruby x, Emerald x] | x <- [Small, Large]]
 
-instance Collectable Block where
-  collection = (consts++) . join $ 
+instance Universe Item where
+  universe = [ClimbingGloves]
+  
+instance Universe Consumable where
+  universe = enumFrom BombBag
+
+instance Universe Block where
+  universe = (consts++) . join $ 
                 [GoldDirt        <$> sizes,
                  JewelDirt       <$> js,
                  ItemBlock       <$> items,
                  ConsumableBlock <$> cs,
                  ArrowTrap       <$> bs]
    where consts = [Dirt, CrushBlock, Spikes, PowderKeg, Web, Exit, ArrowTrap True]
-         sizes = collection :: [Size]
-         js    = collection :: [Jewel]
-         items = collection :: [Item]
-         cs    = collection :: [Consumable]
+         sizes = universe :: [Size]
+         js    = universe :: [Jewel]
+         items = universe :: [Item]
+         cs    = universe :: [Consumable]
          bs    = [True, False]
 
-instance Collectable Enemy where
-  collection = enumFrom Snake
+instance Universe Enemy where
+  universe = enumFrom Snake
 
-instance Collectable LevelType where
-  collection = enumFrom NormalLevel
+instance Universe LevelType where
+  universe = enumFrom NormalLevel
 
-instance Collectable RoomType where
-  collection = enumFrom NormalRoom
+instance Universe RoomType where
+  universe = enumFrom NormalRoom
   
-instance Collectable GroundItem where
-  collection =  ([Key, GoldChest, Damsel, Idol, PotEmpty]++) . join $ 
+instance Universe GroundItem where
+  universe =  ([Key, GoldChest, Damsel, Idol, PotEmpty]++) . join $ 
                   [ PotJewel <$> js,
                     PotEnemy <$> es,
                     Crate    <$> items,
                     Chest    <$> jewelLists,
                     Floor    <$> cs
                   ]
-    where js    = collection :: [Jewel]
-          es    = collection :: [Enemy]
-          items = collection :: [Item]
-          cs    = collection :: [Consumable]
+    where js    = universe :: [Jewel]
+          es    = universe :: [Enemy]
+          items = universe :: [Item]
+          cs    = universe :: [Consumable]
           jewelLists = join [ [ [a], [a,b], [a,b,c] ] | (a, b, c) <- zip3 js js js]
   
 ----------- Show Instances ---------------
@@ -297,19 +303,6 @@ instance Show Player where
     ]
 
 --- Extras ---
-
--- Collectables
-
---NB. Don't worry about enum instances, we don't need them. 
---    Just a collection of all types of field is fine for our purposes.
-class Collectable a where
-  collection :: [a]
-  
-instance Collectable Direction where
-  collection = [U, D, L, R, M]
-
-instance Collectable Size where
-  collection = [Small, Large]
 
 -- NB. Shows message upon entrance
 levelMessage :: LevelType -> String
