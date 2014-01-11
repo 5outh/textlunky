@@ -336,10 +336,7 @@ srt (a, b) = let [a', b'] = sort [a, b] in (a', b')
 
 --NB. All block locations
 dirs :: [(Direction, Direction)]
-dirs = do
-  a <- [L, R, M]
-  b <- [M, U, D]
-  return (a, b)
+dirs = (,) <$> [L, R, M] <*> [M, U, D]
   
 -- NB. We assume U, D will never be a thing, L, R will never be a thing. So x in {U, D, M}, y in {M, L, R} (ordered sets)
 -- | Shows the direction of a space in a room (one of nine spaces)
