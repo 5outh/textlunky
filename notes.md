@@ -26,3 +26,20 @@ Ideas:
     2. Print the action that was just performed
   * Use Pipes?
   * For random generation, there should be some probability distribution. We don't want *complete* randomness, so there must be something like that. I'll look into it.
+
+
+Psuedocode:
+
+```haskell
+main = do
+  seed <- genRandomSeed
+  startState <- getStartGameState seed
+  flip runStateT startState $ gameLoop seed
+
+gameLoop :: StdGen -> StateT GameState IO ()
+gameLoop gen = forever $ do
+  cmd <- lift getPlayerCommand
+  modify (processCmd $ liftF $ read cmd :: CommandF) -- update full state
+  zoom level $ modify updateLevel -- update level separately
+  modify updateState --update full state
+```
