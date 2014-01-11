@@ -1,10 +1,17 @@
-import WeightedQuadTree
+{-# LANGUAGE TemplateHaskell #-}
 
 import Control.Monad
 import Data.List(sort)
 import Data.Default
+import Control.Lens hiding (Level)
 import Types
 import Generators
+
+makeLenses ''Player
+makeLenses ''Room
+makeLenses ''Level
+makeLenses ''GameState
+
 {- 
 Level: 9 Rooms, one exit, and always a path from top to bottom
 Player commands:
@@ -24,12 +31,14 @@ Player commands:
 ------ Extra stuff ---------------------
 
 alive :: Player -> Bool
-alive = (<=0) . hp
+alive = (<=0) . view hp
 
 -- a simple test room
 testRoom' :: Room
-testRoom' = def{
-  entities = [( (L, D) , Enemy' Spider ), ( (M, D), Player' def{ holding = Just (GroundItem' (PotEmpty)), items = [ClimbingGloves]})],
-  rType    = KaliAltar
-}
+testRoom' = rType    .~ KaliAltar 
+          $ entities .~ [( (L, D) , Enemy' Spider ), ( (M, D), Player' p )] 
+          $ def :: Room
+  where p = holding .~ ( Just (GroundItem' PotEmpty) ) 
+          $ items   .~ [ClimbingGloves] 
+          $ def :: Player
 ---------------------------------------

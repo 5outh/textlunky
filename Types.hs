@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Types (
     Direction(..),
     Level(..),
@@ -26,6 +27,7 @@ import Data.Maybe(isJust)
 import Control.Monad(join, replicateM)
 import Control.Applicative
 import Data.Universe
+import Control.Lens hiding (Level, universe)
 
 -- NB. derive `Ord` for sorting later on.
 data Direction = U  | D | M | L | R deriving (Bounded, Ord, Eq)
@@ -110,30 +112,35 @@ data GroundItem =  Key
                  deriving Eq
                  
 data Player = Player{
-  hp :: Int,
-  bombs :: Int,
-  ropes :: Int,
-  gold  :: Int,
-  items :: [Item],
-  holding :: Maybe Entity, --current item
-  favor :: Int -- kali favor
+  _hp :: Int,
+  _bombs :: Int,
+  _ropes :: Int,
+  _gold  :: Int,
+  _items :: [Item],
+  _holding :: Maybe Entity, --current item
+  _favor :: Int -- kali favor
 } deriving Eq
 
 data Room = Room{
-    entities :: [(Space, Entity)],
-    rType    :: RoomType
-}
+    _entities :: [(Space, Entity)],
+    _rType    :: RoomType
+}   
 
 data Level = Level{
-  rooms :: [(Space, Room)],
-  lType :: LevelType
-}
+  _rooms :: [(Space, Room)],
+  _lType :: LevelType
+} 
 
 data GameState = GameState{
-  player  :: Player,
-  level   :: Level ,
-  room    :: Room  
+  _player  :: Player,
+  _level   :: Level ,
+  _room    :: Room  
 }
+
+makeLenses ''Player
+makeLenses ''Room
+makeLenses ''Level
+makeLenses ''GameState
 
 -------------------- Default instances ---
 
@@ -286,7 +293,7 @@ instance Show Room where
                 _         -> []
               playerSnippet p spc = "You are in the " ++ (showRelativeDirection spc) ++ "."
                                 ++ 
-                                case holding p of
+                                case p^.holding of
                                   Just x -> "\nYou are holding a " ++ show x ++ "."
                                   _      -> []
 
