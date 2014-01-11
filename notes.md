@@ -27,19 +27,31 @@ Ideas:
   * Use Pipes?
   * For random generation, there should be some probability distribution. We don't want *complete* randomness, so there must be something like that. I'll look into it.
 
+What happens when the player performs an action, on the entire game state?
+  * Player location might move
+  * Player needs to interact with elements in the current room
+  * GameState's room might change
+  * GameState's level & level number might change
+  * GameState's area might change
+  * **All of these things need to be taken into account when performing a player action**
 
+What happens when the game moves one tick?
+  * Enemies can move and attack, potentially into the same spots (which is okay, actually)
+  * Tiles may fall
+  * **Actually, not that much. Mainly enemy movement.**
+  
 Psuedocode:
 
 ```haskell
 main = do
-  seed <- genRandomSeed
-  startState <- getStartGameState seed
-  flip runStateT startState $ gameLoop seed
+  seed <- genRandomSeed :: StdGen            -- get a global standard generator                  
+  startState <- getStartGameState seed       -- generate the starting game state (randomness necessary for random initial level)
+  flip runStateT startState $ gameLoop seed  -- Run the game, using the start state and seed
 
 gameLoop :: StdGen -> StateT GameState IO ()
 gameLoop gen = forever $ do
-  cmd <- lift getPlayerCommand
-  modify (processCmd $ liftF $ read cmd :: CommandF) -- update full state
-  zoom level $ modify updateLevel -- update level separately
-  modify updateState --update full state
+  cmd <- lift getPlayerCommand                          -- get a player command
+  modify (processCmd $ (liftF . parse) cmd :: CommandF) -- update full state based on player move
+  zoom level $ modify updateLevel                       -- update level separately
+  modify updateState                                    -- update full state
 ```
