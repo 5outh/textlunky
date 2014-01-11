@@ -25,3 +25,4 @@ Ideas:
     1. Interpret the code and make level modifications
     2. Print the action that was just performed
   * Use Pipes?
+  * For random generation, there should be some probability distribution. We don't want *complete* randomness, so there must be something like that. I'll look into it.

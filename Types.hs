@@ -14,6 +14,7 @@ module Types (
     Player(..),
     Room(..),
     RoomType(..),
+    LevelType(..),
     GameState(..),
     srt,
     levelMessage,
@@ -32,7 +33,7 @@ import Control.Lens hiding (Level, universe)
 -- NB. derive `Ord` for sorting later on.
 data Direction = U  | D | M | L | R deriving (Bounded, Ord, Eq)
 
-type Space = (Direction, Direction) 
+type Space = (Direction, Direction)
 
 data Size = Small | Large deriving (Enum, Eq)
 
