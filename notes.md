@@ -20,7 +20,7 @@ Things to worry about:
   * How to keep a global state in tact
   
 Ideas:
-  * Entire game operates in a StateT GameState IO ()
+  * Entire game operates in a `StateT GameState IO ()`
   * Can use free monads to represent user movement. With this we can (using only one data type):
     1. Interpret the code and make level modifications
     2. Print the action that was just performed
