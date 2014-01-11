@@ -121,6 +121,13 @@ data Player = Player{
   _favor :: Int -- kali favor
 } deriving Eq
 
+data Area = Mines
+          | Jungle
+          | IceCaves
+          | Temple
+          | Hell
+            deriving (Show, Eq)
+
 data Room = Room{
     _entities :: [(Space, Entity)],
     _rType    :: RoomType
@@ -132,9 +139,11 @@ data Level = Level{
 } 
 
 data GameState = GameState{
-  _player  :: Player,
-  _level   :: Level ,
-  _room    :: Room  
+  _player   :: Player,
+  _levelNum :: Int   ,
+  _level    :: Level ,
+  _area     :: Area  ,
+  _room     :: Room  
 }
 
 makeLenses ''Player
