@@ -50,8 +50,56 @@ main = do
 
 gameLoop :: StdGen -> StateT GameState IO ()
 gameLoop gen = forever $ do
-  cmd <- lift getPlayerCommand                          -- get a player command
-  modify (processCmd $ (liftF . parse) cmd :: CommandF) -- update full state based on player move
-  zoom level $ modify updateLevel                       -- update level separately
-  modify updateState                                    -- update full state
+  cmd <- lift getPlayerCommand                   -- get a player command
+  modify $ 
+  	(processCmd 
+  	 $ (liftF . parse) cmd :: Free CommandF () ) -- update full state based on player move
+  zoom level $ modify updateLevel                -- update level separately
+  modify updateState                             -- update full state
 ```
+
+## Mon, January 13th
+
+Need:
+1. A parser for text commands (parsec)
+2. An interpreter for text commands 
+3. A printer for text commands
+4. A pipeline for the actual program (maybe the last step)
+
+Note: 2 & 3 can be sort of tackled together if we use a free monad, so that's something I want to do.
+
+I still need to define the instruction set provided for the user. Just brainstorming...
+Note: `_` denotes empty arguments
+
+* move [direction]
+	* move udlr
+* moveto [item]
+	* move to item on board if it exists and is reachable
+* pickup [item | _]
+	* move to location of `item` and pick it up
+	* default behavior: pick up item in same spot as player
+* jump [enemy | _]
+	* jump on enemy
+	* default behavior: jump in place
+* attack [enemy | _]
+	* attack enemy and move to its location
+	* default behavior : whip in current location
+	* NB. if player is holding something, use its attack instead (shotgun etc)
+* shoot [direction | enemy | _]
+	* direction: fire weapon in said direction
+	* enemy: fire at specific enemy
+	* default: shoot self, instant death
+	* NB. if player isn't holding a gun, does nothing. 
+* throw [direction]
+	* throw held item in any direction
+	* if held item doesn't exist, do nothing & print message
+* rope
+	* throw rope up
+* bomb [direction | _]
+	* bomb a wall in some direction & move to that location
+	* default behavior: bomb current location
+	* Goes off one round later
+* open chest
+	* if holding key, open gold chest
+	* if not, open any other chest in room
+
