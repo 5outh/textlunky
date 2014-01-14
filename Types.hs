@@ -56,15 +56,4 @@ data GameState = GameState{
   _area     :: Area  ,
   _room     :: Room  
 }
-
-makeLenses ''Player
-makeLenses ''Room
-makeLenses ''Level
-makeLenses ''GameState
-
--------------------- Default instances ---
-
------------ Universes ------------------
-  
------------ Show Instances ---------------
                                   

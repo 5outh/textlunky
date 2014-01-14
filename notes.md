@@ -95,6 +95,9 @@ Note: `_` denotes empty arguments
 	* if held item doesn't exist, do nothing & print message
 * rope
 	* throw rope up
+* climb [rope | ladder]
+	* climb rope or ladder
+	* default behaviour: climb rope or ladder if exists and is unambiguous
 * bomb [direction | _]
 	* bomb a wall in some direction & move to that location
 	* default behavior: bomb current location
@@ -102,4 +105,15 @@ Note: `_` denotes empty arguments
 * open chest
 	* if holding key, open gold chest
 	* if not, open any other chest in room
-
+* <cmd1> & <cmd2> & ... & <cmdn>
+	* Perform all commands on the same round, in succession.
+	* Cannot move from room more than once
+	* May impose a maximum on concurrent commands
+* exit
+	* move to exit square and exit the level
+	* NB. Only works if current room is exit room
+* drop
+	* if exit below exists, fall down to next level
+	* if not, do nothing
+* look [direction]
+	* if a room exists in direction, print out its description.
