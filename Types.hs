@@ -16,6 +16,8 @@ module Types (
     RoomType(..),
     LevelType(..),
     GameState(..),
+    TextlunkyCommand(..),
+    UserMoves(..),
     levelMessage,
     srt,
     showRelativeDirection,
@@ -41,6 +43,7 @@ import Types.GroundItem
 import Types.Entity
 import Types.Room
 import Types.Level
+import Types.TextlunkyCommand
 
 data Area = Mines
           | Jungle
