@@ -5,12 +5,12 @@ module Types.TextlunkyCommand(
   UserMoves
 ) where
 
-import Control.Monad.Free
+import Control.Monad.Trans.Free
+import Control.Monad.Identity
 import Types.Direction
 import Types.Enemy
 import Types.Entity
 
--- NB. Nothing => default behavior defined in notes.md
 data TextlunkyCommand a = 
     Move   Direction a
   | MoveTo Entity a
@@ -26,78 +26,84 @@ data TextlunkyCommand a =
   | Bomb (Maybe Direction) a
   | OpenGoldChest a
   | OpenChest a
-  | Concurrent (TextlunkyCommand a) a -- | &
   | ExitLevel a
   | DropDown a
   | Look Direction a
   | End
     deriving (Show, Eq, Functor)
 
+-- | i.e FreeT TextlunkyCommand Identity ()
 type UserMoves = Free TextlunkyCommand ()
 
 showCmd :: UserMoves -> String
-showCmd (Free (Move d x)) = 
+showCmd x = case runFree x of
+ (Free (Move d x)) -> 
   "You move " ++ show d ++ ".\n" ++ showCmd x
-showCmd (Free (MoveTo e x)) =
+ (Free (MoveTo e x)) ->
   "You move to the " ++ show e ++ ".\n" ++ showCmd x
-showCmd (Free (Pickup Nothing x)) = 
+ (Free (Pickup Nothing x)) -> 
   "There is nothing to pick up.\n" ++ showCmd x
-showCmd (Free (Pickup (Just e) x)) = 
+ (Free (Pickup (Just e) x)) -> 
   "You pick up a " ++ show e ++ ".\n" ++ showCmd x
-showCmd (Free (DropItem Nothing x)) =
+ (Free (DropItem Nothing x)) ->
   "You have nothing to drop.\n" ++ showCmd x  
-showCmd (Free (DropItem (Just e) x)) =
+ (Free (DropItem (Just e) x)) ->
   "You drop your " ++ show e ++ ".\n" ++ showCmd x
-showCmd (Free (Jump Nothing x)) =  
+ (Free (Jump Nothing x)) ->  
   "You jump in the air.\n" ++ showCmd x
-showCmd (Free (Jump (Just e) x)) =  
+ (Free (Jump (Just e) x)) ->  
   "You jump on a " ++ show e ++ ".\n" ++ showCmd x
-showCmd (Free (Attack Nothing x)) =  
+ (Free (Attack Nothing x)) ->  
   "You attack.\n" ++ showCmd x
-showCmd (Free (Attack (Just e) x)) = 
+ (Free (Attack (Just e) x)) -> 
   "You attack a " ++ show e ++ ".\n" ++ showCmd x
-showCmd (Free (ShootD d x)) =  
+ (Free (ShootD d x)) ->  
   "You shoot " ++ show d ++ ".\n" ++ showCmd x
-showCmd (Free (ShootE e x)) =  
+ (Free (ShootE e x)) ->  
   "You shoot a " ++  show e ++ ".\n" ++ showCmd x
-showCmd (Free (ShootSelf x)) = 
+ (Free (ShootSelf x)) -> 
   "You kill yourself.\n" ++ showCmd x
-showCmd (Free (Throw d x)) =  
+ (Free (Throw d x)) ->  
   "You throw your item " ++ show d ++ ".\n" ++ showCmd x
-showCmd (Free (Rope x)) =  
+ (Free (Rope x)) ->  
   "You throw a rope up.\n" ++ showCmd x
-showCmd (Free (Bomb Nothing x)) =  
+ (Free (Bomb Nothing x)) ->  
   "You place a bomb at your feet." ++ ".\n" ++ showCmd x
-showCmd (Free (Bomb (Just d) x)) =  
-  "You bomb the " ++ 
+ (Free (Bomb (Just d) x)) ->  
+  "You place a bomb " ++ 
     (case d of 
-      U -> "ceiling"
-      D -> "floor"
-      L -> "left wall"
-      R -> "right wall" )
+      U -> "on the ceiling" -- ??? lol
+      D -> "on the floor"
+      L -> "near the left wall"
+      R -> "near the right wall" )
   ++ ".\n" ++ showCmd x
-showCmd (Free (OpenGoldChest x)) =  
+ (Free (OpenGoldChest x)) ->  
   "You open the gold chest.\n" ++ showCmd x
-showCmd (Free (OpenChest x)) =  
+ (Free (OpenChest x)) ->  
   "You open a chest.\n" ++ showCmd x
--- we'll see!
-showCmd (Free (Concurrent t x)) =
-  showCmd (Free t) ++ showCmd x
-showCmd (Free (ExitLevel x)) =  
+ (Free (ExitLevel x)) ->  
   "You exit the level!\n" ++ showCmd x
-showCmd (Free (DropDown x)) =  
+ (Free (DropDown x)) ->  
   "You drop down to the next level.\n" ++ showCmd x
-showCmd (Free (Look d x)) =  
+ (Free (Look d x)) ->  
   "You look in the room " ++ show' d ++ ".\n" ++ showCmd x
   where show' U = "above you"
         show' D = "below you"
         show' L = "to your left"
         show' R = "to your right"
-showCmd (Free End) = ""
+ (Free End) -> "~~~~~~~~~~~~~~~~~~~~"
 
+-- PERHAPS THIS REPRESENTS A SINGLE ROUND.
+-- YES, I THINK SO.
+-- A typical round will parse into:
+-- round = do
+--   liftF action1
+--   liftF action2
+--   liftF ...
+--   liftF End
 sample :: UserMoves
 sample = do
-  liftF $ Concurrent End ()
+  liftF $ Bomb (Just D) ()
   liftF $ Look U ()
   liftF End
 
