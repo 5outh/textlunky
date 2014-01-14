@@ -32,11 +32,12 @@ data TextlunkyCommand a =
   | End
     deriving (Show, Eq, Functor)
 
+type Free f = FreeT f Identity 
 -- | i.e FreeT TextlunkyCommand Identity ()
 type UserMoves = Free TextlunkyCommand ()
 
 showCmd :: UserMoves -> String
-showCmd x = case runFree x of
+showCmd x = case runIdentity $ runFreeT x of
  (Free (Move d x)) -> 
   "You move " ++ show d ++ ".\n" ++ showCmd x
  (Free (MoveTo e x)) ->
