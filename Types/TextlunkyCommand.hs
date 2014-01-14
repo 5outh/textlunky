@@ -2,7 +2,10 @@
 
 module Types.TextlunkyCommand(
   TextlunkyCommand(..),
-  UserMoves
+  UserMoves,
+  showCmd,
+  --- for testing
+  sample
 ) where
 
 import Control.Monad.Trans.Free
@@ -36,7 +39,7 @@ type Free f = FreeT f Identity
 -- | i.e FreeT TextlunkyCommand Identity ()
 type UserMoves = Free TextlunkyCommand ()
 
-showCmd :: UserMoves -> String
+showCmd :: Free TextlunkyCommand () -> String
 showCmd x = case runIdentity $ runFreeT x of
  (Free (Move d x)) -> 
   "You move " ++ show d ++ ".\n" ++ showCmd x
@@ -102,7 +105,7 @@ showCmd x = case runIdentity $ runFreeT x of
 --   liftF action2
 --   liftF ...
 --   liftF End
-sample :: UserMoves
+sample :: Free TextlunkyCommand ()
 sample = do
   liftF $ Bomb (Just D) ()
   liftF $ Look U ()
