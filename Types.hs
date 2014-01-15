@@ -17,7 +17,6 @@ module Types (
     LevelType(..),
     GameState(..),
     TextlunkyCommand(..),
-    UserMoves(..),
     levelMessage,
     srt,
     showRelativeDirection,
