@@ -48,8 +48,15 @@ import Types.TextlunkyCommand
 
 data Area = Mines
           | Jungle
+          | BlackMarket
+          | JungleWorm
+          | HauntedCastle
           | IceCaves
+          | IceCavesWorm
+          | Mothership
           | Temple
+          | CityOfGold
+          | OlmecsLair
           | Hell
             deriving (Show, Eq)
 

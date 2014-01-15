@@ -26,7 +26,7 @@ testRoom =  rType    .~ KaliAltar
 
 gs :: GameState
 gs =   levelNum .~ 0
-     $ level    .~ (rooms .~ [((U, N, E), testRoom)] $ def)
+     $ level    .~ (rooms .~ [((U, N), testRoom)] $ def)
      $ area     .~ Mines
      $ room     .~ testRoom
      $ def :: GameState

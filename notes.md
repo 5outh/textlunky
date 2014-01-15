@@ -6,7 +6,10 @@
 * Condition: (mostly) nonexistent
 * Next steps:
   * Move random generators to appropriate `Types` modules
+    * Can include specialized generators (i.e. type of item depends on game area)
+    * Task size: small
   * Make use of a probability distribution monad for more control
+    * Task size: medium
 
 #### Game state modification
 
@@ -29,6 +32,7 @@
     * Task size: small
   * (maybe) Add visual component w/ Unicode
     * Task size: medium
+    
 #### Types
 
 * Condition: Mostly done (for the Mines)
@@ -147,3 +151,9 @@ Note: `_` denotes empty arguments
 	* if not, do nothing
 * look [direction]
 	* if a room exists in direction, print out its description.
+  
+## Wed, January 15th
+
+Question: How to differentiate "special" items from other items?
+* Can use a dynamic probability distribution to filter out "special" items.
+* For things like Hedjet, Udjat Eye, maybe modify player directly when fulfilling necessary actions

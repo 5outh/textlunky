@@ -17,7 +17,7 @@ data LevelType = NormalLevel
                  deriving (Enum, Eq)
                  
 data Level = Level{
-  _rooms :: [(Space, Room)],
+  _rooms :: [((Direction, Direction), Room)],
   _lType :: LevelType
 } 
 
