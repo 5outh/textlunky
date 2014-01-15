@@ -3,22 +3,47 @@
 ## Things
 #### Random generation
 
-* Condition: nonexistent
+* Condition: (mostly) nonexistent
+* Next steps:
+  * Move random generators to appropriate `Types` modules
+  * Make use of a probability distribution monad for more control
 
 #### Game state modification
 
 * Condition: nonexistent
+* Next steps:
+  * Program enemy AI
+    * Task size: large
+  * Allow player to interact with environment
+    * Task size: medium-large
+    * Switch rooms
+    * Complete levels
 
 #### Game viewing
 
 * Condition: Partially completed
-
+* Next steps:
+  * View adjacent rooms
+    * Task size: small
+  * Make player items affect ability to view items (spectacles, dark levels, etc)
+    * Task size: small
+  * (maybe) Add visual component w/ Unicode
+    * Task size: medium
 #### Types
 
 * Condition: Mostly done (for the Mines)
+* Next steps:
+  * Add more player items
+    * Task size: trivial
+  * Review what exists already and possibly refactor using a more appropriate design pattern. In particular, I don't really like `Entity`.
+    * Task size: ???
 
 #### Game Loop
-* Works!
+* Condition: Working
+* Next steps:
+  * Modularity (prompt, stepGame, interactGame to new modules, etc)
+    * Task size: ongoing, will be done in small chunks.
+  * Fill in steps (i.e everything mentioned above)
 
 ## Daily notes
 ### Pipeline
@@ -62,24 +87,6 @@ What happens when the game moves one tick?
   * Enemies can move and attack, potentially into the same spots (which is okay, actually)
   * Tiles may fall
   * **Actually, not that much. Mainly enemy movement.**
-  
-Psuedocode:
-
-```haskell
-main = do
-  seed <- genRandomSeed :: StdGen            -- get a global standard generator                  
-  startState <- getStartGameState seed       -- generate the starting game state (randomness necessary for random initial level)
-  flip runStateT startState $ gameLoop seed  -- Run the game, using the start state and seed
-
-gameLoop :: StdGen -> StateT GameState IO ()
-gameLoop gen = forever $ do
-  cmd <- lift getPlayerCommand                   -- get a player command
-  modify $ 
-  	(processCmd 
-  	 $ (liftF . parse) cmd :: Free CommandF () ) -- update full state based on player move
-  zoom level $ modify updateLevel                -- update level separately
-  modify updateState                             -- update full state
-```
 
 ## Mon, January 13th
 
