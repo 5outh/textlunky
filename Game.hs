@@ -18,6 +18,8 @@ import Control.Monad.Trans.State
 import Control.Monad.Identity
 import Types
 import Types.TextlunkyCommand
+import Control.Monad(forever)
+import Data.Char(toLower)
 
 -- | Borrowed from the MMorph documentation
 generalize :: (Monad m) => Identity a -> m a
@@ -33,10 +35,9 @@ interactGame = undefined
 stepGame :: GameState -> GameState
 stepGame = undefined
 
-
 -- | Show current room in GameState
 showRoom :: GameState -> IO ()
-showRoom = undefined
+showRoom = putStrLn . showGS
 
 -- |  What we wnat to do here is:
 -- |  0. Print a description of the room the player is in
@@ -47,24 +48,31 @@ showRoom = undefined
 -- |  5. Step the rest of the game (Modify the game state using 
 -- |     a function GameState -> GameState)
 -- |  6. Repeat.
+-- | (4.) done after unwrapping FreeT in textlunky.hs
 game :: StateT GameState (FreeT TextlunkyCommand IO) ()
-game = do
+game = forever $ do
   gs <- get
-  -- Show room (0.) will be implemented later, but it's easy:
-  lift . lift $ showRoom gs
-  lift prompt                   
-  -- Maybe can do: showTIO $ execStateT game g :: IO () instead (in main)
-  -- I am not sure though!
-  lift . lift $ showTIO prompt  -- (1. & 2. & 4.)
-  modify (interactGame prompt)  -- (3.) NB. Remember Player in GameState
-  modify stepGame               -- (5.)
+  lift . lift $ showRoom gs       -- (0.)
+  --modify (interactGame prompt)  -- (3.) NB. Remember Player in GameState
+  --modify stepGame               -- (5.)
+  lift prompt                     -- (1. & 2.)
 
 -- | For some reason this isn't picked up on the import
 type Free f = FreeT f Identity 
 
 -- | Build a command from user prompt
 prompt :: FreeT TextlunkyCommand IO ()
-prompt = undefined
+prompt = do
+  lift $ putStr "~~~~~~~~~~~~~~~\n> "
+  cmd <- lift getLine
+  case (map toLower cmd) of
+    "exit" -> do
+      liftF End
+      return ()
+    "rope" -> do 
+      liftF (Rope ())
+      return ()
+    _      -> lift $ putStrLn "Command not recognized (yet!)."
 
 -- | Print the execution of a user command
 showTIO :: FreeT TextlunkyCommand IO r -> IO ()
@@ -146,9 +154,7 @@ showTIO t = do
           show' x = "to your " ++ show x
       putStrLn $ "You look in the room " ++ show' d ++ ".\n" 
       showTIO x
-     (Free End) -> do
-        putStrLn $ "~~~~~~~~~~~~~~~~~~~~"
-        return ()
+     (Free End) -> return ()
 
 -- | Sample user command
 sample :: Free TextlunkyCommand ()

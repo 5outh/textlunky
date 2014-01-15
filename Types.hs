@@ -16,10 +16,13 @@ module Types (
     RoomType(..),
     LevelType(..),
     GameState(..),
+    Area(..),
     TextlunkyCommand(..),
     levelMessage,
     showRelativeDirection,
-    dirs
+    dirs,
+    -- | TESTING
+    showGS
 ) where
 
 import Data.Default
@@ -51,10 +54,16 @@ data Area = Mines
             deriving (Show, Eq)
 
 data GameState = GameState{
-  _player   :: Player,
   _levelNum :: Int   ,
   _level    :: Level ,
   _area     :: Area  ,
   _room     :: Room  
 }
-                                  
+
+instance Default GameState where
+  def = GameState 0 undefined Mines undefined
+            
+makeLenses ''GameState
+            
+-- | For testing only
+showGS = show . view room

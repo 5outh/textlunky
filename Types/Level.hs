@@ -24,6 +24,9 @@ data Level = Level{
 instance Universe LevelType where
   universe = enumFrom NormalLevel
 
+instance Default Level where
+  def = Level [] NormalLevel
+
 -- NB. Shows message upon entrance
 levelMessage :: LevelType -> String
 levelMessage t = case t of
