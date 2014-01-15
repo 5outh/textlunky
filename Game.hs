@@ -33,6 +33,11 @@ interactGame = undefined
 stepGame :: GameState -> GameState
 stepGame = undefined
 
+
+-- | Show current room in GameState
+showRoom :: GameState -> IO ()
+showRoom = undefined
+
 -- |  What we wnat to do here is:
 -- |  0. Print a description of the room the player is in
 -- |  1. Get input from the user (using the IO monad)
@@ -44,15 +49,17 @@ stepGame = undefined
 -- |  6. Repeat.
 game :: StateT GameState (FreeT TextlunkyCommand IO) ()
 game = do
-  gs <- get                     --get GameState...OK!
-  -- NB. show room (0.) will be implemented later, but it's easy
+  gs <- get
+  -- Show room (0.) will be implemented later, but it's easy:
+  lift . lift $ showRoom gs
   lift prompt                   
-  -- NB. Maybe can do: showTIO $ execStateT game g :: IO () instead (in main)
-  --     I am not sure though!
+  -- Maybe can do: showTIO $ execStateT game g :: IO () instead (in main)
+  -- I am not sure though!
   lift . lift $ showTIO prompt  -- (1. & 2. & 4.)
   modify (interactGame prompt)  -- (3.) NB. Remember Player in GameState
   modify stepGame               -- (5.)
 
+-- | For some reason this isn't picked up on the import
 type Free f = FreeT f Identity 
 
 -- | Build a command from user prompt
