@@ -21,21 +21,23 @@ import Types.TextlunkyCommand
 import Control.Monad(forever)
 import Data.Char(toLower)
 
--- | Borrowed from the MMorph documentation
-generalize :: (Monad m) => Identity a -> m a
-generalize = return . runIdentity
+-- | For some reason this isn't picked up on the import
+type Free f = FreeT f Identity 
 
 -- | Modify the game based on user command
+-- | TODO: implement
 interactGame ::  FreeT TextlunkyCommand IO () 
               -> GameState 
               -> GameState
-interactGame = undefined
+interactGame _ = id
 
 -- | Step game one round
+-- | TODO: implement
 stepGame :: GameState -> GameState
-stepGame = undefined
+stepGame = id
 
 -- | Show current room in GameState
+-- | TODO: improve
 showRoom :: GameState -> IO ()
 showRoom = putStrLn . showGS
 
@@ -52,13 +54,10 @@ showRoom = putStrLn . showGS
 game :: StateT GameState (FreeT TextlunkyCommand IO) ()
 game = forever $ do
   gs <- get
-  lift . lift $ showRoom gs       -- (0.)
-  --modify (interactGame prompt)  -- (3.) NB. Remember Player in GameState
-  --modify stepGame               -- (5.)
-  lift prompt                     -- (1. & 2.)
-
--- | For some reason this isn't picked up on the import
-type Free f = FreeT f Identity 
+  lift . lift $ showRoom gs     -- (0.)
+  modify (interactGame prompt)  -- (3.) NB. Remember Player in GameState
+  modify stepGame               -- (5.)
+  lift prompt                   -- (1. & 2.)
 
 -- | Build a command from user prompt
 prompt :: FreeT TextlunkyCommand IO ()
@@ -66,7 +65,7 @@ prompt = do
   lift $ putStr "~~~~~~~~~~~~~~~\n> "
   cmd <- lift getLine
   case (map toLower cmd) of
-    "exit" -> do
+    "quit" -> do
       liftF End
       return ()
     "rope" -> do 

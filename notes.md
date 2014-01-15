@@ -1,3 +1,25 @@
+#### Textlunky Notes
+
+### Things
+# Random generation
+
+* Condition: nonexistent
+
+# Game state modification
+
+* Condition: nonexistent
+
+# Game viewing
+
+* Condition: Partially completed
+
+# Types
+
+* Condition: Mostly done (for the Mines)
+
+# Game Loop
+* Works!
+ 
 ### Pipeline
 
 1. Generate random floor
