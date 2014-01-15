@@ -3,6 +3,11 @@
 ----
 
 module Game(
+  interactGame,
+  stepGame,
+  game,
+  prompt,
+  showTIO
 )
 
 where
@@ -19,7 +24,15 @@ import Control.Lens
 generalize :: (Monad m) => Identity a -> m a
 generalize = return . runIdentity
 
+-- | Modify the game based on user command
+interactGame ::  FreeT TextlunkyCommand IO () 
+              -> GameState 
+              -> GameState
+interactGame = undefined
 
+-- | Step game one round
+stepGame :: GameState -> GameState
+stepGame = undefined
 
 -- |  What we wnat to do here is:
 -- |  0. Print a description of the room the player is in
@@ -32,17 +45,22 @@ generalize = return . runIdentity
 -- |  6. Repeat.
 game :: StateT GameState (FreeT TextlunkyCommand IO) ()
 game = do
-  gs <- get                                       --get GameState...OK!
-  cmd <- lift $ hoistFreeT generalize sample      --lift Free command to FreeT...OK!
-  let t = hoistFreeT generalize sample :: FreeT TextlunkyCommand IO ()
-  lift . lift $ showTIO t
-  (lift . lift) $ putStrLn "hello world"          -- print stuff...OK!
-  modify (id :: GameState -> GameState)           -- modify gamestate...OK!
-  return ()                                       -- return ()...OK!
+  gs <- get                     --get GameState...OK!
+  -- NB. show room (0.) will be implemented later, but it's easy
+  lift prompt                   
+  -- NB. Maybe can do: showTIO $ execStateT game g :: IO () instead (in main)
+  --     I am not sure though!
+  lift . lift $ showTIO prompt  -- (1. & 2. & 4.)
+  modify (interactGame prompt)  -- (3.) NB. Remember Player in GameState
+  modify stepGame               -- (5.)
 
 type Free f = FreeT f Identity 
 
--- Show a command
+-- | Build a command from user prompt
+prompt :: FreeT TextlunkyCommand IO ()
+prompt = undefined
+
+-- | Print the execution of a user command
 showTIO :: FreeT TextlunkyCommand IO r -> IO ()
 showTIO t = do
   x <- runFreeT t
@@ -128,6 +146,7 @@ showTIO t = do
         putStrLn $ "~~~~~~~~~~~~~~~~~~~~"
         return ()
 
+-- | Sample user command
 sample :: Free TextlunkyCommand ()
 sample = do
   liftF $ Bomb (Just D) ()
