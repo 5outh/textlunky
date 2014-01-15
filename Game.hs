@@ -18,7 +18,6 @@ import Control.Monad.Trans.State
 import Control.Monad.Identity
 import Types
 import Types.TextlunkyCommand
-import Control.Lens
 
 -- | Borrowed from the MMorph documentation
 generalize :: (Monad m) => Identity a -> m a

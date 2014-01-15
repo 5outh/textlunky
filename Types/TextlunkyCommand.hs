@@ -4,8 +4,6 @@ module Types.TextlunkyCommand(
   TextlunkyCommand(..)
 ) where
 
-import Control.Monad.Trans.Free
-import Control.Monad.Identity
 import Types.Direction
 import Types.Enemy
 import Types.Entity
