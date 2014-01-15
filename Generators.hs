@@ -37,10 +37,10 @@ randomsFromList gen xs = evalState (randomsFromList' xs) gen
 
 {-- Direction Generators --}
 randomDir' :: State R.StdGen Direction
-randomDir' = randomFromList' [U, D, L, R, M]
+randomDir' = randomFromList' universe
 
 randomDirs' :: State R.StdGen [Direction]
-randomDirs' = randomsFromList' [U, D, L, R, M]
+randomDirs' = randomsFromList' universe
 
 randomDir :: R.StdGen -> Direction
 randomDir = evalState randomDir'

@@ -18,7 +18,6 @@ module Types (
     GameState(..),
     TextlunkyCommand(..),
     levelMessage,
-    srt,
     showRelativeDirection,
     dirs
 ) where

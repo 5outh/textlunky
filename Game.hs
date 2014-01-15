@@ -125,8 +125,7 @@ showTIO t = do
         (case d of 
           U -> "on the ceiling" -- ??? lol
           D -> "on the floor"
-          L -> "near the left wall"
-          R -> "near the right wall" )
+          x -> "near the " ++ show x ++ " wall")
         ++ ".\n"
       showTIO x
      (Free (OpenGoldChest x)) -> do
@@ -144,8 +143,7 @@ showTIO t = do
      (Free (Look d x)) -> do
       let show' U = "above you"
           show' D = "below you"
-          show' L = "to your left"
-          show' R = "to your right"
+          show' x = "to your " ++ show x
       putStrLn $ "You look in the room " ++ show' d ++ ".\n" 
       showTIO x
      (Free End) -> do

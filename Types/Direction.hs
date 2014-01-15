@@ -2,7 +2,6 @@ module Types.Direction(
   Direction(..),
   Space(..),
   dirs,
-  srt,
   showRelativeDirection
 )
 
@@ -12,39 +11,36 @@ import Data.Universe
 import Control.Applicative
 import Data.List(sort)
 
-data Direction = U  | D | M | L | R deriving (Bounded, Ord, Eq)
+data Direction = D | U | N | S | E | W | M  deriving (Bounded, Ord, Eq)
 
-type Space = (Direction, Direction)
+type Space = (Direction, Direction, Direction)
 
 instance Universe Direction where
-  universe = [U, D, L, R, M]
-  
-instance Show Direction where 
+  universe = [D, U, N, S, E, W, M]
+
+instance Show Direction where
+  show N = "north"
+  show S = "south"
+  show E = "east"
+  show W = "west"
+  show M = "middle"
   show U = "up"
   show D = "down"
-  show L = "left"
-  show R = "right"
-  show M = "middle"
 
 --NB. All block locations
-dirs :: [(Direction, Direction)]
-dirs = (,) <$> [L, R, M] <*> [M, U, D]  
-
--- NB. This is used in `showRelativeDirection`
-srt :: (Ord a) => (a, a) -> (a, a)
-srt (a, b) = let [a', b'] = sort [a, b] in (a', b')
+dirs :: [(Direction, Direction, Direction)]
+dirs = triple <$> [D, U] <*> [N, S, M] <*> [E, W, M]
+  where triple a b c = (a, b, c)
   
--- NB. We assume U, D will never be a thing, L, R will never be a thing. So x in {U, D, M}, y in {M, L, R} (ordered sets)
--- | Shows the direction of a space in a room (one of nine spaces)
+-- | Shows the direction of a space in a room (one of 18 spaces)
 showRelativeDirection :: Space -> String
-showRelative (M, M) = "dead center"
-showRelativeDirection a = h ++ " " ++ j
-  where (x, y) = srt a
-        h = case x of 
-            U -> "upper"
-            D -> "lower"
-            M -> "middle"
-        j = case y of 
-            L -> "left"
-            R -> "right"
-            M -> "middle"
+showRelativeDirection (M, M, D) = "dead center"
+showRelativeDirection (M, M, U) = "dead center: above"
+showRelativeDirection (du, nsm, ewm) = (++du') $  
+  case (nsm, ewm) of
+    (M, x) -> show x ++ " center"
+    (x, M) -> show x ++ " center"
+    _      -> show nsm ++ show ewm
+    where du' = case du of
+                  U -> ": above"
+                  _ -> ""
