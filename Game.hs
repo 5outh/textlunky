@@ -51,6 +51,8 @@ showRoom = putStrLn . showGS
 -- |     a function GameState -> GameState)
 -- |  6. Repeat.
 -- | (4.) done after unwrapping FreeT in textlunky.hs
+-- | NB. Surprisingly, this does not process `prompt` twice 
+--       even though it shows up in the declaration twice.
 game :: StateT GameState (FreeT TextlunkyCommand IO) ()
 game = forever $ do
   gs <- get
