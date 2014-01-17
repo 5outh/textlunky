@@ -157,3 +157,21 @@ Note: `_` denotes empty arguments
 Question: How to differentiate "special" items from other items?
 * Can use a dynamic probability distribution to filter out "special" items.
 * For things like Hedjet, Udjat Eye, maybe modify player directly when fulfilling necessary actions
+
+## Fri, January 17th
+
+I have changed the GameState to include the Player as an object outside of the internal level.
+The reason for this is that before, I would be processing the level in terms of itself(i.e. The game would run even without a player).
+Now, a player is *necessary* for the game to even run. Also, it's more intuitive to take two steps:
+  
+  1. Modify the level based on the player's actions
+  2. Modify the player based on the level's movements
+ 
+...instead of performing the single action of modifying the level based on...well, the current state of the level.
+
+This also allows us to take the actions from the `Free` monad and match them up to a *specific object*, not just something
+hiding in the declaration of the level. It's still part of the Game State, so we can modify it, but it's a more direct route to say
+"Let's modify the current player" than to say "Let's find the player in the level, then modify it using these rules."
+
+We're also insisting that each `GameState` has only *one* player, which is important. If I want to add multiplayer later on, it will be *up to 4-player co-op*,
+ and this model should allow for a reasonably easy extension to support such a game type.
