@@ -175,3 +175,8 @@ hiding in the declaration of the level. It's still part of the Game State, so we
 
 We're also insisting that each `GameState` has only *one* player, which is important. If I want to add multiplayer later on, it will be *up to 4-player co-op*,
  and this model should allow for a reasonably easy extension to support such a game type.
+ 
+-----
+
+Got rid of `Generators.hs` and started `Random.Tools` which implements everything I need, but more generally.
+Will add more specific generators later, especially ones that take into account a probability distribution for what to spawn.

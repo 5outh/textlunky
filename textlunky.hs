@@ -7,8 +7,8 @@ import Control.Monad.Trans.Free
 import Control.Monad.Trans.State
 import Control.Lens hiding (Level)
 import Types
-import Generators
 import Game
+import Random
 
 makeLenses ''Player
 makeLenses ''Room
