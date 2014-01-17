@@ -18,18 +18,19 @@ makeLenses ''GameState
 -- | A simple test room
 testRoom :: Room
 testRoom =  rType    .~ KaliAltar 
-          $ entities .~ [( (U, N, E) , Enemy' Spider ), ( (D, N, E), Player' p )] 
+          $ entities .~ [( (U, N, E) , Enemy' Spider )] 
           $ def :: Room
-  where p = holding .~ ( Just (GroundItem' PotEmpty) ) 
-          $ items   .~ [ClimbingGloves] 
-          $ def :: Player
 
 gs :: GameState
-gs =   levelNum .~ 0
+gs =   player   .~ plr
+     $ levelNum .~ 0
      $ level    .~ (rooms .~ [((U, N), testRoom)] $ def)
      $ area     .~ Mines
      $ room     .~ testRoom
      $ def :: GameState
+  where plr = holding .~ ( Just (GroundItem' PotEmpty) ) 
+            $ items   .~ [ClimbingGloves] 
+            $ def :: Player
 
 -- | showTIO shows user commands 
 -- | while game includes the prompt

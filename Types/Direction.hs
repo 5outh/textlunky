@@ -27,7 +27,7 @@ instance Show Direction where
   show U = "up"
   show D = "down"
 
---NB. All block locations
+-- | All possible block locations
 dirs :: [(Direction, Direction, Direction)]
 dirs = triple <$> [D, U] <*> [N, S, M] <*> [E, W, M]
   where triple a b c = (a, b, c)

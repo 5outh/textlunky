@@ -136,7 +136,7 @@ showTIO t = do
      (Free (Bomb (Just d) x)) -> do
       putStrLnP $ "You place a bomb " ++ 
         (case d of 
-          U -> "on the ceiling" -- ??? lol
+          U -> "on the ceiling" -- | only with paste...
           D -> "on the floor"
           x -> "near the " ++ show x ++ " wall")
         ++ ".\n"
