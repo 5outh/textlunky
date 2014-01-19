@@ -119,13 +119,13 @@ directionMap = M.fromList $ dirs >>= (uncurry map)
 -- | Associates unary operations with their corresponding free action
 unaryMap :: M.Map String (FreeT TextlunkyCommand Identity ())
 unaryMap = M.fromList $ unaries >>= (uncurry map)
-  where unaries = [ ((,liftF (ShootSelf ())), shootself         ),
-                    ((,liftF (Rope ()))     , rope              ),
-                    ((,liftF (OpenChest ())), open              ),
-                    ((,liftF (ExitLevel ())), leave             ),
-                    ((,liftF (DropDown ())) , dropDown          ),
+  where unaries = [ ((,liftF (ShootSelf ()))        , shootself ),
+                    ((,liftF (Rope ()))             , rope      ),
+                    ((,liftF (OpenChest ()))        , open      ),
+                    ((,liftF (ExitLevel ()))        , leave     ),
+                    ((,liftF (DropDown ()))         , dropDown  ),
                     ((,liftF (DropItem Nothing ())) , dropItem  ),
                     ((,liftF (Pickup Nothing ()))   , pickup    ),
                     ((,liftF (Jump Nothing ()))     , jump      ),
-                    ((,liftF (Attack Nothing ()))   , attack    )]
+                    ((,liftF (Attack Nothing ()))   , attack    ) ]
 
