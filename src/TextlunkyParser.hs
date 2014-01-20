@@ -16,45 +16,20 @@ import Control.Monad.Identity
 
 -- | Parse a string into a TextlunkyCommand
 
-{-
--- | Will want to encode each of these into a parse expr
--- | eg. liftF $ oneOf moves *> oneOf directions
-data TextlunkyCommand a = 
-    Move   Direction a
-  | MoveTo Entity a
-  | Pickup (Maybe Entity)  a
-  | DropItem (Maybe Entity) a
-  | Jump   (Maybe Enemy) a
-  | Attack (Maybe Enemy) a
-  | ShootD Direction a
-  | ShootE Enemy a
-  | ShootSelf a
-  | Throw Direction a
-  | Rope a
-  | Bomb (Maybe Direction) a
-  | OpenGoldChest a
-  | OpenChest a
-  | ExitLevel a
-  | DropDown a
-  | Look Direction a
-  | End
-    deriving (Show, Eq, Functor)
--}
-
 -- | - Bomb
 -- | 
 -- | Binary: 
--- | - Move
--- | - MoveTo
--- | - Pickup
--- | - DropItem
--- | - Jump
--- | - Attack
--- | - ShootD
--- | - ShootE
--- | - Throw
--- | - Bomb
--- | - Look 
+-- | - Move     - Direction
+-- | - Look     - Direction
+-- | - Throw    - Direction
+-- | - ShootD   - Direction
+-- | - MoveTo   - Entity
+-- | - Pickup   - (Maybe Entity)
+-- | - DropItem - (Maybe Entity)
+-- | - Jump     - (Maybe Enemy)
+-- | - Attack   - (Maybe Enemy)
+-- | - ShootE   - Enemy
+-- | - Bomb     - (Maybe Direction)
 
 move      = ["move", "m", "walk", "go", "mv"]
 moveTo    = ["move to", "go to", "mvto", "goto"]
