@@ -198,3 +198,19 @@ FreeT TextlunkyCommand (StateT GameState IO) ()
 in order to get the proper behavior...but that might not work either.
 
 In fact, it may be better to hold off on developing the game until I can get events working properly.
+=======
+## Sun, January 19th
+
+Some abstractions to implement in the next couple of days:
+
+1. Ladders can go up or down. I want to make this an explicit room quality -- A room can have an up ladder and/or a down ladder, and players will be able to move up or down without any specific tiles.
+
+2. Each room will have 4 walls associated with them. These walls will house items instead of having blocks with items in each room. Bombing a wall might yield an item, and udjat eye / specs will allow users to view "inside walls."
+
+3. (MAYBE) Add `Special` typeclass, a typeclass that allows certain elements of a `Universe` to be specified "Special" so as not to be randomly generated, but deliberately generated, i.e.
+  * Special Items (Udjat Eye, Necronomicon, Hedjet, Ankh)
+  * Special Walls (Vlad's Amulet, etc)
+  * Special Enemies (Vampires, etc)
+  * NOTE: This will allow us to say things like:
+    * If you are in the mines and the player doesn't have udjat eye, add the udjat eye and gold chest to the list of items to possibly generate
+    * If you are in a "Dead are restless" level, add vampires to the list of enemies to generate

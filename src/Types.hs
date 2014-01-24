@@ -7,6 +7,7 @@ module Types (
   module Types.Block                ,
   module Types.Enemy                ,
   module Types.GroundItem           ,
+  module Types.Wall                 ,
   module Types.Entity               ,
   module Types.Room                 ,
   module Types.Level                ,
@@ -23,6 +24,7 @@ import Types.Consumable
 import Types.Block
 import Types.Enemy
 import Types.GroundItem
+import Types.Wall
 import Types.Entity
 import Types.Room
 import Types.Level
