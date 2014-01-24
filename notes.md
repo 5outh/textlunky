@@ -180,3 +180,21 @@ We're also insisting that each `GameState` has only *one* player, which is impor
 
 Got rid of `Generators.hs` and started `Random.Tools` which implements everything I need, but more generally.
 Will add more specific generators later, especially ones that take into account a probability distribution for what to spawn.
+
+## Fri, January 24th
+
+I want to move (passive) Items held to itemData :: [(Bool, [Item])] where the items in the `True` list are held, and in the `False` list, not held. This will allow for easier choosing for the RNG.
+
+I'm hitting a wall with the current implementation. I can't show user actions failing and react to them. For example, if I want to pick up something, but nothing is there, I'd like to print out:
+
+"You try to pick something up, but nothing exists."
+
+but with the current implementation I can't do that, because each command is processed on its own after evaluating game state and doesn't have access to it. I may need to move the implementation to a 
+
+```haskell
+FreeT TextlunkyCommand (StateT GameState IO) ()
+```
+
+in order to get the proper behavior...but that might not work either.
+
+In fact, it may be better to hold off on developing the game until I can get events working properly.
