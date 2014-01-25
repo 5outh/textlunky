@@ -198,7 +198,7 @@ FreeT TextlunkyCommand (StateT GameState IO) ()
 in order to get the proper behavior...but that might not work either.
 
 In fact, it may be better to hold off on developing the game until I can get events working properly.
-=======
+
 ## Sun, January 19th
 
 Some abstractions to implement in the next couple of days:
