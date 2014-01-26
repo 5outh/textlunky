@@ -56,10 +56,10 @@ showRoom = putStrLn . showGS
 game :: StateT GameState (FreeT TextlunkyCommand IO) ()
 game = forever $ do
   gs <- get
-  lift . lift $ showRoom gs     -- (0.)
-  modify (interactGame prompt)  -- (3.) NB. Remember Player in GameState
-  modify stepGame               -- (5.)
-  lift prompt                   -- (1. & 2.)
+  lift . lift $ showRoom gs   
+  modify (interactGame prompt)
+  modify stepGame             
+  lift prompt                 
 
 -- | Build a command from user prompt
 prompt :: FreeT TextlunkyCommand IO ()
@@ -75,6 +75,50 @@ prompt = do
       return ()
     _      -> lift $ putStrLnP "Command not recognized (yet!)."
 
+{---- @FIX -------}
+
+game' :: FreeT TextlunkyCommand (StateT GameState IO) ()
+game' = do
+  prompt'        -- | Get a command
+  lift printRoom -- | Print current room
+  showCmd        -- | Show the current command based on state
+  interactGame'  -- | Update game based on commmand
+  lift stepGame' -- | Step the game
+
+prompt' :: FreeT TextlunkyCommand (StateT GameState IO) ()
+prompt' = do
+  lift . lift $ putStr "\n>"
+  cmd <- lift . lift $ getLine
+  case (map toLower cmd) of
+    "quit" -> do
+      liftF End
+    "rope" -> do
+      liftF (Rope ())
+    _ -> lift . lift $ putStrLnP "Command not recognized."
+
+printRoom :: StateT GameState IO ()
+printRoom = do
+  st <- get
+  lift . putStrLn $ showGS st
+
+-- get a command, modify the inner state based on it
+interactGame' :: FreeT TextlunkyCommand (StateT GameState IO) ()
+interactGame' = undefined
+
+-- step the game (irrelevant of command)
+stepGame' :: StateT GameState IO ()
+stepGame' = undefined
+
+-- show the command, in the context of current game state
+showCmd :: FreeT TextlunkyCommand (StateT GameState IO) ()
+showCmd  = undefined
+
+main' = do
+  let gs = undefined :: GameState
+  flip runStateT gs $ runFreeT game'
+  return ()
+
+{---- @ENDFIX ----}
 -- | Print a string with a prompt token prefix    
 putStrLnP = putStrLn . (token++)
   where token = ">> "
@@ -83,7 +127,7 @@ putStrLnP = putStrLn . (token++)
 showTIO :: FreeT TextlunkyCommand IO r -> IO ()
 showTIO t = do
   x <- runFreeT t
-  case x of 
+  case x of
      Pure _ -> return ()
      (Free (Move d x)) -> do
       putStrLnP $ "You move " ++ show d ++ ".\n"
