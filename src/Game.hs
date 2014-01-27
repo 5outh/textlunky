@@ -4,7 +4,9 @@ module Game(
   game,
   prompt,
   showCmd,
-  runGame
+  runGame,
+  Global,
+  Textlunky
 )
 
 where
@@ -19,7 +21,9 @@ import Control.Monad(forever)
 import Data.Char(toLower)
 
 -- | For some reason this isn't picked up on the import
-type Free f = FreeT f Identity 
+type Free f      = FreeT f Identity 
+type Global    s = StateT s IO
+type Textlunky r = FreeT TextlunkyCommand (Global GameState) r
 
 -- |  What we wnat to do here is:
 -- |  0. Print a description of the room the player is in
@@ -34,14 +38,15 @@ type Free f = FreeT f Identity
 -- | NB. Surprisingly, this does not process `prompt` twice 
 --       even though it shows up in the declaration twice.
 -- | Build a command from user prompt
-game :: FreeT TextlunkyCommand (StateT GameState IO) ()
+game :: Textlunky ()
 game = forever $ do
   lift printRoom -- | Print current room
   prompt         -- | Get a command
   interactGame   -- | Update game based on commmand
   lift stepGame  -- | Step the game
 
-prompt :: FreeT TextlunkyCommand (StateT GameState IO) ()
+-- build a textlunky command from the command line
+prompt :: Textlunky ()
 prompt = do
   lift . lift $ putStr "> "
   cmd <- lift . lift $ getLine
@@ -54,23 +59,23 @@ prompt = do
 
 -- | Show current room in GameState
 -- | TODO: improve
-printRoom :: StateT GameState IO ()
+printRoom :: Global GameState ()
 printRoom = do
   st <- get
   lift . putStrLn $ showGS st
 
 -- | Modify the game based on user command
 -- | TODO: implement
-interactGame :: FreeT TextlunkyCommand (StateT GameState IO) ()
+interactGame :: Textlunky ()
 interactGame = return ()
 
 -- | Step game one round
 -- | TODO: implement
-stepGame :: StateT GameState IO ()
+stepGame :: Global GameState ()
 stepGame = return ()
 
 -- Show a command with access to global state
-showCmd :: FreeT TextlunkyCommand (StateT GameState IO) () -> StateT GameState IO ()
+showCmd :: Textlunky () -> Global GameState ()
 showCmd t = do
   x  <- runFreeT t
   st <- get
@@ -83,7 +88,8 @@ showCmd t = do
       lift $ putStrLn "Goodbye!"
       return () -- end the game
 
-runGame gs = flip runStateT gs $ showCmd game
+runGame :: GameState -> IO ()
+runGame gs = flip evalStateT gs $ showCmd game
 
 {---- @ENDFIX ----}
 
