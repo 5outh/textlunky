@@ -22,8 +22,18 @@ import Data.Char(toLower)
 
 -- | For some reason this isn't picked up on the import
 type Free f      = FreeT f Identity 
+
+-- | Some type synonyms
 type Global    s = StateT s IO
 type Textlunky r = FreeT TextlunkyCommand (Global GameState) r
+
+-- | Print a string with a prompt token prefix    
+putStrLnP = putStrLn . (token++)
+  where token = ">> "
+
+-- | See below for details
+runGame :: GameState -> IO ()
+runGame gs = flip evalStateT gs $ showCmd game
 
 -- |  What we wnat to do here is:
 -- |  0. Print a description of the room the player is in
@@ -50,12 +60,16 @@ prompt :: Textlunky ()
 prompt = do
   lift . lift $ putStr "> "
   cmd <- lift . lift $ getLine
-  case (map toLower cmd) of
-    "quit" -> do
-      liftF End
-    "rope" -> do
-      liftF (Rope ())
-    _ -> prompt
+  case parseCmd (map toLower cmd) of
+    Just x -> x
+    _      -> prompt
+
+-- | NOTE: This will go in the parser module and will use
+-- |       Parsec for parsing, but kept simple for now
+parseCmd :: String -> Maybe (Textlunky ())
+parseCmd "quit" = Just $ liftF End
+parseCmd "rope" = Just $ liftF (Rope ())
+parseCmd _      = Nothing
 
 -- | Show current room in GameState
 -- | TODO: improve
@@ -80,111 +94,79 @@ showCmd t = do
   x  <- runFreeT t
   st <- get
   case x of
-    Pure _   -> return ()
-    Free (Rope a) -> do
-      lift $ putStrLnP "You throw a rope up!"
-      showCmd a
-    Free End -> do
-      lift $ putStrLn "Goodbye!"
-      return () -- end the game
-
-runGame :: GameState -> IO ()
-runGame gs = flip evalStateT gs $ showCmd game
-
-{---- @ENDFIX ----}
-
--- | Print a string with a prompt token prefix    
-putStrLnP = putStrLn . (token++)
-  where token = ">> "
-
--- @ DEPRECATED   
--- | Print the execution of a user command
-{-
-showTIO :: FreeT TextlunkyCommand IO r -> IO ()
-showTIO t = do
-  x <- runFreeT t
-  case x of
-     Pure _ -> return ()
-     (Free (Move d x)) -> do
-      putStrLnP $ "You move " ++ show d ++ ".\n"
-      showTIO x
-     (Free (MoveTo e x)) -> do
-      putStrLnP $ "You move to the " ++ show e ++ ".\n"
-      showTIO x
-     (Free (Pickup Nothing x)) -> do
-      putStrLnP $ "There is nothing to pick up.\n"
-      showTIO x
-     (Free (Pickup (Just e) x)) -> do
-      putStrLnP $ "You pick up a " ++ show e ++ ".\n"
-      showTIO x
-     (Free (DropItem Nothing x)) -> do
-      putStrLnP $ "You have nothing to drop.\n"
-      showTIO x  
-     (Free (DropItem (Just e) x)) -> do
-      putStrLnP $ "You drop your " ++ show e ++ ".\n"
-      showTIO x
-     (Free (Jump Nothing x)) -> do
-      putStrLnP $ "You jump in the air.\n"
-      showTIO x
-     (Free (Jump (Just e) x)) -> do
-      putStrLnP $ "You jump on a " ++ show e ++ ".\n"
-      showTIO x 
-     (Free (Attack Nothing x)) -> do
-      putStrLnP $ "You attack.\n"
-      showTIO x
-     (Free (Attack (Just e) x)) -> do
-      putStrLnP $ "You attack a " ++ show e ++ ".\n"
-      showTIO x
-     (Free (ShootD d x)) -> do
-      putStrLnP $ "You shoot " ++ show d ++ ".\n"
-      showTIO x 
-     (Free (ShootE e x)) -> do
-      putStrLnP $ "You shoot a " ++  show e ++ ".\n"
-      showTIO x 
-     (Free (ShootSelf x)) -> do
-      putStrLnP $ "You kill yourself.\n"
-      showTIO x
-     (Free (Throw d x)) -> do
-      putStrLnP $ "You throw your item " ++ show d ++ ".\n"
-      showTIO x 
-     (Free (Rope x)) -> do
-      putStrLnP $ "You toss a rope up.\n"
-      showTIO x 
-     (Free (Bomb Nothing x)) -> do
-      putStrLnP $ "You place a bomb at your feet." ++ ".\n"
-      showTIO x 
-     (Free (Bomb (Just d) x)) -> do
-      putStrLnP $ "You place a bomb " ++ 
-        (case d of 
-          U -> "on the ceiling" -- | only with paste...
-          D -> "on the floor"
-          x -> "near the " ++ show x ++ " wall")
-        ++ ".\n"
-      showTIO x
-     (Free (OpenGoldChest x)) -> do
-      putStrLnP $ "You open the gold chest.\n" 
-      showTIO x
-     (Free (OpenChest x)) -> do
-      putStrLnP $ "You open a chest.\n"
-      showTIO x 
-     (Free (ExitLevel x)) -> do
-      putStrLnP $ "You exit the level!\n"
-      showTIO x
-     (Free (DropDown x)) -> do
-      putStrLnP $ "You drop down to the next level.\n"
-      showTIO x 
-     (Free (Look d x)) -> do
-      let show' U = "above you"
-          show' D = "below you"
-          show' x = "to your " ++ show x
-      putStrLnP $ "You look in the room " ++ show' d ++ ".\n" 
-      showTIO x
-     (Free End) -> putStrLnP "Goodbye!" >> return ()
-
--- | Sample user command
-sample :: Free TextlunkyCommand ()
-sample = do
-  liftF $ Bomb (Just D) ()
-  liftF $ Look U ()
-  liftF End
--}
+    Pure _ -> return ()
+    (Free (Move d x)) -> do
+     lift $ putStrLnP $ "You move " ++ show d ++ ".\n"
+     showCmd x
+    (Free (MoveTo e x)) -> do
+     lift $ putStrLnP $ "You move to the " ++ show e ++ ".\n"
+     showCmd x
+    (Free (Pickup Nothing x)) -> do
+     lift $ putStrLnP $ "There is nothing to pick up.\n"
+     showCmd x
+    (Free (Pickup (Just e) x)) -> do
+     lift $ putStrLnP $ "You pick up a " ++ show e ++ ".\n"
+     showCmd x
+    (Free (DropItem Nothing x)) -> do
+     lift $ putStrLnP $ "You have nothing to drop.\n"
+     showCmd x  
+    (Free (DropItem (Just e) x)) -> do
+     lift $ putStrLnP $ "You drop your " ++ show e ++ ".\n"
+     showCmd x
+    (Free (Jump Nothing x)) -> do
+     lift $ putStrLnP $ "You jump in the air.\n"
+     showCmd x
+    (Free (Jump (Just e) x)) -> do
+     lift $ putStrLnP $ "You jump on a " ++ show e ++ ".\n"
+     showCmd x 
+    (Free (Attack Nothing x)) -> do
+     lift $ putStrLnP $ "You attack.\n"
+     showCmd x
+    (Free (Attack (Just e) x)) -> do
+     lift $ putStrLnP $ "You attack a " ++ show e ++ ".\n"
+     showCmd x
+    (Free (ShootD d x)) -> do
+     lift $ putStrLnP $ "You shoot " ++ show d ++ ".\n"
+     showCmd x 
+    (Free (ShootE e x)) -> do
+     lift $ putStrLnP $ "You shoot a " ++  show e ++ ".\n"
+     showCmd x 
+    (Free (ShootSelf x)) -> do
+     lift $ putStrLnP $ "You kill yourself.\n"
+     showCmd x
+    (Free (Throw d x)) -> do
+     lift $ putStrLnP $ "You throw your item " ++ show d ++ ".\n"
+     showCmd x 
+    (Free (Rope x)) -> do
+     lift $ putStrLnP $ "You toss a rope up.\n"
+     showCmd x 
+    (Free (Bomb Nothing x)) -> do
+     lift $ putStrLnP $ "You place a bomb at your feet." ++ ".\n"
+     showCmd x 
+    (Free (Bomb (Just d) x)) -> do
+     lift $ putStrLnP $ "You place a bomb " ++ 
+       (case d of 
+         U -> "on the ceiling" -- | only with paste...
+         D -> "on the floor"
+         x -> "near the " ++ show x ++ " wall")
+       ++ ".\n"
+     showCmd x
+    (Free (OpenGoldChest x)) -> do
+     lift $ putStrLnP $ "You open the gold chest.\n" 
+     showCmd x
+    (Free (OpenChest x)) -> do
+     lift $ putStrLnP $ "You open a chest.\n"
+     showCmd x 
+    (Free (ExitLevel x)) -> do
+     lift $ putStrLnP $ "You exit the level!\n"
+     showCmd x
+    (Free (DropDown x)) -> do
+     lift $ putStrLnP $ "You drop down to the next level.\n"
+     showCmd x 
+    (Free (Look d x)) -> do
+     let show' U = "above you"
+         show' D = "below you"
+         show' x = "to your " ++ show x
+     lift $ putStrLnP $ "You look in the room " ++ show' d ++ ".\n" 
+     showCmd x
+    (Free End) -> lift $ putStrLnP "Goodbye!" >> return ()
