@@ -1,13 +1,10 @@
-----
--- The main game pipeline, defines flow of control
-----
-
 module Game(
   interactGame,
   stepGame,
   game,
   prompt,
-  showTIO
+  showCmd,
+  runGame
 )
 
 where
@@ -24,23 +21,6 @@ import Data.Char(toLower)
 -- | For some reason this isn't picked up on the import
 type Free f = FreeT f Identity 
 
--- | Modify the game based on user command
--- | TODO: implement
-interactGame ::  FreeT TextlunkyCommand IO () 
-              -> GameState 
-              -> GameState
-interactGame _ = id
-
--- | Step game one round
--- | TODO: implement
-stepGame :: GameState -> GameState
-stepGame = id
-
--- | Show current room in GameState
--- | TODO: improve
-showRoom :: GameState -> IO ()
-showRoom = putStrLn . showGS
-
 -- |  What we wnat to do here is:
 -- |  0. Print a description of the room the player is in
 -- |  1. Get input from the user (using the IO monad)
@@ -53,77 +33,67 @@ showRoom = putStrLn . showGS
 -- | (4.) done after unwrapping FreeT in textlunky.hs
 -- | NB. Surprisingly, this does not process `prompt` twice 
 --       even though it shows up in the declaration twice.
-game :: StateT GameState (FreeT TextlunkyCommand IO) ()
-game = forever $ do
-  gs <- get
-  lift . lift $ showRoom gs   
-  modify (interactGame prompt)
-  modify stepGame             
-  lift prompt                 
-
 -- | Build a command from user prompt
-prompt :: FreeT TextlunkyCommand IO ()
-prompt = do
-  lift $ putStr "\n> "
-  cmd <- lift getLine
-  case (map toLower cmd) of
-    "quit" -> do
-      liftF End
-      return ()
-    "rope" -> do 
-      liftF (Rope ())
-      return ()
-    _      -> lift $ putStrLnP "Command not recognized (yet!)."
-
-{---- @FIX -------}
-
-game' :: FreeT TextlunkyCommand (StateT GameState IO) ()
-game' = do
-  prompt'        -- | Get a command
+game :: FreeT TextlunkyCommand (StateT GameState IO) ()
+game = forever $ do
   lift printRoom -- | Print current room
-  showCmd        -- | Show the current command based on state
-  interactGame'  -- | Update game based on commmand
-  lift stepGame' -- | Step the game
+  prompt         -- | Get a command
+  interactGame   -- | Update game based on commmand
+  lift stepGame  -- | Step the game
 
-prompt' :: FreeT TextlunkyCommand (StateT GameState IO) ()
-prompt' = do
-  lift . lift $ putStr "\n>"
+prompt :: FreeT TextlunkyCommand (StateT GameState IO) ()
+prompt = do
+  lift . lift $ putStr "> "
   cmd <- lift . lift $ getLine
   case (map toLower cmd) of
     "quit" -> do
       liftF End
     "rope" -> do
       liftF (Rope ())
-    _ -> lift . lift $ putStrLnP "Command not recognized."
+    _ -> prompt
 
+-- | Show current room in GameState
+-- | TODO: improve
 printRoom :: StateT GameState IO ()
 printRoom = do
   st <- get
   lift . putStrLn $ showGS st
 
--- get a command, modify the inner state based on it
-interactGame' :: FreeT TextlunkyCommand (StateT GameState IO) ()
-interactGame' = undefined
+-- | Modify the game based on user command
+-- | TODO: implement
+interactGame :: FreeT TextlunkyCommand (StateT GameState IO) ()
+interactGame = return ()
 
--- step the game (irrelevant of command)
-stepGame' :: StateT GameState IO ()
-stepGame' = undefined
+-- | Step game one round
+-- | TODO: implement
+stepGame :: StateT GameState IO ()
+stepGame = return ()
 
--- show the command, in the context of current game state
-showCmd :: FreeT TextlunkyCommand (StateT GameState IO) ()
-showCmd  = undefined
+-- Show a command with access to global state
+showCmd :: FreeT TextlunkyCommand (StateT GameState IO) () -> StateT GameState IO ()
+showCmd t = do
+  x  <- runFreeT t
+  st <- get
+  case x of
+    Pure _   -> return ()
+    Free (Rope a) -> do
+      lift $ putStrLnP "You throw a rope up!"
+      showCmd a
+    Free End -> do
+      lift $ putStrLn "Goodbye!"
+      return () -- end the game
 
-main' = do
-  let gs = undefined :: GameState
-  flip runStateT gs $ runFreeT game'
-  return ()
+runGame gs = flip runStateT gs $ showCmd game
 
 {---- @ENDFIX ----}
+
 -- | Print a string with a prompt token prefix    
 putStrLnP = putStrLn . (token++)
   where token = ">> "
-  
+
+-- @ DEPRECATED   
 -- | Print the execution of a user command
+{-
 showTIO :: FreeT TextlunkyCommand IO r -> IO ()
 showTIO t = do
   x <- runFreeT t
@@ -211,3 +181,4 @@ sample = do
   liftF $ Bomb (Just D) ()
   liftF $ Look U ()
   liftF End
+-}
