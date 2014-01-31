@@ -9,13 +9,19 @@ module Random.Probability(
   stRand,
   evalStRand,
   runStRand,
-  execStRand
+  execStRand,
+  uniform,
+  fromUniverse,
+  module Control.Monad.Random
 ) where
 
 import Data.Ratio
 import Control.Monad.State
 import Control.Monad.Random
+import Data.Universe
 
+-- | run a stateful random computation
+-- | note: I think all of this crap is unnecessary
 stRand :: (RandomGen g) => Rand g Coin -> State g Coin
 stRand rand = do
   g <- get
@@ -31,6 +37,14 @@ runStRand g rand = runState (stRand rand) g
 
 execStRand :: (RandomGen g) => g -> Rand g Coin -> g
 execStRand g rand = execState (stRand rand) g
+
+
+-- | This crap is useful, though.
+uniform :: (RandomGen g) => [a] -> Rand g a
+uniform = fromList . fmap (flip (,) 1)
+
+fromUniverse :: (RandomGen g, Universe a) => Rand g a
+fromUniverse = uniform universe
 
 -- | Coin example
 
