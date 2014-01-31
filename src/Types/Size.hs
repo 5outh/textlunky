@@ -1,10 +1,12 @@
 module Types.Size(
-  Size(..)
+  Size(..),
+  randSize
 )
 
 where
 
 import Data.Universe
+import Random.Probability
 
 data Size = Small | Large deriving (Enum, Eq)
 
@@ -14,3 +16,6 @@ instance Show Size where
 
 instance Universe Size where
   universe = [Small, Large]
+
+randSize :: (MonadRandom m) => m Size
+randSize = fromUniverse

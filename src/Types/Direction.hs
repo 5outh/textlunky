@@ -2,10 +2,13 @@ module Types.Direction(
   Direction(..),
   Space(..),
   dirs,
-  showRelativeDirection
-)
-
-where
+  showRelativeDirection,
+  randNSEW,
+  randUD,
+  randUDM,
+  randDir,
+  randSpace
+) where
 
 import Data.Universe
 import Control.Applicative
@@ -46,13 +49,15 @@ showRelativeDirection (du, nsm, ewm) = (++du') $
                   U -> ": above"
                   _ -> ""
 
+-- | Random Generation
+
 -- Simple random direction generators (all uniform)
-randNSEW, randUD, randUDM, randDir :: (RandomGen g) => Rand g Direction
+randNSEW, randUD, randUDM, randDir :: (MonadRandom m) => m Direction
 randNSEW  = uniform [N, S, E, W]
 randUD    = uniform [U, D]
 randUDM   = uniform [U, D, M]
 randDir   = fromUniverse
 
 -- Random space generator
-randSpace :: (RandomGen g) => Rand g Space
+randSpace :: (MonadRandom m) => m Space
 randSpace = uniform dirs

@@ -11,6 +11,7 @@ module Random.Probability(
   runStRand,
   execStRand,
   uniform,
+  withWeight,
   fromUniverse,
   module Control.Monad.Random
 ) where
@@ -40,21 +41,23 @@ execStRand g rand = execState (stRand rand) g
 
 
 -- | This crap is useful, though.
-uniform :: (RandomGen g) => [a] -> Rand g a
+uniform :: (MonadRandom m) => [a] -> m a
 uniform = fromList . fmap (flip (,) 1)
 
-fromUniverse :: (RandomGen g, Universe a) => Rand g a
+withWeight :: Rational -> [a] -> [(a, Rational)]
+withWeight n = fmap (flip (,) n)
+
+fromUniverse :: (MonadRandom m, Universe a) => m a
 fromUniverse = uniform universe
 
 -- | Coin example
-
 data Coin = Heads | Tails deriving (Show, Eq)
 
-coinR :: (RandomGen g) => Rand g Coin
+coinR :: (MonadRandom m) => m Coin
 coinR = fromList [(Heads, 1), (Tails, 1)]
 
-coinsR :: (RandomGen g) => Int -> Rand g [Coin]
-coinsR n = sequence (replicate n coinR)
+coinsR :: (MonadRandom m) => Int -> m [Coin]
+coinsR n = replicateM n coinR
 
 runCoins :: (RandomGen g) => Int -> State g [Coin]
 runCoins n = replicateM n (stRand coinR)

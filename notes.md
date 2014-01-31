@@ -214,3 +214,19 @@ Some abstractions to implement in the next couple of days:
   * NOTE: This will allow us to say things like:
     * If you are in the mines and the player doesn't have udjat eye, add the udjat eye and gold chest to the list of items to possibly generate
     * If you are in a "Dead are restless" level, add vampires to the list of enemies to generate
+
+## Friday, January 31
+
+Started using `Control.Monad.Random` to handle random values based on probability distributions. It's extremely easy. It's possible to build up complex structures based on smaller random computations. For example, this works (of course it does, because monads!):
+
+```haskell
+test :: (RandomGen g) => Rand g String
+test = do
+  a <- uniform [1, 2, 3]
+  b <- uniform "abc"
+  return $ b : show a
+```
+
+Because this is the case, we can define a bunch of probability distributions for each piece of the game and mold them all together to generate the entire thing...all very easily. Cool.
+
+Note: Can change the above type signature to `test :: MonadRandom m => m String`. This allows ghci prompts to not have to use an StdGen in order to evaluate; you can just type in `test` and it'll spit out a random number. This generality is excellent for testing and also (I'm assuming) allows for more flexibility in the types. Use `MonadRandom` where possible.
