@@ -10,6 +10,7 @@ where
 import Data.Universe
 import Control.Applicative
 import Data.List(sort)
+import Random.Probability
 
 data Direction = D | U | N | S | E | W | M  deriving (Bounded, Ord, Eq)
 
@@ -28,7 +29,7 @@ instance Show Direction where
   show D = "down"
 
 -- | All possible block locations
-dirs :: [(Direction, Direction, Direction)]
+dirs :: [Space]
 dirs = triple <$> [D, U] <*> [N, S, M] <*> [E, W, M]
   where triple a b c = (a, b, c)
   
@@ -44,3 +45,14 @@ showRelativeDirection (du, nsm, ewm) = (++du') $
     where du' = case du of
                   U -> ": above"
                   _ -> ""
+
+-- Simple random direction generators (all uniform)
+randNSEW, randUD, randUDM, randDir :: (RandomGen g) => Rand g Direction
+randNSEW  = uniform [N, S, E, W]
+randUD    = uniform [U, D]
+randUDM   = uniform [U, D, M]
+randDir   = fromUniverse
+
+-- Random space generator
+randSpace :: (RandomGen g) => Rand g Space
+randSpace = uniform dirs
