@@ -45,9 +45,15 @@ innards (JewelWall j)      = "a " ++ show j
 innards (ItemWall  i)      = show i
 innards (ConsumableWall c) = "a " ++ show c
 
+-- 'n' for normal
+-- 'g' for gold
+-- 'j' for jewel
+-- 'i' for item
+-- 'c' for consumable
+-- mostly normal and gold walls
 randWall :: MonadRandom m => m Wall
 randWall = do
-  t <- fromList [('n', 20), ('g', 5), ('j', 3), ('i', 1), ('c', 1)]
+  t <- fromList [('n', 30), ('g', 10), ('j', 5), ('i', 1), ('c', 2)]
   case t of 
     'n' -> return NormalWall
     'g' -> randSize       >>= (return . GoldWall      )

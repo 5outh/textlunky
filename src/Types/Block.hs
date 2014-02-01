@@ -9,10 +9,9 @@ import Types.Size
 import Types.Item
 import Types.Jewel
 import Types.Consumable
+import Random.Probability
 
-data Block =   Dirt
-             | CrushBlock
-             | Spikes
+data Block =   Spikes
              | PowderKeg
              | Web 
              | Exit
@@ -20,16 +19,21 @@ data Block =   Dirt
                deriving Eq
 
 instance Show Block where
-  show Dirt                = "some dirt"
-  show CrushBlock          = "a crushing block"
-  show Spikes              = "some spikes"
+  show Spikes              = "a spike pit"
   show (ArrowTrap f)       = "an arrowtrap"
-  show PowderKeg           = "a powderkeg"
+  show PowderKeg           = "an exploding block of dynamite"
   show Web                 = "a spider web"
   show Exit                = "the exit"
   
 instance Universe Block where
   universe = (consts++) $ ArrowTrap <$> bs
-   where consts = [Dirt, CrushBlock, Spikes, PowderKeg, Web, Exit, ArrowTrap True]
+   where consts = [Spikes, PowderKeg, Web, Exit]
          bs     = [True, False]
 
+-- I'm not convinced the other things are necessary.
+-- CrushBlocks can be removed probably,
+-- Dirt is sort of contained in Walls now,
+-- and Exit is special...
+-- For now this seems good.
+randMinesBlock :: MonadRandom m => m Block
+randMinesBlock = uniform [PowderKeg, Web, Spikes, ArrowTrap False]

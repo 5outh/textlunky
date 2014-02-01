@@ -234,3 +234,5 @@ Note: Can change the above type signature to `test :: MonadRandom m => m String`
 ## Saturday, February 1
 
 Still we can use `evalRand someRandomFunc g` to get straight values back (unwrap the monad). When testing, can use the above method, but in practice we'll need to do it this way.
+
+I've removed `Dirt` and `CrushBlock` from the equation. I think they're sort of unnecessary with `Wall`s being what they are now. Perhaps I can make a `CrushWall` type in order to keep the same behavior later on.
