@@ -1,7 +1,7 @@
 module Types.Consumable(
   Consumable(..),
   randConsumable,
-  randBomb
+  randBombItem
 ) where
 
 import Data.Universe
@@ -27,5 +27,5 @@ randConsumable = fromList $
   ++ withWeight 1 [BombBox]
 
 -- Mainly for bomb shops, uniform bomb item
-randBomb :: MonadRandom m => m Consumable
-randBomb = uniform [BombBag, BombBox]
+randBombItem :: MonadRandom m => m Consumable
+randBombItem = uniform [BombBag, BombBox]

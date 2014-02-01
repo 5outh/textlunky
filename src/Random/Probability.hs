@@ -39,7 +39,6 @@ runStRand g rand = runState (stRand rand) g
 execStRand :: (RandomGen g) => g -> Rand g Coin -> g
 execStRand g rand = execState (stRand rand) g
 
-
 -- | This crap is useful, though.
 uniform :: (MonadRandom m) => [a] -> m a
 uniform = fromList . fmap (flip (,) 1)

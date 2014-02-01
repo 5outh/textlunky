@@ -9,11 +9,12 @@ import Types.Size
 import Types.Jewel
 import Types.Item
 import Types.Consumable
+import Random.Probability
 
 data Wall = NormalWall
-          | GoldWall Size
-          | JewelWall Jewel
-          | ItemWall Item
+          | GoldWall       Size
+          | JewelWall      Jewel
+          | ItemWall       Item
           | ConsumableWall Consumable
             deriving Eq
 

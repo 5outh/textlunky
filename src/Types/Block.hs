@@ -32,3 +32,4 @@ instance Universe Block where
   universe = (consts++) $ ArrowTrap <$> bs
    where consts = [Dirt, CrushBlock, Spikes, PowderKeg, Web, Exit, ArrowTrap True]
          bs     = [True, False]
+
