@@ -61,10 +61,10 @@ randItem = fromList $
 
 -- Get a random item from Kali based on what the Player has already
 -- If the player has all of the kali items, just pick one at random.
+-- TODO(maybe): This is a little redundant given the above, maybe refactor later.
 randKaliItem :: MonadRandom m => [Item] -> m Item
 randKaliItem itms = if null xs then randItem else fromList xs
   where xs = withWeight 1 ([Jetpack] \\ itms) 
           ++ withWeight 2 ([Cape] \\ itms)
           ++ withWeight 5 ([ClimbingGloves, PitchersMitt, SpikeShoes, SpringShoes] \\ itms)
           ++ withWeight 8 ([Paste, Compass, Spectacles] \\ itms)
-

@@ -1,5 +1,7 @@
 module Types.Wall(
-  Wall(..)
+  Wall(..),
+  innards,
+  randWall
 ) where
 
 import Control.Applicative
@@ -19,11 +21,8 @@ data Wall = NormalWall
             deriving Eq
 
 instance Show Wall where
-  show NormalWall         = "a wall"
-  show (GoldWall  s)      = "a wall with a " ++ show s ++ " chunk of gold in it"
-  show (JewelWall j)      = "a wall with a " ++ show j ++ " in it"
-  show (ItemWall  i)      = "a wall with "   ++ show i ++ " in it"
-  show (ConsumableWall c) = "a wall with a " ++ show c ++ " in it"
+  show NormalWall = "a wall"
+  show w          = "a wall with " ++ innards w ++ " in it."
 
 instance Default Wall where
   def = NormalWall
@@ -38,3 +37,21 @@ instance Universe Wall where
          js    = universe :: [Jewel]
          items = universe :: [Item]
          cs    = universe :: [Consumable]
+
+innards :: Wall -> String
+innards NormalWall         = ""
+innards (GoldWall  s)      = "a " ++ show s ++ " chunk of gold" 
+innards (JewelWall j)      = "a " ++ show j
+innards (ItemWall  i)      = show i
+innards (ConsumableWall c) = "a " ++ show c
+
+randWall :: MonadRandom m => m Wall
+randWall = do
+  t <- fromList [('n', 20), ('g', 5), ('j', 3), ('i', 1), ('c', 1)]
+  case t of 
+    'n' -> return NormalWall
+    'g' -> randSize       >>= (return . GoldWall      )
+    'j' -> randJewel      >>= (return . JewelWall     )
+    'i' -> randItem       >>= (return . ItemWall      )
+    'c' -> randConsumable >>= (return . ConsumableWall)
+    _   -> error "The impossible happened! Nothing was chosen."
