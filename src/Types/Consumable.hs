@@ -1,8 +1,11 @@
 module Types.Consumable(
-  Consumable(..)
+  Consumable(..),
+  randConsumable,
+  randBomb
 ) where
 
 import Data.Universe
+import Random.Probability
 
 data Consumable = BombBag 
                 | RopePile 
@@ -16,4 +19,13 @@ instance Show Consumable where
   show BombBag  = "bomb bag"
   show BombBox  = "bomb box"
   show RopePile = "rope pile"
-  
+
+-- 4:1 ratio between bag/pile and boxes
+randConsumable :: MonadRandom m => m Consumable
+randConsumable = fromList $ 
+     withWeight 4 [BombBag, RopePile]
+  ++ withWeight 1 [BombBox]
+
+-- Mainly for bomb shops, uniform bomb item
+randBomb :: MonadRandom m => m Consumable
+randBomb = uniform [BombBag, BombBox]

@@ -60,7 +60,8 @@ executable textlunky
                   data-default == 0.5.*,
                   random == 1.*,
                   mtl == 2.1.*,
-                  free < 4
+                  free < 4,
+                  monadrandom 1.*
 
   -- Directories containing source files.
   hs-source-dirs:      src

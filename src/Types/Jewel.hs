@@ -46,6 +46,6 @@ randSmallJewel = uniform smallJewels
 mostlySmall :: (MonadRandom m) => m Jewel
 mostlySmall = fromList . concat $ zipWith withWeight [3, 1] [smallJewels, largeJewels]
 
--- | For completeness
+-- | For completeness, I guess
 mostlyLarge :: (MonadRandom m) => m Jewel
 mostlyLarge = fromList . concat $ zipWith withWeight [1, 3] [smallJewels, largeJewels]

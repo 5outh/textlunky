@@ -230,3 +230,7 @@ test = do
 Because this is the case, we can define a bunch of probability distributions for each piece of the game and mold them all together to generate the entire thing...all very easily. Cool.
 
 Note: Can change the above type signature to `test :: MonadRandom m => m String`. This allows ghci prompts to not have to use an StdGen in order to evaluate; you can just type in `test` and it'll spit out a random number. This generality is excellent for testing and also (I'm assuming) allows for more flexibility in the types. Use `MonadRandom` where possible.
+
+## Saturday, February 1
+
+Still we can use `evalRand someRandomFunc g` to get straight values back (unwrap the monad). When testing, can use the above method, but in practice we'll need to do it this way.

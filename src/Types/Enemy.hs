@@ -1,9 +1,11 @@
 module Types.Enemy(
-  Enemy(..)
+  Enemy(..),
+  randMinesEnemy
 ) where
 
 import Data.Universe
 import Control.Applicative
+import Random.Probability
 
 -- | Note: Angry Shopkeepers and Boulders are special enemies
 -- | Also, these are only the enemies in the Mines
@@ -36,11 +38,16 @@ instance Show Enemy where
   show (Arrow False)      = "arrow resting on the ground"
   show (Shopkeeper False) = "passive shopkeeper"
   show (Shopkeeper True)  = "angry shopkeeper"
-  show (Boulder True)     = "scary boulder"
+  show (Boulder True)     = "boulder, rolling quickly"
   show (Boulder False)    = "immobile boulder"
   
 instance Universe Enemy where
-  universe = 
-    [Snake, Bat, Spider, Cobra, SpinSpider, BigSpider, Scorpion, Caveman]
-    ++ ([Skeleton, Shopkeeper, Boulder, Arrow] <*> [True, False])
-  
+  universe = [Snake, Bat, Spider, Cobra, SpinSpider, BigSpider, Scorpion, Caveman]
+         ++ ([Skeleton, Shopkeeper, Boulder, Arrow] <*> [True, False])
+
+{- Random Generation -}
+-- Any enemy that can randomly spawn in the mines
+randMinesEnemy :: MonadRandom m => m Enemy
+randMinesEnemy = fromList $ 
+     withWeight 10 [Snake, Bat, Spider, Cobra, SpinSpider, Skeleton False, Scorpion, Caveman]
+  ++ withWeight 1 [BigSpider]
