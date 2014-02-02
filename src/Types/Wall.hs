@@ -21,8 +21,8 @@ data Wall = NormalWall
             deriving Eq
 
 instance Show Wall where
-  show NormalWall = "a wall"
-  show w          = "a wall with " ++ innards w ++ " in it."
+  show NormalWall = "a regular old wall"
+  show w          = "a wall with " ++ innards w ++ " in it"
 
 instance Default Wall where
   def = NormalWall

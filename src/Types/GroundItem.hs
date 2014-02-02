@@ -29,16 +29,16 @@ data GroundItem =  Key
                  deriving Eq
 
 instance Show GroundItem where
-  show (PotEmpty)           = "pot"
-  show (PotJewel _)         = "pot"
-  show (PotEnemy _)         = "pot"
-  show (ConsumableCrate _ ) = "crate"
-  show (ItemCrate _)        = "crate"
-  show (Chest _)            = "chest"
-  show Key                  = "key on the ground" -- | Special
-  show GoldChest            = "gold chest"        -- | Special
-  show Damsel               = "damsel"            -- | One/Level, gen separately
-  show Idol                 = "golden idol head"  -- | Special
+  show (PotEmpty)           = "a ceramic pot"
+  show (PotJewel _)         = "a ceramic pot"
+  show (PotEnemy _)         = "a ceramic pot"
+  show (ConsumableCrate _ ) = "a wooden crate"
+  show (ItemCrate _)        = "a wooden crate"
+  show (Chest _)            = "a treasure chest"
+  show Key                  = "a golden key on the ground"     -- | Special
+  show GoldChest            = "a golden treasure chest"        -- | Special
+  show Damsel               = "a terrified damsel in distress" -- | One/Level, gen separately
+  show Idol                 = "a shiny, golden idol head"      -- | Special
   show (Floor c)            = show c
                  
 instance Universe GroundItem where
