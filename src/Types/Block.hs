@@ -37,4 +37,4 @@ instance Universe Block where
 -- and Exit is special...
 -- For now this seems good.
 randMinesBlock :: MonadRandom m => m Block
-randMinesBlock = uniform [PowderKeg, Web, Spikes, ArrowTrap False]
+randMinesBlock = fromList [(PowderKeg, 1), (Web, 5), (Spikes, 5), (ArrowTrap False, 3)]
