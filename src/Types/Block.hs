@@ -1,5 +1,6 @@
 module Types.Block(
-  Block(..)
+  Block(..),
+  randMinesBlock
 ) where
 
 import Control.Applicative

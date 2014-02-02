@@ -67,4 +67,3 @@ instance Default Room where
           NormalRoom  -- | Room Type
           False False -- | Ladders
           Nothing Nothing Nothing Nothing -- | Walls
-

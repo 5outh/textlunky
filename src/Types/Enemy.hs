@@ -1,6 +1,7 @@
 module Types.Enemy(
   Enemy(..),
-  randMinesEnemy
+  randMinesEnemy,
+  randPotEnemy
 ) where
 
 import Data.Universe
@@ -51,3 +52,6 @@ randMinesEnemy :: MonadRandom m => m Enemy
 randMinesEnemy = fromList $ 
      withWeight 10 [Snake, Bat, Spider, Cobra, SpinSpider, Skeleton False, Scorpion, Caveman]
   ++ withWeight 1 [BigSpider]
+
+randPotEnemy :: MonadRandom m => m Enemy
+randPotEnemy = uniform [Snake, Cobra, Scorpion]

@@ -19,7 +19,8 @@ data Item =  Ankh         -- | Special, only in Black Market
            | Hedjet       -- | Special, only in Maoi Head
            | Jetpack      -- | 100% in psychic presence levels
            | Kapala       -- | Special, only get from enough favor
-           | PitchersMitt 
+           | PitchersMitt
+           | Parachute 
            | Spectacles
            | SpikeShoes
            | SpringShoes
@@ -40,6 +41,7 @@ instance Show Item where
     Jetpack        -> "a jetpack"
     Kapala         -> "the kapala"
     PitchersMitt   -> "a pitcher's mitt"
+    Parachute      -> "a parachute"
     Spectacles     -> "spectacles"
     SpikeShoes     -> "spike shoes"
     SpringShoes    -> "spring shoes"
@@ -57,7 +59,7 @@ randItem = fromList $
      withWeight 1 [Jetpack] 
   ++ withWeight 2 [Cape]
   ++ withWeight 5 [ClimbingGloves, PitchersMitt, SpikeShoes, SpringShoes]
-  ++ withWeight 8 [Paste, Compass, Spectacles]
+  ++ withWeight 8 [Paste, Compass, Spectacles, Parachute]
 
 -- Get a random item from Kali based on what the Player has already
 -- If the player has all of the kali items, just pick one at random.
@@ -67,4 +69,4 @@ randKaliItem itms = if null xs then randItem else fromList xs
   where xs = withWeight 1 ([Jetpack] \\ itms) 
           ++ withWeight 2 ([Cape] \\ itms)
           ++ withWeight 5 ([ClimbingGloves, PitchersMitt, SpikeShoes, SpringShoes] \\ itms)
-          ++ withWeight 8 ([Paste, Compass, Spectacles] \\ itms)
+          ++ withWeight 8 ([Paste, Compass, Spectacles, Parachute] \\ itms)
