@@ -3,13 +3,11 @@
 ## Things
 #### Random generation
 
-* Condition: (mostly) nonexistent
+* Condition: ~~(mostly) nonexistent~~ Almost finished
 * Next steps:
-  * Move random generators to appropriate `Types` modules
-    * Can include specialized generators (i.e. type of item depends on game area)
-    * Task size: small
-  * Make use of a probability distribution monad for more control
-    * Task size: medium
+  * Level generation!
+  * ~~Move random generators to appropriate `Types` modules~~
+  * ~~Make use of a probability distribution monad for more control~~
 
 #### Game state modification
 
@@ -37,8 +35,7 @@
 
 * Condition: Mostly done (for the Mines)
 * Next steps:
-  * Add more player items
-    * Task size: trivial
+  * ~~Add more player items~~
   * Review what exists already and possibly refactor using a more appropriate design pattern. In particular, I don't really like `Entity`.
     * Task size: ???
 
@@ -49,7 +46,8 @@
     * Task size: ongoing, will be done in small chunks.
   * Fill in steps (i.e everything mentioned above)
 
-## Daily notes
+
+# January, 2014
 ### Pipeline
 
 1. Generate random floor
@@ -231,8 +229,15 @@ Because this is the case, we can define a bunch of probability distributions for
 
 Note: Can change the above type signature to `test :: MonadRandom m => m String`. This allows ghci prompts to not have to use an StdGen in order to evaluate; you can just type in `test` and it'll spit out a random number. This generality is excellent for testing and also (I'm assuming) allows for more flexibility in the types. Use `MonadRandom` where possible.
 
+# February, 2014
 ## Saturday, February 1
 
 Still we can use `evalRand someRandomFunc g` to get straight values back (unwrap the monad). When testing, can use the above method, but in practice we'll need to do it this way.
 
 I've removed `Dirt` and `CrushBlock` from the equation. I think they're sort of unnecessary with `Wall`s being what they are now. Perhaps I can make a `CrushWall` type in order to keep the same behavior later on.
+
+## Sunday, February 2
+
+I'm realizing it's stupid to use direction tuples as room locations, so I want to move to an integer coordinate system, with (0,0) at the top left and (2, 2) at the bottom left. Same with the room system. We can just use Vector2s and Vector3s.
+
+This will make the code clearer and also make expansion *much* easier. If I want to add another layer or something to rooms or levels, it won't be hard to do so, this way. This should be something to work on.
