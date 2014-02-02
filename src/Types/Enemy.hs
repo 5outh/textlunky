@@ -1,6 +1,8 @@
 module Types.Enemy(
   Enemy(..),
   randMinesEnemy,
+  randMinesTopEnemy,
+  randMinesBottomEnemy,
   randPotEnemy
 ) where
 
@@ -25,22 +27,22 @@ data Enemy =  Snake
             deriving Eq
 
 instance Show Enemy where
-  show Snake              = "green snake" 
-  show Bat                = "bat"
-  show Spider             = "large spider"
-  show Cobra              = "spitting cobra"
-  show SpinSpider         = "web-spinning spider"
-  show (Skeleton True)    = "walking skeleton"
-  show (Skeleton False)   = "heap of human bones"
-  show BigSpider          = "huge spider"
-  show Scorpion           = "scorpion"
-  show Caveman            = "caveman"
-  show (Arrow True)       = "arrow flying through the air"
-  show (Arrow False)      = "arrow resting on the ground"
-  show (Shopkeeper False) = "passive shopkeeper"
-  show (Shopkeeper True)  = "angry shopkeeper"
-  show (Boulder True)     = "boulder, rolling quickly"
-  show (Boulder False)    = "immobile boulder"
+  show Snake              = "a green snake" 
+  show Bat                = "a bat"
+  show Spider             = "a large spider"
+  show Cobra              = "a spitting cobra"
+  show SpinSpider         = "a web-spinning spider"
+  show (Skeleton True)    = "a walking skeleton"
+  show (Skeleton False)   = "a heap of human bones"
+  show BigSpider          = "a huge spider"
+  show Scorpion           = "a scorpion"
+  show Caveman            = "a caveman"
+  show (Arrow True)       = "an arrow flying through the air"
+  show (Arrow False)      = "an arrow resting on the ground"
+  show (Shopkeeper False) = "a peaceful shopkeeper"
+  show (Shopkeeper True)  = "a very angry shopkeeper"
+  show (Boulder True)     = "a boulder, rolling quickly"
+  show (Boulder False)    = "an immobile boulder"
   
 instance Universe Enemy where
   universe = [Snake, Bat, Spider, Cobra, SpinSpider, BigSpider, Scorpion, Caveman]
@@ -53,5 +55,15 @@ randMinesEnemy = fromList $
      withWeight 10 [Snake, Bat, Spider, Cobra, SpinSpider, Skeleton False, Scorpion, Caveman]
   ++ withWeight 1 [BigSpider]
 
+-- Enemies that spawn on the ceiling
+randMinesTopEnemy :: MonadRandom m => m Enemy
+randMinesTopEnemy = fromList $ 
+    withWeight 10 [Bat, Spider, SpinSpider] ++ withWeight 1 [BigSpider]
+
+-- Enemies that spawn on the floor
+randMinesBottomEnemy :: MonadRandom m => m Enemy
+randMinesBottomEnemy = uniform [Snake, Cobra, Skeleton False, Scorpion, Caveman]
+
+-- Enemies that spawn in pots
 randPotEnemy :: MonadRandom m => m Enemy
 randPotEnemy = uniform [Snake, Cobra, Scorpion]

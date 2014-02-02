@@ -2,6 +2,8 @@ module Types.Direction(
   Direction(..),
   Space(..),
   dirs,
+  topDirs,
+  bottomDirs,
   showRelativeDirection,
   randNSEW,
   randUD,
@@ -35,7 +37,11 @@ instance Show Direction where
 dirs :: [Space]
 dirs = triple <$> [D, U] <*> [N, S, M] <*> [E, W, M]
   where triple a b c = (a, b, c)
-  
+
+topDirs, bottomDirs :: [Space]
+topDirs    = filter (\(a, _, _) -> a == U) dirs
+bottomDirs = filter (\(a, _, _) -> a == D) dirs
+
 -- | Shows the direction of a space in a room (one of 18 spaces)
 showRelativeDirection :: Space -> String
 showRelativeDirection (M, M, D) = "dead center"

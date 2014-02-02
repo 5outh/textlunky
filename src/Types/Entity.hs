@@ -1,6 +1,16 @@
 module Types.Entity(
   Entity(..),
-  randEntity
+  randMinesEntity,
+  randMinesBottomEntity,
+  randMinesTopEntity,
+  randJewel',
+  randItem',
+  randMinesGroundItem',
+  randConsumable',
+  randMinesBlock',
+  randMinesEnemy',
+  randMinesTopEnemy',
+  randMinesBottomEnemy'
 ) where
 
 import Data.List(intercalate)
@@ -36,18 +46,29 @@ instance Show Entity where
   show (Block'      b) = show b
   show Empty           = []
 
-randJewel', randItem', randMinesGroundItem',
-  randConsumable', randMinesBlock', randMinesEnemy'
+randJewel', randItem', randMinesGroundItem' ,
+  randConsumable'    , randMinesBlock'      , randMinesEnemy',
+  randMinesTopEnemy' , randMinesBottomEnemy'
   :: MonadRandom m => m Entity
-randJewel'           = liftM Jewel'      randJewel
-randItem'            = liftM Item'       randItem
-randConsumable'      = liftM Consumable' randConsumable
-randMinesBlock'      = liftM Block'      randMinesBlock
-randMinesEnemy'      = liftM Enemy'      randMinesEnemy
-randMinesGroundItem' = liftM GroundItem' randMinesGroundItem
+randJewel'            = liftM Jewel'      randJewel
+randItem'             = liftM Item'       randItem
+randConsumable'       = liftM Consumable' randConsumable
+randMinesBlock'       = liftM Block'      randMinesBlock
+randMinesEnemy'       = liftM Enemy'      randMinesEnemy
+randMinesTopEnemy'    = liftM Enemy'      randMinesTopEnemy
+randMinesBottomEnemy' = liftM Enemy'      randMinesBottomEnemy
+randMinesGroundItem'  = liftM GroundItem' randMinesGroundItem
 
-randEntity :: MonadRandom m => m Entity
-randEntity = uniform 
-  [ return Empty        , randJewel'     , randItem'      , 
+randMinesEntity :: MonadRandom m => m Entity
+randMinesEntity = uniform 
+  [ randJewel'     , randItem'      , 
     randMinesGroundItem', randConsumable', randMinesBlock', 
     randMinesEnemy' ] >>= id
+
+-- | Only spawn things that can show up on the ground
+randMinesBottomEntity, randMinesTopEntity  :: MonadRandom m => m Entity
+randMinesBottomEntity = uniform
+  [ randJewel', randMinesGroundItem', randMinesBlock', randMinesBottomEnemy' ] >>= id
+
+randMinesTopEntity = uniform
+  [ randMinesBlock', randMinesTopEnemy' ] >>= id
