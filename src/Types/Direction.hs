@@ -1,6 +1,7 @@
 module Types.Direction(
   Direction(..),
-  Space(..),
+  Space(..), 
+  moveVertical,
   dirs,
   topDirs,
   bottomDirs,
@@ -20,6 +21,33 @@ import Random.Probability
 data Direction = D | U | N | S | E | W | M  deriving (Bounded, Ord, Eq)
 
 type Space = (Direction, Direction, Direction)
+
+-- d in {EWUD}
+moveVertical :: Direction -> (Direction, Direction) -> (Direction, Direction)
+moveVertical U (x, y) = (x, y')
+  where y' = case y of 
+               D -> M
+               M -> U
+               U -> U
+               _ -> y
+moveVertical D (x, y) = (x, y')
+  where y' = case y of 
+               D -> D
+               M -> D
+               U -> M
+               _ -> y
+moveVertical E (x, y) = (x', y)
+  where x' = case x of 
+               E -> E
+               W -> M
+               M -> E
+               _ -> y
+moveVertical W (x, y) = (x', y)
+  where x' = case x of 
+               E -> M
+               W -> W
+               M -> W
+               _ -> y
 
 instance Universe Direction where
   universe = [D, U, N, S, E, W, M]
