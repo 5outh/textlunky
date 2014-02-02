@@ -26,7 +26,7 @@ gs troom =   player   .~ plr
      $ levelNum .~ 0
      $ level    .~ (rooms .~ [((U, N), testRoom)] $ def)
      $ area     .~ Mines
-     $ room     .~ troom
+     $ room     .~ ((U, N), troom)
      $ def :: GameState
   where plr = holding .~ ( Just (GroundItem' PotEmpty) ) 
             $ items   .~ [ClimbingGloves] 

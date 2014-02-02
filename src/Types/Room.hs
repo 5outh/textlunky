@@ -2,7 +2,8 @@
 module Types.Room(
   Room(..),
   RoomType(..),
-  randMinesRoom
+  randMinesRoom,
+  demolish
 ) where
 
 import Data.Default
@@ -75,6 +76,16 @@ instance Default Room where
           NormalRoom  -- | Room Type
           False False -- | Ladders
           Nothing Nothing Nothing Nothing -- | Walls
+
+-- demolish a wall in some direction
+demolish :: Direction -> Room -> Room
+demolish d r = r'
+  where r' = case d of
+                N -> wallN .~ Nothing $ r
+                S -> wallS .~ Nothing $ r
+                E -> wallE .~ Nothing $ r
+                W -> wallW .~ Nothing $ r
+                _ -> r
 
 -- random rooms are:
 -- 100% normal
