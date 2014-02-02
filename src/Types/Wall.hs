@@ -5,6 +5,7 @@ module Types.Wall(
 ) where
 
 import Control.Applicative
+import Control.Monad(liftM)
 import Data.Universe
 import Data.Default
 import Types.Size
@@ -45,19 +46,10 @@ innards (JewelWall j)      = "a " ++ show j
 innards (ItemWall  i)      = show i
 innards (ConsumableWall c) = "a " ++ show c
 
--- 'n' for normal
--- 'g' for gold
--- 'j' for jewel
--- 'i' for item
--- 'c' for consumable
 -- mostly normal and gold walls
 randWall :: MonadRandom m => m Wall
-randWall = do
-  t <- fromList [('n', 30), ('g', 10), ('j', 5), ('i', 1), ('c', 2)]
-  case t of 
-    'n' -> return NormalWall
-    'g' -> randSize       >>= (return . GoldWall      )
-    'j' -> randJewel      >>= (return . JewelWall     )
-    'i' -> randItem       >>= (return . ItemWall      )
-    'c' -> randConsumable >>= (return . ConsumableWall)
-    _   -> error "The impossible happened! Nothing was chosen."
+randWall = fromList [ (return NormalWall,                   30)
+                     , (liftM GoldWall       randSize,      10)
+                     , (liftM JewelWall      randJewel,      5)
+                     , (liftM ItemWall       randItem,       1)
+                     , (liftM ConsumableWall randConsumable, 2) ] >>= id
