@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Types.Room(
   Room(..),
-  RoomType(..)
+  RoomType(..),
+  randMinesRoom
 ) where
 
 import Data.Default
@@ -10,7 +11,10 @@ import Data.List(intercalate)
 import Types.Direction
 import Types.Entity
 import Types.Item
+import Types.Wall
 import Control.Lens
+import Control.Monad(replicateM, liftM)
+import Random.Probability
 
 data RoomType = NormalRoom
               | KaliAltar
@@ -18,8 +22,6 @@ data RoomType = NormalRoom
               | LevelExit
                 deriving (Enum, Eq)
 
--- | Placeholder
-type Wall = Int
 
 data Room = Room{
     _entities :: [(Space, Entity)],
@@ -37,33 +39,65 @@ data Room = Room{
 
 makeLenses ''Room
 
+-- full room show
 instance Show Room where
-    show r = intercalate "\n" $  (ladders : t : map show' (r^.entities))
-        where show' (spc, entity) = case entity of
-                _         -> "There is a "  ++ show entity ++ " in the " ++ showRelativeDirection spc ++ "."
+    show r = concat $ (walls : ladders : t : map show' (r^.entities))
+        where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection spc ++ ".\n"
               t = case (r^.rType) of
-                KaliAltar      -> "You see an altar to Kali."
-                Shop           -> "You have found a shop!"
-                LevelExit      -> "You have found the exit!"
+                KaliAltar      -> "You see an altar to Kali.\n"
+                Shop           -> "You have found a shop!\n"
+                LevelExit      -> "You have found the exit!\n"
                 _         -> []
               ladders = case (r^.ladderU, r^.ladderD) of
-                (True, True) -> "There are ladders both up and down."
-                (True, _   ) -> "There is a ladder up."
-                (_   , True) -> "There is a ladder down."
+                (True, True) -> "There are ladders both up and down.\n"
+                (True, _   ) -> "There is a ladder up.\n"
+                (_   , True) -> "There is a ladder down.\n"
                 _            -> []
-              walls = let ws = map (r^.) [wallN, wallS, wallE, wallW] in
-                      map showWall ws
-                        -- | TODO: Implement
-                        where showWall = undefined
+              walls = showWalls r
 
+showWalls :: Room -> String
+showWalls r = 
+          "North wall: "    ++ showJust n
+       ++ ".\nSouth wall: " ++ showJust s
+       ++ ".\nEast wall: "  ++ showJust e
+       ++ ".\nWest wall: "  ++ showJust w ++ ".\n\n"
+  where [n, s, e, w] = map (r^.) [wallN, wallS, wallE, wallW]
+        showJust Nothing  = "nonexistent"
+        showJust (Just a) = show a
 
 instance Universe RoomType where
   universe = enumFrom NormalRoom
   
---completely void room
+-- completely void room
 instance Default Room where
   def = Room 
           []          -- | Entities
           NormalRoom  -- | Room Type
           False False -- | Ladders
           Nothing Nothing Nothing Nothing -- | Walls
+
+-- random rooms are:
+-- 100% normal
+-- have 4 random walls surrounding them
+-- have some number of random entities involved...
+-- NB. I want to make this a little more "chunked", as in
+--     make it so that the player can find patterns.
+randMinesRoom :: MonadRandom m => m Room
+randMinesRoom = do
+  [n, s, e, w]    <- replicateM 4       (liftM Just randWall)
+  [tops, bottoms] <- replicateM 2 $     descending [1..6]
+  topEs           <- replicateM tops    randMinesTopEntity
+  bottomEs        <- replicateM bottoms randMinesBottomEntity
+  topSpaces       <- choose     tops    topDirs
+  bottomSpaces    <- choose     bottoms bottomDirs
+  [lu, ld]        <- replicateM 2 ( fromList [(True, 1), (False, 10)] )
+  let es = (zip topSpaces topEs) ++ (zip bottomSpaces bottomEs)
+  return $ entities .~ es
+         $ wallN    .~ n
+         $ wallS    .~ s
+         $ wallE    .~ e
+         $ wallW    .~ w
+         $ ladderU  .~ lu
+         $ ladderD  .~ ld
+         $ def
+
