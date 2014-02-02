@@ -44,9 +44,6 @@ runGame gs = flip evalStateT gs $ showCmd game
 -- |  5. Step the rest of the game (Modify the game state using 
 -- |     a function GameState -> GameState)
 -- |  6. Repeat.
--- | (4.) done after unwrapping FreeT in textlunky.hs
--- | NB. Surprisingly, this does not process `prompt` twice 
---       even though it shows up in the declaration twice.
 -- | Build a command from user prompt
 game :: Textlunky ()
 game = forever $ do
