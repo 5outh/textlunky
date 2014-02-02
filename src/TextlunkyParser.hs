@@ -14,22 +14,26 @@ import qualified Data.Map as M
 import Control.Monad.Trans.Free
 import Control.Monad.Identity
 
+{-| The idea here should be to iterate over a list of user-provided commands, and search for keywords among them.
+    When we find keywords that can craft a command (listed below), parse them into the appropriate command.
+-}
+
 -- | Parse a string into a TextlunkyCommand
 
 -- | - Bomb
 -- | 
 -- | Binary: 
--- | - Move     - Direction
--- | - Look     - Direction
--- | - Throw    - Direction
--- | - ShootD   - Direction
--- | - MoveTo   - Entity
--- | - Pickup   - (Maybe Entity)
--- | - DropItem - (Maybe Entity)
--- | - Jump     - (Maybe Enemy)
--- | - Attack   - (Maybe Enemy)
--- | - ShootE   - Enemy
--- | - Bomb     - (Maybe Direction)
+-- | - Move     - Direction - eg. "move north"
+-- | - Look     - Direction - eg. "look left" "look north" 
+-- | - Throw    - Direction - eg. "throw north" "throw up"
+-- | - ShootD   - Direction - eg. "shoot right" "shoot north"
+-- | - MoveTo   - Entity    - eg. "moveTo shotgun" "moveTo spike pit"
+-- | - Pickup   - (Maybe Entity) - eg. "pickup shotgun" "pickup" "pickup damsel"
+-- | - DropItem - (Maybe Entity) - eg. "drop" "drop gun" "drop rock"
+-- | - Jump     - (Maybe Enemy)  - eg. "jump" "jump on spider" "jump over spike pit" (maybe)
+-- | - Attack   - (Maybe Enemy)  - eg. "attack" "attack spider" "kill snake"
+-- | - ShootE   - Enemy          - eg. "shoot" "shoot cobra"
+-- | - Bomb     - (Maybe Direction) - eg. "bomb" "place bomb" "bomb left wall"
 
 move      = ["move", "m", "walk", "go", "mv"]
 moveTo    = ["move to", "go to", "mvto", "goto"]
@@ -77,19 +81,18 @@ directionMap = M.fromList $ dirs >>= (uncurry map)
                  ((,M), middle) ]
 
 -- | Unary: 
--- | - ShootSelf
--- | - Rope
--- | - OpenGoldChest
--- | - OpenChest
--- | - ExitLevel
--- | - DropDown
--- | - End (?)
--- | (with Nothing)
--- | - DropItem
--- | - Pickup
--- | - DropItem
--- | - Jump
--- | - Attack
+-- | - ShootSelf - eg. "kill" "shoot" with no other keywords
+-- | - Rope      - eg. "rope" "throw rope" (note "rope" takes precedence over "throw")
+-- | - OpenGoldChest - eg. "open gold chest" "open chest" (if no other chests in room)
+-- | - OpenChest     - eg. "open chest"
+-- | - ExitLevel     - eg. "exit" "leave" "finish" "go through door"
+-- | - DropDown      - eg. "fall" "go down" "drop down"
+-- | - End (?)       - only for continuity
+-- | (with Nothing)  - (no keywords to indicate otherwise)
+-- | - DropItem      - eg. "drop <item>" "drop"
+-- | - Pickup        - eg. "pick up" "take"
+-- | - Jump          - eg. "jump"
+-- | - Attack        - eg. "attack"
 
 -- | Associates unary operations with their corresponding free action
 unaryMap :: M.Map String (FreeT TextlunkyCommand Identity ())
