@@ -69,6 +69,9 @@ prompt = do
 parseCmd :: String -> Maybe (Textlunky ())
 parseCmd "quit" = Just $ liftF End
 parseCmd "rope" = Just $ liftF (Rope ())
+parseCmd "test" = Just $ 
+  do liftF (Rope ())
+     liftF (Move E ())
 parseCmd _      = Nothing
 
 -- | Show current room in GameState
@@ -96,52 +99,52 @@ showCmd t = do
   case x of
     Pure _ -> return ()
     (Free (Move d x)) -> do
-     lift $ putStrLnP $ "You move " ++ show d ++ ".\n"
+     lift $ putStrLnP $ "You move " ++ show d 
      showCmd x
     (Free (MoveTo e x)) -> do
-     lift $ putStrLnP $ "You move to the " ++ show e ++ ".\n"
+     lift $ putStrLnP $ "You move to the " ++ show e
      showCmd x
     (Free (Pickup Nothing x)) -> do
-     lift $ putStrLnP $ "There is nothing to pick up.\n"
+     lift $ putStrLnP "There is nothing to pick up."
      showCmd x
     (Free (Pickup (Just e) x)) -> do
-     lift $ putStrLnP $ "You pick up a " ++ show e ++ ".\n"
+     lift $ putStrLnP $ "You pick up a " ++ show e
      showCmd x
     (Free (DropItem Nothing x)) -> do
-     lift $ putStrLnP $ "You have nothing to drop.\n"
+     lift $ putStrLnP $ "You have nothing to drop."
      showCmd x  
     (Free (DropItem (Just e) x)) -> do
-     lift $ putStrLnP $ "You drop your " ++ show e ++ ".\n"
+     lift $ putStrLnP $ "You drop your " ++ show e
      showCmd x
     (Free (Jump Nothing x)) -> do
-     lift $ putStrLnP $ "You jump in the air.\n"
+     lift $ putStrLnP $ "You jump in the air."
      showCmd x
     (Free (Jump (Just e) x)) -> do
-     lift $ putStrLnP $ "You jump on a " ++ show e ++ ".\n"
+     lift $ putStrLnP $ "You jump on a " ++ show e
      showCmd x 
     (Free (Attack Nothing x)) -> do
-     lift $ putStrLnP $ "You attack.\n"
+     lift $ putStrLnP $ "You attack."
      showCmd x
     (Free (Attack (Just e) x)) -> do
-     lift $ putStrLnP $ "You attack a " ++ show e ++ ".\n"
+     lift $ putStrLnP $ "You attack a " ++ show e
      showCmd x
     (Free (ShootD d x)) -> do
-     lift $ putStrLnP $ "You shoot " ++ show d ++ ".\n"
+     lift $ putStrLnP $ "You shoot " ++ show d 
      showCmd x 
     (Free (ShootE e x)) -> do
-     lift $ putStrLnP $ "You shoot a " ++  show e ++ ".\n"
+     lift $ putStrLnP $ "You shoot a " ++  show e
      showCmd x 
     (Free (ShootSelf x)) -> do
-     lift $ putStrLnP $ "You kill yourself.\n"
+     lift $ putStrLnP $ "You kill yourself."
      showCmd x
     (Free (Throw d x)) -> do
-     lift $ putStrLnP $ "You throw your item " ++ show d ++ ".\n"
+     lift $ putStrLnP $ "You throw your item " ++ show d
      showCmd x 
     (Free (Rope x)) -> do
-     lift $ putStrLnP $ "You toss a rope up.\n"
+     lift $ putStrLnP $ "You toss a rope up."
      showCmd x 
     (Free (Bomb Nothing x)) -> do
-     lift $ putStrLnP $ "You place a bomb at your feet." ++ ".\n"
+     lift $ putStrLnP $ "You place a bomb at your feet." 
      showCmd x 
     (Free (Bomb (Just d) x)) -> do
      lift $ putStrLnP $ "You place a bomb " ++ 
@@ -149,24 +152,23 @@ showCmd t = do
          U -> "on the ceiling" -- | only with paste...
          D -> "on the floor"
          x -> "near the " ++ show x ++ " wall")
-       ++ ".\n"
      showCmd x
     (Free (OpenGoldChest x)) -> do
-     lift $ putStrLnP $ "You open the gold chest.\n" 
+     lift $ putStrLnP $ "You open the gold chest." 
      showCmd x
     (Free (OpenChest x)) -> do
-     lift $ putStrLnP $ "You open a chest.\n"
+     lift $ putStrLnP $ "You open a chest."
      showCmd x 
     (Free (ExitLevel x)) -> do
-     lift $ putStrLnP $ "You exit the level!\n"
+     lift $ putStrLnP $ "You exit the level!"
      showCmd x
     (Free (DropDown x)) -> do
-     lift $ putStrLnP $ "You drop down to the next level.\n"
+     lift $ putStrLnP $ "You drop down to the next level."
      showCmd x 
     (Free (Look d x)) -> do
      let show' U = "above you"
          show' D = "below you"
          show' x = "to your " ++ show x
-     lift $ putStrLnP $ "You look in the room " ++ show' d ++ ".\n" 
+     lift $ putStrLnP $ "You look in the room " ++ show' d
      showCmd x
     (Free End) -> lift $ putStrLnP "Goodbye!" >> return ()
