@@ -61,7 +61,7 @@ executable textlunky
                   random == 1.*,
                   mtl == 2.1.*,
                   free < 4,
-                  monadrandom 1.*
+                  MonadRandom < 1
 
   -- Directories containing source files.
   hs-source-dirs:      src
