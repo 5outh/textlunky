@@ -108,11 +108,11 @@ showCmd t = do
     (Free (Pickup (Just e) x)) -> do
      lift $ putStrLnP $ "You pick up a " ++ show e
      showCmd x
-    (Free (DropItem Nothing x)) -> do
-     lift $ putStrLnP $ "You have nothing to drop."
-     showCmd x  
-    (Free (DropItem (Just e) x)) -> do
-     lift $ putStrLnP $ "You drop your " ++ show e
+    (Free (DropItem x)) -> do
+     let itm = st^.player^.holding
+     lift $ putStrLnP $ case itm of
+        Just e ->  "You drop your " ++ show e
+        Nothing -> "You have nothing to drop."
      showCmd x
     (Free (Jump Nothing x)) -> do
      lift $ putStrLnP $ "You jump in the air."

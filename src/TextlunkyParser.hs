@@ -13,16 +13,12 @@ import Types.Synonyms
 import qualified Data.Map as M
 import Control.Monad.Trans.Free
 import Control.Monad.Identity
+import Control.Applicative
+import Data.Maybe
+import Data.List
 
-{-| The idea here should be to iterate over a list of user-provided commands, and search for keywords among them.
-    When we find keywords that can craft a command (listed below), parse them into the appropriate command.
-    Might not even need Parsec
--}
+-- NB. check BINARY commands first, then unary ones.
 
--- | Parse a string into a TextlunkyCommand
-
--- | - Bomb
--- | 
 -- | Binary: 
 -- | - Move     - Direction - eg. "move north"
 -- | - Look     - Direction - eg. "look left" "look north" 
@@ -36,14 +32,11 @@ import Control.Monad.Identity
 -- | - ShootE   - Enemy          - eg. "shoot" "shoot cobra"
 -- | - Bomb     - (Maybe Direction) - eg. "bomb" "place bomb" "bomb left wall"
 
+parseInput :: String -> Textlunky ()
+parseInput = parseCommands . getCommands
+
 getCommands :: String -> [[String]]
 getCommands = splitOneOf combine . splitOn " "
-
-parseCmd :: [String] -> Textlunky ()
-parseCmd = undefined
-
-fromCommand :: [[String]] -> Textlunky ()
-fromCommand cmds = undefined
 
 parseUnary :: [String]                    -- Possible Command List
            -> (() -> TextlunkyCommand ()) -- Unary Command
@@ -54,8 +47,86 @@ parseUnary cmdList cmd xs =
     True -> Just $ liftF $ cmd ()
     _    -> Nothing
 
-parseDropItem :: [String] -> Maybe (Textlunky ())
-parseDropItem xs = parseUnary dropItem DropItem xs
+parseDirectionBinary :: [String] 
+                     -> (Direction -> () -> TextlunkyCommand ()) 
+                     -> [String] 
+                     -> Maybe (Textlunky ())
+parseDirectionBinary cmdList cmd xs =
+    case any (`elem` cmdList) xs of
+      True -> case parseDirection xs of
+                Just dir -> Just $ liftF $ cmd dir ()
+                _        -> Nothing
+      _    -> Nothing
+
+-- find the first direction mentioned in a command string
+parseDirection :: [String] -> Maybe Direction
+parseDirection xs = 
+  case filter isJust dirs of
+        []    -> Nothing
+        (x:_) -> x
+  where dirs = map (flip M.lookup directionMap) xs
+
+
+{- ************ START PARSERS ************** -}
+
+-- 0-ary parser
+parseEnd xs = if any (`elem` end) xs 
+              then Just (liftF End) 
+              else Nothing
+
+-- Unary parsers
+parseDropItem     = parseUnary dropItem DropItem
+parsePickupU      = parseUnary pickup   (Pickup  Nothing)
+parseJumpU        = parseUnary jump     (Jump    Nothing)
+parseAttackU      = parseUnary attack   (Attack  Nothing)
+parseRope         = parseUnary rope     Rope
+parseExitLevel    = parseUnary leave    ExitLevel
+
+-- kill self if user doesn't specify what to shoot
+parseShootSelf xs =   parseUnary shoot     ShootSelf xs
+                  <|> parseUnary attack    ShootSelf xs
+                  <|> parseUnary shootself ShootSelf xs
+
+-- check for desire to open gold chest 
+parseOpenChest  xs = case any (`elem` open) xs of 
+  True -> case "gold" `elem` xs of
+            True -> Just $ liftF $ OpenGoldChest ()
+            _    -> Just $ liftF $ OpenChest ()
+  _    -> Nothing
+
+
+-- Binary (Direction) Parsers
+-- TODO: Enemy and Entity parsers
+parseMoveB     =   parseDirectionBinary move   Move
+parseShootB xs =   parseDirectionBinary shoot  ShootD xs
+               <|> parseDirectionBinary attack ShootD xs
+parseLook      =   parseDirectionBinary look   Look
+parseThrow     =   parseDirectionBinary throw  Throw
+parseBombB  xs = case any (== "bomb") xs of
+  True -> Just $ liftF $ Bomb (parseDirection xs) ()
+  _    -> Nothing
+
+parseCommands :: [[String]] -> Textlunky ()
+parseCommands []     = liftF End
+parseCommands (x:xs) = do
+  if "end" `elem` x then liftF End
+  else case parseCommand x of
+              Just f -> do f
+                           parseCommands xs
+              _      -> parseCommands xs
+
+--TODO: Parse Enemy and Entity actions
+parseCommand :: [String] -> Maybe (Textlunky ())
+parseCommand xs = foldr1 (<|>) 
+                . map ($ xs)
+                $ [ parseMoveB    , parseShootB   , parseLook, 
+                    parseThrow    , parseBombB    , parseDropItem,
+                    parsePickupU  , parseJumpU    , parseAttackU,
+                    parseRope     , parseShootSelf, parseExitLevel,
+                    parseOpenChest, parseEnd ]
+
+{- ************ END PARSERS ************** -}
+
 
 move      = ["move", "m", "walk", "go", "mv"]
 moveTo    = ["move to", "go to", "mvto", "goto"]
@@ -73,7 +144,7 @@ leave     = ["leave", "exit", "finish", "end"]
 dropDown  = ["drop", "dropdown", "fall", "hole"]
 look      = ["look", "view", "peek", "search"]
 combine   = ["&", "and", "then", "."] -- | Process many commands at once
-end       = ["end"] -- | For completeness
+end       = ["end"]                   -- | For completeness
 
 north  = ["n", "north", "forward", "fw"]
 south  = ["s", "south", "backwards", "back", "bk"]
