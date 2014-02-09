@@ -41,10 +41,25 @@ instance Default GameState where
   def = GameState (def :: Player) 0 undefined Mines undefined
             
 makeLenses ''GameState
+makeLenses ''Level
 
 -- | For use in random generation
 moveRoom :: Direction -> GameState -> GameState
-moveRoom d = undefined
+moveRoom d gs = 
+  let (Vector2 x y, r) = gs^.room
+  in moveRoomToV gs $ case d of
+      U -> Vector2 x (pred y)
+      D -> Vector2 x (succ y)
+      E -> Vector2 (pred x) y
+      W -> Vector2 (succ x) y
+      d -> error $ "Cannot move " ++ show d ++ "during moveRoom"
+
+moveRoomToV :: GameState -> Vector2 Int -> GameState
+moveRoomToV gs v = 
+  let rms = gs^.level^.rooms
+  in case lookup v rms of
+      Just r -> room .~ (v, r) $ gs
+      Nothing -> gs   
 
 -- | For testing only
 showGS = (\(_, r) -> show r) . view room

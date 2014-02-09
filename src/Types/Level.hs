@@ -1,6 +1,7 @@
 module Types.Level(
   Level(..),
   LevelType(..),
+  randMinesLevel,
   levelMessage
 ) where
 
@@ -9,6 +10,9 @@ import Data.Default
 import Types.Direction
 import Types.Room
 import Types.Vectors
+import Random.Probability
+import Control.Applicative
+import Control.Monad
 
 data LevelType = NormalLevel
                | Dark
@@ -35,3 +39,16 @@ levelMessage t = case t of
   SkinCrawling -> "My skin is crawling!"
   SnakePit     -> "I hear snakes. I hate snakes!"
   _            -> []
+
+-- TODO: Keep track of whether or not Chest and Key level has been encountered yet
+randMinesLevelType :: MonadRandom m => m LevelType
+randMinesLevelType = fromList $ 
+      withWeight 5 [NormalLevel]
+  ++  withWeight 1 [Dark, SkinCrawling, SnakePit, ChestAndKey] 
+
+randMinesLevel :: MonadRandom m => m Level
+randMinesLevel = do
+  let roomLocs = Vector2 <$> [0..2] <*> [0..2] :: [Vector2 Int]
+  t  <- randMinesLevelType
+  rs <- replicateM 9 randMinesRoom
+  return $ Level (zip roomLocs rs) t

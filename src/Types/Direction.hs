@@ -74,7 +74,7 @@ topDirs    = filter (\(a, _, _) -> a == U) dirs
 bottomDirs = filter (\(a, _, _) -> a == D) dirs
 
 fromVector3 :: (Integral a, Show a) => Vector3 a -> Space
-fromVector3 (Vector3 z y x) = (x', y', z')
+fromVector3 (Vector3 x y z) = (z', y', x')
   where x' = case x of
               0 -> E 
               1 -> M
