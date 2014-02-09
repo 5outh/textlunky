@@ -26,11 +26,9 @@ instance Vector Vector3 where
   vmap X f (Vector3 x y z) = Just $ Vector3 (f x) y z
   vmap Y f (Vector3 x y z) = Just $ Vector3 x (f y) z
   vmap Z f (Vector3 x y z) = Just $ Vector3 x y (f z)
-  vmap _ _ _               = Nothing
   get X (Vector3 x y z)    = Just x
   get Y (Vector3 x y z)    = Just y
   get Z (Vector3 x y z)    = Just z
-  get _ _                  = Nothing
 
 instance Vector Vector2 where
   vmap X f (Vector2 x y) = Just $ Vector2 (f x) y
