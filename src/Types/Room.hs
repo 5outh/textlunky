@@ -13,6 +13,7 @@ import Types.Direction
 import Types.Entity
 import Types.Item
 import Types.Wall
+import Types.Vectors
 import Control.Lens
 import Control.Monad(replicateM, liftM)
 import Random.Probability
@@ -25,7 +26,7 @@ data RoomType = NormalRoom
 
 
 data Room = Room{
-    _entities :: [(Space, Entity)],
+    _entities :: [(Vector3 Int, Entity)],
     _rType    :: RoomType,
     -- | See 1/19 notes
     -- | Define like this for absolute correctness,
@@ -43,7 +44,7 @@ makeLenses ''Room
 -- full room show
 instance Show Room where
     show r = concat $ (walls : ladders : t : map show' (r^.entities))
-        where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection spc ++ ".\n"
+        where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
               t = case (r^.rType) of
                 KaliAltar      -> "You see an altar to Kali.\n"
                 Shop           -> "You have found a shop!\n"
@@ -99,8 +100,8 @@ randMinesRoom = do
   [tops, bottoms] <- replicateM 2 $     descending [1..6]
   topEs           <- replicateM tops    randMinesTopEntity
   bottomEs        <- replicateM bottoms randMinesBottomEntity
-  topSpaces       <- choose     tops    topDirs
-  bottomSpaces    <- choose     bottoms bottomDirs
+  topSpaces       <- choose     tops    (map toVector3 topDirs)
+  bottomSpaces    <- choose     bottoms (map toVector3 bottomDirs)
   [lu, ld]        <- replicateM 2 ( fromList [(True, 1), (False, 10)] )
   let es = (zip topSpaces topEs) ++ (zip bottomSpaces bottomEs)
   return $ entities .~ es

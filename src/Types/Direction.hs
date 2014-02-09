@@ -10,13 +10,16 @@ module Types.Direction(
   randUD,
   randUDM,
   randDir,
-  randSpace
+  randSpace,
+  fromVector3,
+  toVector3
 ) where
 
 import Data.Universe
 import Control.Applicative
 import Data.List(sort)
 import Random.Probability
+import Types.Vectors
 
 data Direction = D | U | N | S | E | W | M  deriving (Bounded, Ord, Eq)
 
@@ -70,6 +73,40 @@ topDirs, bottomDirs :: [Space]
 topDirs    = filter (\(a, _, _) -> a == U) dirs
 bottomDirs = filter (\(a, _, _) -> a == D) dirs
 
+fromVector3 :: (Integral a, Show a) => Vector3 a -> Space
+fromVector3 (Vector3 z y x) = (x', y', z')
+  where x' = case x of
+              0 -> E 
+              1 -> M
+              2 -> W
+              a -> error $ "Invalid X value" ++ show a ++ "in Vector3"
+        y' = case y of
+              0 -> S
+              1 -> M
+              2 -> N
+              a -> error $ "Invalid Y value" ++ show a ++ "in Vector3"
+        z' = case z of
+              0 -> D
+              1 -> U
+              a -> error $ "Invalid Z value" ++ show a ++ "in Vector3"
+
+toVector3 :: Space -> Vector3 Int
+toVector3 (du, nsm, ewm) = Vector3 x y z
+  where x = case ewm of 
+              E -> 0
+              M -> 1
+              W -> 2
+              a -> error $ "Invalid x value" ++ show a ++ "in Vector3"
+        y = case nsm of 
+              S -> 0
+              M -> 1
+              N -> 2
+              a -> error $ "Invalid y value" ++ show a ++ "in Vector3"
+        z = case du of 
+              D -> 0
+              U -> 1
+              a -> error $ "Invalid z value" ++ show a ++ "in Vector3"
+
 -- | Shows the direction of a space in a room (one of 18 spaces)
 showRelativeDirection :: Space -> String
 showRelativeDirection (M, M, D) = "dead center"
@@ -84,7 +121,6 @@ showRelativeDirection (du, nsm, ewm) = (++du') $
                   _ -> ""
 
 -- | Random Generation
-
 -- Simple random direction generators (all uniform)
 randNSEW, randUD, randUDM, randDir :: (MonadRandom m) => m Direction
 randNSEW  = uniform [N, S, E, W]

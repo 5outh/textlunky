@@ -243,3 +243,8 @@ I'm realizing it's stupid to use direction tuples as room locations, so I want t
 This will make the code clearer and also make expansion *much* easier. If I want to add another layer or something to rooms or levels, it won't be hard to do so, this way. This should be something to work on.
 
 ## Saturday, February 8th
+
+For moving room spaces to Vector3s:
+
+Floor: (0, x, y), Ceiling: (1, x, y)
+So there is a mapping between ({0, 2} ({0,1} (z [ud]), x [emw]), {0,2} (y [nms])) and Vector3 Int, and it's obvious! Write it.

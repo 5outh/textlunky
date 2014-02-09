@@ -9,9 +9,7 @@ module Types.Vectors(
   fromTriple
 ) where
 
-import Types.Direction
-
-data Axis = X | Y | Z | W deriving (Show, Eq)
+data Axis = X | Y | Z deriving (Show, Eq)
 
 data Vector2 a = Vector2 a a   deriving (Show, Eq)
 data Vector3 a = Vector3 a a a deriving (Show, Eq)

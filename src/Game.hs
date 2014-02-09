@@ -32,6 +32,8 @@ type Free f      = FreeT f Identity
 type Global    s = StateT s IO
 type Textlunky r = FreeT TextlunkyCommand (Global GameState) r
 
+-- newtype Textlunky r = Textlunky{ runTextlunky :: FreeT TextlunkyCommand (Global GameState) r }
+
 -- | Print a string with a prompt token prefix    
 putStrLnP = putStrLn . (token++)
   where token = ">> "

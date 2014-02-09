@@ -19,7 +19,7 @@ makeLenses ''GameState
 -- | A simple test room
 testRoom :: Room
 testRoom =  rType    .~ KaliAltar 
-          $ entities .~ [((U, N, E), Enemy' Spider )] 
+          $ entities .~ [(fromTriple (0, 0, 0), Enemy' Spider )] 
           $ def :: Room
 
 gs :: Room -> GameState
