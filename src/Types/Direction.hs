@@ -66,15 +66,15 @@ instance Show Direction where
 
 -- | All possible block locations
 dirs :: [Space]
-dirs = triple <$> [D, U] <*> [N, S, M] <*> [E, W, M]
+dirs = triple <$> [E, W, M] <*> [N, S, M] <*> [D, U]
   where triple a b c = (a, b, c)
 
 topDirs, bottomDirs :: [Space]
-topDirs    = filter (\(a, _, _) -> a == U) dirs
-bottomDirs = filter (\(a, _, _) -> a == D) dirs
+topDirs    = filter (\(_, _, a) -> a == U) dirs
+bottomDirs = filter (\(_, _, a) -> a == D) dirs
 
 fromVector3 :: (Integral a, Show a) => Vector3 a -> Space
-fromVector3 (Vector3 x y z) = (z', y', x')
+fromVector3 (Vector3 x y z) = (x', y', z')
   where x' = case x of
               0 -> E 
               1 -> M
@@ -91,7 +91,7 @@ fromVector3 (Vector3 x y z) = (z', y', x')
               a -> error $ "Invalid Z value" ++ show a ++ "in Vector3"
 
 toVector3 :: Space -> Vector3 Int
-toVector3 (du, nsm, ewm) = Vector3 x y z
+toVector3 (ewm, nsm, du) = Vector3 x y z
   where x = case ewm of 
               E -> 0
               M -> 1
@@ -111,7 +111,7 @@ toVector3 (du, nsm, ewm) = Vector3 x y z
 showRelativeDirection :: Space -> String
 showRelativeDirection (M, M, D) = "dead center"
 showRelativeDirection (M, M, U) = "dead center: above"
-showRelativeDirection (du, nsm, ewm) = (++du') $  
+showRelativeDirection (ewm, nsm, du) = (++du') $  
   case (nsm, ewm) of
     (M, x) -> show x ++ " center"
     (x, M) -> show x ++ " center"

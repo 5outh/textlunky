@@ -58,7 +58,7 @@ randMinesEnemy = fromList $
 -- Enemies that spawn on the ceiling
 randMinesTopEnemy :: MonadRandom m => m Enemy
 randMinesTopEnemy = fromList $ 
-    withWeight 10 [Bat, Spider, SpinSpider] ++ withWeight 1 [BigSpider]
+    withWeight 40 [Bat, Spider, SpinSpider] ++ withWeight 1 [BigSpider]
 
 -- Enemies that spawn on the floor
 randMinesBottomEnemy :: MonadRandom m => m Enemy
