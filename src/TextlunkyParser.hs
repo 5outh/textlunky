@@ -1,21 +1,22 @@
 {-# LANGUAGE TupleSections #-}
 module TextlunkyParser(
+  getCommands
 )
 
 where
 
-import Text.ParserCombinators.Parsec
-import Text.ParserCombinators.Parsec.Token
-import Text.ParserCombinators.Parsec.Expr
+import Data.List.Split
 import Control.Applicative hiding((<|>))
 import Types.TextlunkyCommand
 import Types.Direction
+import Types.Synonyms
 import qualified Data.Map as M
 import Control.Monad.Trans.Free
 import Control.Monad.Identity
 
 {-| The idea here should be to iterate over a list of user-provided commands, and search for keywords among them.
     When we find keywords that can craft a command (listed below), parse them into the appropriate command.
+    Might not even need Parsec
 -}
 
 -- | Parse a string into a TextlunkyCommand
@@ -35,6 +36,27 @@ import Control.Monad.Identity
 -- | - ShootE   - Enemy          - eg. "shoot" "shoot cobra"
 -- | - Bomb     - (Maybe Direction) - eg. "bomb" "place bomb" "bomb left wall"
 
+getCommands :: String -> [[String]]
+getCommands = splitOneOf combine . splitOn " "
+
+parseCmd :: [String] -> Textlunky ()
+parseCmd = undefined
+
+fromCommand :: [[String]] -> Textlunky ()
+fromCommand cmds = undefined
+
+parseUnary :: [String]                    -- Possible Command List
+           -> (() -> TextlunkyCommand ()) -- Unary Command
+           -> [String]                    -- User Command List
+           -> Maybe (Textlunky ())        -- Response
+parseUnary cmdList cmd xs = 
+  case any (`elem` cmdList) xs of
+    True -> Just $ liftF $ cmd ()
+    _    -> Nothing
+
+parseDropItem :: [String] -> Maybe (Textlunky ())
+parseDropItem xs = parseUnary dropItem DropItem xs
+
 move      = ["move", "m", "walk", "go", "mv"]
 moveTo    = ["move to", "go to", "mvto", "goto"]
 pickup    = ["pickup", "take", "grab"]
@@ -50,7 +72,7 @@ open      = ["open", "chest", "openchest", "getchest"]
 leave     = ["leave", "exit", "finish", "end"]
 dropDown  = ["drop", "dropdown", "fall", "hole"]
 look      = ["look", "view", "peek", "search"]
-combine   = ["&", "and", "then"] -- | Process many commands at once
+combine   = ["&", "and", "then", "."] -- | Process many commands at once
 end       = ["end"] -- | For completeness
 
 north  = ["n", "north", "forward", "fw"]
@@ -102,8 +124,7 @@ unaryMap = M.fromList $ unaries >>= (uncurry map)
                     ((,liftF (OpenChest ()))        , open      ),
                     ((,liftF (ExitLevel ()))        , leave     ),
                     ((,liftF (DropDown ()))         , dropDown  ),
-                    ((,liftF (DropItem Nothing ())) , dropItem  ),
+                    ((,liftF (DropItem ()))         , dropItem  ),
                     ((,liftF (Pickup Nothing ()))   , pickup    ),
                     ((,liftF (Jump Nothing ()))     , jump      ),
                     ((,liftF (Attack Nothing ()))   , attack    ) ]
-

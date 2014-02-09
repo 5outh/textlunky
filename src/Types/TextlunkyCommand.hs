@@ -13,9 +13,9 @@ data TextlunkyCommand a =
     Move   Direction a
   | MoveTo Entity a
   | Pickup (Maybe Entity)  a
-  | DropItem (Maybe Entity) a
   | Jump   (Maybe Enemy) a
   | Attack (Maybe Enemy) a
+  | DropItem a
   | ShootD Direction a
   | ShootE Enemy a
   | ShootSelf a

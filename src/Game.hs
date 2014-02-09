@@ -18,19 +18,13 @@ import Control.Monad.Trans.State
 import Control.Monad.Identity
 import Types
 import Types.TextlunkyCommand
+import Types.Synonyms
 import Control.Monad(forever)
 import Data.Char(toLower)
 import Control.Lens
 
 makeLenses ''GameState
 makeLenses ''Player
-
--- | For some reason this isn't picked up on the import
-type Free f      = FreeT f Identity 
-
--- | Some type synonyms
-type Global    s = StateT s IO
-type Textlunky r = FreeT TextlunkyCommand (Global GameState) r
 
 -- newtype Textlunky r = Textlunky{ runTextlunky :: FreeT TextlunkyCommand (Global GameState) r }
 
