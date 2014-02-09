@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Game(
   interactGame,
   stepGame,
@@ -19,6 +20,10 @@ import Types
 import Types.TextlunkyCommand
 import Control.Monad(forever)
 import Data.Char(toLower)
+import Control.Lens
+
+makeLenses ''GameState
+makeLenses ''Player
 
 -- | For some reason this isn't picked up on the import
 type Free f      = FreeT f Identity 
@@ -96,7 +101,7 @@ showCmd t = do
   case x of
     Pure _ -> return ()
     (Free (Move d x)) -> do
-     lift $ putStrLnP $ "You move " ++ show d 
+     lift $ putStrLnP $ "You move " ++ show d
      showCmd x
     (Free (MoveTo e x)) -> do
      lift $ putStrLnP $ "You move to the " ++ show e
@@ -137,9 +142,14 @@ showCmd t = do
     (Free (Throw d x)) -> do
      lift $ putStrLnP $ "You throw your item " ++ show d
      showCmd x 
+     {- This is an example of modifying data based on input, for later! -}
     (Free (Rope x)) -> do
-     lift $ putStrLnP $ "You toss a rope up."
-     showCmd x 
+      if st^.player^.ropes > 0 
+      then do 
+        lift $ putStrLnP "You toss a rope up."
+        player.ropes -= 1     -- Weirdly imperative in my Haskell..!
+      else lift $ putStrLnP "You don't have any ropes!"
+      showCmd x 
     (Free (Bomb Nothing x)) -> do
      lift $ putStrLnP $ "You place a bomb at your feet." 
      showCmd x 

@@ -4,7 +4,9 @@ module Types.Vectors(
 	Axis(..),
 	Vector2(..),
 	Vector3(..),
-  Vector(..)
+  Vector(..),
+  fromTuple,
+  fromTriple
 ) where
 
 import Types.Direction
@@ -45,3 +47,10 @@ instance Functor Vector2 where
 
 instance Functor Vector3 where
   fmap f (Vector3 x y z) = Vector3 (f x) (f y) (f z)
+
+fromTuple :: (a, a) -> Vector2 a
+fromTuple (x, y) = Vector2 x y
+
+fromTriple :: (a, a, a) -> Vector3 a
+fromTriple (x, y, z) = Vector3 x y z
+

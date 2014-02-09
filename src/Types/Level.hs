@@ -8,6 +8,7 @@ import Data.Universe
 import Data.Default
 import Types.Direction
 import Types.Room
+import Types.Vectors
 
 data LevelType = NormalLevel
                | Dark
@@ -17,7 +18,7 @@ data LevelType = NormalLevel
                  deriving (Enum, Eq)
                  
 data Level = Level{
-  _rooms :: [((Direction, Direction), Room)],
+  _rooms :: [(Vector2 Int, Room)],
   _lType :: LevelType
 } 
 

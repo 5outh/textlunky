@@ -13,6 +13,7 @@ import Types.Player
 import Types.Level
 import Types.Direction
 import Types.Room
+import Types.Vectors
 
 data Area = Mines
           | Jungle
@@ -33,7 +34,7 @@ data GameState = GameState{
   _levelNum :: Int   ,
   _level    :: Level ,
   _area     :: Area  ,
-  _room     :: ((Direction, Direction), Room)
+  _room     :: (Vector2 Int, Room)
 }
 
 instance Default GameState where

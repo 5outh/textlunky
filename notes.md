@@ -241,3 +241,5 @@ I've removed `Dirt` and `CrushBlock` from the equation. I think they're sort of 
 I'm realizing it's stupid to use direction tuples as room locations, so I want to move to an integer coordinate system, with (0,0) at the top left and (2, 2) at the bottom left. Same with the room system. We can just use Vector2s and Vector3s.
 
 This will make the code clearer and also make expansion *much* easier. If I want to add another layer or something to rooms or levels, it won't be hard to do so, this way. This should be something to work on.
+
+## Saturday, February 8th
