@@ -46,6 +46,7 @@ randMinesLevelType = fromList $
       withWeight 5 [NormalLevel]
   ++  withWeight 1 [Dark, SkinCrawling, SnakePit, ChestAndKey] 
 
+--TODO: Demolsih walls as appropriate to get a path from start room to exit room.
 randMinesLevel :: MonadRandom m => m Level
 randMinesLevel = do
   let roomLocs = Vector2 <$> [0..2] <*> [0..2] :: [Vector2 Int]

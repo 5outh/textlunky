@@ -92,17 +92,17 @@ demolish d r = r'
 -- 100% normal
 -- have 4 random walls surrounding them
 -- have some number of random entities involved...
--- NB. I want to make this a little more "chunked", as in
+-- NB. I want to (maybe...) make this a little more "chunked", as in
 --     make it so that the player can find patterns.
 randMinesRoom :: MonadRandom m => m Room
 randMinesRoom = do
-  [n, s, e, w]    <- replicateM 4       (liftM Just randWall)
+  [n, s, e, w]    <- replicateM 4 $     liftM Just randWall
   [tops, bottoms] <- replicateM 2 $     descending [1..6]
   topEs           <- replicateM tops    randMinesTopEntity
   bottomEs        <- replicateM bottoms randMinesBottomEntity
   topSpaces       <- choose     tops    (map toVector3 topDirs)
   bottomSpaces    <- choose     bottoms (map toVector3 bottomDirs)
-  [lu, ld]        <- replicateM 2 ( fromList [(True, 1), (False, 10)] )
+  [lu, ld]        <- replicateM 2 $     fromList [(True, 1), (False, 10)]
   let es = (zip topSpaces topEs) ++ (zip bottomSpaces bottomEs)
   return $ entities .~ es
          $ wallN    .~ n
