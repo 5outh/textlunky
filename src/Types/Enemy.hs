@@ -1,5 +1,6 @@
 module Types.Enemy(
   Enemy(..),
+  readEnemy,
   randMinesEnemy,
   randMinesTopEnemy,
   randMinesBottomEnemy,
@@ -29,7 +30,7 @@ data Enemy =  Snake
 instance Show Enemy where
   show Snake              = "a green snake" 
   show Bat                = "a bat"
-  show Spider             = "a large spider"
+  show Spider             = "a small spider"
   show Cobra              = "a spitting cobra"
   show SpinSpider         = "a web-spinning spider"
   show (Skeleton True)    = "a walking skeleton"
@@ -43,7 +44,25 @@ instance Show Enemy where
   show (Shopkeeper True)  = "a very angry shopkeeper"
   show (Boulder True)     = "a boulder, rolling quickly"
   show (Boulder False)    = "an immobile boulder"
-  
+
+readEnemy :: String -> Enemy
+readEnemy "snake" = Snake
+readEnemy "bat" = Bat
+readEnemy "spider" = Spider
+readEnemy "cobra" = Cobra
+readEnemy "web spider" = SpinSpider
+readEnemy "web-spinning spider" = SpinSpider
+readEnemy "walking skeleton" = Skeleton True
+readEnemy "heap of human bones" = Skeleton False
+readEnemy "huge spider" = BigSpider
+readEnemy "scorpion" = Scorpion
+readEnemy "caveman" = Caveman
+readEnemy "arrow" = Arrow False -- TODO: idk.
+readEnemy "shopkeeper" = Shopkeeper False
+readEnemy "angry shopkeeper" = Shopkeeper True
+readEnemy "boulder" = Boulder True 
+readEnemy "immobile boulder" = Boulder False -- TODO: idk.
+
 instance Universe Enemy where
   universe = [Snake, Bat, Spider, Cobra, SpinSpider, BigSpider, Scorpion, Caveman]
          ++ ([Skeleton, Shopkeeper, Boulder, Arrow] <*> [True, False])

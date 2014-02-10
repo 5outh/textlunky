@@ -248,3 +248,9 @@ For moving room spaces to Vector3s:
 
 Floor: (0, x, y), Ceiling: (1, x, y)
 So there is a mapping between ({0, 2} ({0,1} (z [ud]), x [emw]), {0,2} (y [nms])) and Vector3 Int, and it's obvious! Write it.
+
+## Monday, February 10th
+
+I need readers for Enemies and, unfortunately, Entities, in order to parse commands like "pickup pot," etc. Also I need to be able to handle ambiguities (i.e. if there are two of the same enemy in a single room, which one do I attack?).
+
+Enemy reader is a little messed up right now, I think I might need a more fully featured parser...
