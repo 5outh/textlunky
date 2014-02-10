@@ -3,7 +3,9 @@ module Types.Room(
   Room(..),
   RoomType(..),
   randMinesRoom,
-  demolish
+  demolish,
+  showWalls,
+  showEntities
 ) where
 
 import Data.Default
@@ -66,6 +68,10 @@ showWalls r =
   where [n, s, e, w] = map (r^.) [wallN, wallS, wallE, wallW]
         showJust Nothing  = "nonexistent"
         showJust (Just a) = show a
+
+showEntities :: Room -> String
+showEntities r = concatMap show' (r^.entities)
+  where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
 
 instance Universe RoomType where
   universe = enumFrom NormalRoom

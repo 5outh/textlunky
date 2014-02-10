@@ -22,6 +22,7 @@ import Types.Synonyms
 import Control.Monad(forever)
 import Data.Char(toLower)
 import Control.Lens
+import TextlunkyParser
 
 makeLenses ''GameState
 makeLenses ''Player
@@ -48,7 +49,7 @@ runGame gs = flip evalStateT gs $ showCmd game
 -- | Build a command from user prompt
 game :: Textlunky ()
 game = forever $ do
-  lift printRoom -- | Print current room
+  --lift printRoom -- | Print current room
   prompt         -- | Get a command
   interactGame   -- | Update game based on commmand
   lift stepGame  -- | Step the game
@@ -58,9 +59,7 @@ prompt :: Textlunky ()
 prompt = do
   lift . lift $ putStr "> "
   cmd <- lift . lift $ getLine
-  case parseCmd (map toLower cmd) of
-    Just x -> x
-    _      -> prompt
+  parseInput cmd :: Textlunky ()
 
 -- | NOTE: This will go in the parser module and will use
 -- |       Parsec for parsing, but kept simple for now
@@ -174,4 +173,16 @@ showCmd t = do
          show' x = "to your " ++ show x
      lift $ putStrLnP $ "You look in the room " ++ show' d
      showCmd x
+    Free (Walls x) -> do
+      lift $ putStrLnP $ "You see the following walls:\n"
+      lift $ putStrLn  $ showWalls (st^.room._2)
+      showCmd x
+    Free (ShowEntities x) -> do
+      lift $ putStrLnP $ "You see the following entities:\n"
+      lift $ putStrLn  $ showEntities (st^.room._2)
+      showCmd x
+    Free (ShowFull x) -> do
+      lift $ putStrLnP $ "A description of the room you're in:\n"
+      lift $ putStrLn  $ show (st^.room._2)
+      showCmd x
     (Free End) -> lift $ putStrLnP "Goodbye!" >> return ()

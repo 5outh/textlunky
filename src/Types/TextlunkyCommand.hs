@@ -27,6 +27,9 @@ data TextlunkyCommand a =
   | ExitLevel              a
   | DropDown               a
   | Look Direction         a
+  | Walls                  a -- | Show walls
+  | ShowFull               a -- | Show full room
+  | ShowEntities           a -- | Show contents of room
   | End
     deriving (Show, Eq, Functor)
 

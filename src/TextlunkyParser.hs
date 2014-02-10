@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 module TextlunkyParser(
-  getCommands
+  parseInput
 )
 
 where
@@ -13,6 +13,7 @@ import Types.Synonyms
 import qualified Data.Map as M
 import Control.Monad.Trans.Free
 import Control.Monad.Identity
+import Control.Monad.Trans
 import Control.Applicative
 import Data.Maybe
 import Data.List
@@ -32,6 +33,7 @@ import Data.List
 -- | - ShootE   - Enemy          - eg. "shoot" "shoot cobra"
 -- | - Bomb     - (Maybe Direction) - eg. "bomb" "place bomb" "bomb left wall"
 
+-- | This is all that really matters to the rest of the application
 parseInput :: String -> Textlunky ()
 parseInput = parseCommands . getCommands
 
@@ -70,7 +72,7 @@ parseDirection xs =
 {- ************ START PARSERS ************** -}
 
 -- 0-ary parser
-parseEnd xs = if any (`elem` end) xs 
+parseEnd xs = if any (`elem` end) xs
               then Just (liftF End) 
               else Nothing
 
@@ -81,6 +83,9 @@ parseJumpU        = parseUnary jump     (Jump    Nothing)
 parseAttackU      = parseUnary attack   (Attack  Nothing)
 parseRope         = parseUnary rope     Rope
 parseExitLevel    = parseUnary leave    ExitLevel
+parseShowRoom     = parseUnary showRoom ShowFull
+parseShowEnts     = parseUnary showEnts ShowEntities
+parseWalls        = parseUnary showWall Walls
 
 -- kill self if user doesn't specify what to shoot
 parseShootSelf xs =   parseUnary shoot     ShootSelf xs
@@ -107,26 +112,26 @@ parseBombB  xs = case any (== "bomb") xs of
   _    -> Nothing
 
 parseCommands :: [[String]] -> Textlunky ()
-parseCommands []     = liftF End
-parseCommands (x:xs) = do
-  if "end" `elem` x then liftF End
-  else case parseCommand x of
-              Just f -> do f
-                           parseCommands xs
-              _      -> parseCommands xs
+parseCommands []     = return ()
+parseCommands (x:xs) = 
+  case parseCommand x of
+        Just f -> do f
+                     parseCommands xs
+        _      -> do lift . lift . putStrLn $ ">> Command not recognized."
+                     parseCommands xs
 
 --TODO: Parse Enemy and Entity actions
 parseCommand :: [String] -> Maybe (Textlunky ())
 parseCommand xs = foldr1 (<|>) 
                 . map ($ xs)
-                $ [ parseMoveB    , parseShootB   , parseLook, 
+                $ [ parseShowEnts , parseShowRoom , parseWalls,
+                    parseMoveB    , parseShootB   , parseLook, 
                     parseThrow    , parseBombB    , parseDropItem,
                     parsePickupU  , parseJumpU    , parseAttackU,
                     parseRope     , parseShootSelf, parseExitLevel,
                     parseOpenChest, parseEnd ]
 
 {- ************ END PARSERS ************** -}
-
 
 move      = ["move", "m", "walk", "go", "mv"]
 moveTo    = ["move to", "go to", "mvto", "goto"]
@@ -144,7 +149,10 @@ leave     = ["leave", "exit", "finish", "end"]
 dropDown  = ["drop", "dropdown", "fall", "hole"]
 look      = ["look", "view", "peek", "search"]
 combine   = ["&", "and", "then", "."] -- | Process many commands at once
-end       = ["end"]                   -- | For completeness
+end       = ["end", "quit"]           -- | For completeness
+showWall  = ["walls", "lookwalls"]
+showEnts  = ["stuff", "entities", "contents"]
+showRoom  = ["show", "search", "room"]
 
 north  = ["n", "north", "forward", "fw"]
 south  = ["s", "south", "backwards", "back", "bk"]

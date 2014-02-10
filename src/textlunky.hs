@@ -10,6 +10,7 @@ import Types
 import Types.Vectors
 import Game as G
 import Random
+import TextlunkyParser
 
 makeLenses ''Player
 makeLenses ''Room
