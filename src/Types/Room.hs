@@ -33,19 +33,21 @@ data Room = Room{
     -- | See 1/19 notes
     -- | Define like this for absolute correctness,
     -- | Don't allow for an Up wall, for example
-    _ladderU  :: Bool,
-    _ladderD  :: Bool,
-    _wallN    :: Maybe Wall,
-    _wallS    :: Maybe Wall,
-    _wallE    :: Maybe Wall,
-    _wallW    :: Maybe Wall
+    _ladderU   :: Bool      ,
+    _ladderD   :: Bool      ,
+    _wallN     :: Maybe Wall,
+    _wallS     :: Maybe Wall,
+    _wallE     :: Maybe Wall,
+    _wallW     :: Maybe Wall,
+    _ceilHole  :: Bool      ,
+    _floorHole :: Bool      
 }
 
 makeLenses ''Room
 
 -- full room show
 instance Show Room where
-    show r = concat $ (walls : ladders : t : map show' (r^.entities))
+    show r = concat $ (walls : ladders : holes : t : map show' (r^.entities))
         where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
               t = case (r^.rType) of
                 KaliAltar      -> "You see an altar to Kali.\n"
@@ -56,6 +58,11 @@ instance Show Room where
                 (True, True) -> "There are ladders both up and down.\n"
                 (True, _   ) -> "There is a ladder up.\n"
                 (_   , True) -> "There is a ladder down.\n"
+                _            -> []
+              holes   = case (r^.ceilHole, r^.floorHole) of
+                (True, True) -> "There are holes in the ceiling and floor.\n"
+                (True, _   ) -> "There is a hole in the ceiling.\n"
+                (_   , True) -> "There is a hole in the floor.\n"
                 _            -> []
               walls = showWalls r
 
@@ -83,15 +90,18 @@ instance Default Room where
           NormalRoom  -- | Room Type
           False False -- | Ladders
           Nothing Nothing Nothing Nothing -- | Walls
+          False False -- | Holes
 
 -- demolish a wall in some direction
 demolish :: Direction -> Room -> Room
 demolish d r = r'
   where r' = case d of
-                N -> wallN .~ Nothing $ r
-                S -> wallS .~ Nothing $ r
-                E -> wallE .~ Nothing $ r
-                W -> wallW .~ Nothing $ r
+                N -> wallN     .~ Nothing $ r
+                S -> wallS     .~ Nothing $ r
+                E -> wallE     .~ Nothing $ r
+                W -> wallW     .~ Nothing $ r
+                U -> ceilHole  .~ True    $ r
+                D -> floorHole .~ True    $ r
                 _ -> r
 
 -- random rooms are:

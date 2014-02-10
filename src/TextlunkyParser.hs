@@ -124,14 +124,16 @@ parseCommands (x:xs) =
 parseCommand :: [String] -> Maybe (Textlunky ())
 parseCommand xs = foldr1 (<|>) 
                 . map ($ xs)
-                $ [ parseShowEnts , parseShowRoom , parseWalls,
-                    parseMoveB    , parseShootB   , parseLook, 
-                    parseThrow    , parseBombB    , parseDropItem,
-                    parsePickupU  , parseJumpU    , parseAttackU,
+                $ [ parseMoveB    , parseShootB   , parseLook     , 
+                    parseThrow    , parseBombB    , parseDropItem ,
+                    parsePickupU  , parseJumpU    , parseAttackU  ,
+                    parseShowEnts , parseShowRoom , parseWalls    ,
                     parseRope     , parseShootSelf, parseExitLevel,
                     parseOpenChest, parseEnd ]
 
 {- ************ END PARSERS ************** -}
+
+{- ************ START COMMAND LISTS ************** -}
 
 move      = ["move", "m", "walk", "go", "mv"]
 moveTo    = ["move to", "go to", "mvto", "goto"]
@@ -147,12 +149,12 @@ bomb      = ["bomb"]
 open      = ["open", "chest", "openchest", "getchest"]
 leave     = ["leave", "exit", "finish", "end"]
 dropDown  = ["drop", "dropdown", "fall", "hole"]
-look      = ["look", "view", "peek", "search"]
+look      = ["look", "view", "peek", "search", "examine"]
 combine   = ["&", "and", "then", "."] -- | Process many commands at once
 end       = ["end", "quit"]           -- | For completeness
 showWall  = ["walls", "lookwalls"]
 showEnts  = ["stuff", "entities", "contents"]
-showRoom  = ["show", "search", "room"]
+showRoom  = ["show", "search", "room", "look", "view", "examine"]
 
 north  = ["n", "north", "forward", "fw"]
 south  = ["s", "south", "backwards", "back", "bk"]
@@ -166,6 +168,9 @@ middle = ["middle", "mid", "m"]
 commands :: [String]
 commands = concat [move, moveTo, pickup, dropItem, jump, attack, shoot, 
                    throw, rope, bomb, open, leave, dropDown, look, end]
+
+
+{- ************ END COMMAND LISTS ************** -}
 
 -- | Corresponds to Direction
 directions :: [String]

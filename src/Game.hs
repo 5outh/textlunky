@@ -49,7 +49,7 @@ runGame gs = flip evalStateT gs $ showCmd game
 -- | Build a command from user prompt
 game :: Textlunky ()
 game = forever $ do
-  --lift printRoom -- | Print current room
+  lift . lift $ putStrLn "What do you do?"
   prompt         -- | Get a command
   interactGame   -- | Update game based on commmand
   lift stepGame  -- | Step the game
@@ -57,7 +57,6 @@ game = forever $ do
 -- build a textlunky command from the command line
 prompt :: Textlunky ()
 prompt = do
-  lift . lift $ putStr "> "
   cmd <- lift . lift $ getLine
   parseInput cmd :: Textlunky ()
 
