@@ -13,7 +13,9 @@ module Types (
   module Types.Level                ,
   module Types.Player               ,
   module Types.TextlunkyCommand     ,
-  module Types.GameState            
+  module Types.GameState            ,
+  module Types.Vectors              ,
+  module Types.Synonyms
 ) where
 
 import Types.Direction
@@ -31,3 +33,5 @@ import Types.Level
 import Types.Player
 import Types.TextlunkyCommand
 import Types.GameState
+import Types.Vectors
+import Types.Synonyms

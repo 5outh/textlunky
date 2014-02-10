@@ -113,7 +113,7 @@ demolish d r = r'
 randMinesRoom :: MonadRandom m => m Room
 randMinesRoom = do
   [n, s, e, w]    <- replicateM 4 $     liftM Just randWall
-  [tops, bottoms] <- replicateM 2 $     descending [1..6]
+  [tops, bottoms] <- replicateM 2 $     descending [1..4]
   topEs           <- replicateM tops    randMinesTopEntity
   bottomEs        <- replicateM bottoms randMinesBottomEntity
   topSpaces       <- choose     tops    (map toVector3 topDirs)
@@ -128,4 +128,3 @@ randMinesRoom = do
          $ ladderU  .~ lu
          $ ladderD  .~ ld
          $ def
-

@@ -17,8 +17,6 @@ import Control.Monad.Trans.Free
 import Control.Monad.Trans.State
 import Control.Monad.Identity
 import Types
-import Types.TextlunkyCommand
-import Types.Synonyms
 import Control.Monad(forever)
 import Data.Char(toLower)
 import Control.Lens
@@ -50,6 +48,7 @@ runGame gs = flip evalStateT gs $ showCmd game
 game :: Textlunky ()
 game = forever $ do
   lift . lift $ putStrLn "What do you do?"
+  lift . lift $ putStr "> "
   prompt         -- | Get a command
   interactGame   -- | Update game based on commmand
   lift stepGame  -- | Step the game
