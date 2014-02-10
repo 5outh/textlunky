@@ -47,7 +47,6 @@ runGame gs = flip evalStateT gs $ showCmd game
 -- | Build a command from user prompt
 game :: Textlunky ()
 game = forever $ do
-  lift . lift $ putStrLn "What do you do?"
   lift . lift $ putStr "> "
   prompt         -- | Get a command
   interactGame   -- | Update game based on commmand
@@ -93,79 +92,79 @@ showCmd t = do
   st <- get
   case x of
     Pure _ -> return ()
-    (Free (Move d x)) -> do
-     lift $ putStrLnP $ "You move " ++ show d
-     showCmd x
-    (Free (MoveTo e x)) -> do
-     lift $ putStrLnP $ "You move to the " ++ show e
-     showCmd x
-    (Free (Pickup Nothing x)) -> do
-     lift $ putStrLnP "There is nothing to pick up."
-     showCmd x
-    (Free (Pickup (Just e) x)) -> do
-     lift $ putStrLnP $ "You pick up a " ++ show e
-     showCmd x
-    (Free (DropItem x)) -> do
-     let itm = st^.player^.holding
-     lift $ putStrLnP $ case itm of
+    Free (Move d x) -> do
+      lift $ putStrLnP $ "You move " ++ show d
+      showCmd x
+    Free (MoveTo e x) -> do
+      lift $ putStrLnP $ "You move to the " ++ show e
+      showCmd x
+    Free (Pickup Nothing x) -> do
+      lift $ putStrLnP "There is nothing to pick up."
+      showCmd x
+    Free (Pickup (Just e) x) -> do
+      lift $ putStrLnP $ "You pick up a " ++ show e
+      showCmd x
+    Free (DropItem x) -> do
+      let itm = st^.player^.holding
+      lift $ putStrLnP $ case itm of
         Just e ->  "You drop your " ++ show e
         Nothing -> "You have nothing to drop."
-     showCmd x
-    (Free (Jump Nothing x)) -> do
-     lift $ putStrLnP $ "You jump in the air."
-     showCmd x
-    (Free (Jump (Just e) x)) -> do
-     lift $ putStrLnP $ "You jump on a " ++ show e
-     showCmd x 
-    (Free (Attack Nothing x)) -> do
-     lift $ putStrLnP $ "You attack."
-     showCmd x
-    (Free (Attack (Just e) x)) -> do
-     lift $ putStrLnP $ "You attack a " ++ show e
-     showCmd x
-    (Free (ShootD d x)) -> do
-     lift $ putStrLnP $ "You shoot " ++ show d 
-     showCmd x 
-    (Free (ShootE e x)) -> do
-     lift $ putStrLnP $ "You shoot a " ++  show e
-     showCmd x 
-    (Free (ShootSelf x)) -> do
-     lift $ putStrLnP $ "You kill yourself."
-     showCmd x
-    (Free (Throw d x)) -> do
-     lift $ putStrLnP $ "You throw your item " ++ show d
-     showCmd x 
-     {- This is an example of modifying data based on input, for later! -}
-    (Free (Rope x)) -> do
+      showCmd x
+    Free (Jump Nothing x) -> do
+      lift $ putStrLnP $ "You jump in the air."
+      showCmd x
+    Free (Jump (Just e) x) -> do
+      lift $ putStrLnP $ "You jump on a " ++ show e
+      showCmd x 
+    Free (Attack Nothing x) -> do
+      lift $ putStrLnP $ "You attack."
+      showCmd x
+    Free (Attack (Just e) x) -> do
+      lift $ putStrLnP $ "You attack a " ++ show e
+      showCmd x
+    Free (ShootD d x) -> do
+      lift $ putStrLnP $ "You shoot " ++ show d 
+      showCmd x 
+    Free (ShootE e x) -> do
+      lift $ putStrLnP $ "You shoot a " ++  show e
+      showCmd x 
+    Free (ShootSelf x) -> do
+      lift $ putStrLnP $ "You kill yourself."
+      showCmd x
+    Free (Throw d x) -> do
+      lift $ putStrLnP $ "You throw your item " ++ show d
+      showCmd x 
+    {- This is an example of modifying data based on input, for later! -}
+    Free (Rope x) -> do
       if st^.player^.ropes > 0 
       then do 
         lift $ putStrLnP "You toss a rope up."
         player.ropes -= 1     -- Weirdly imperative in my Haskell..!
       else lift $ putStrLnP "You don't have any ropes!"
       showCmd x 
-    (Free (Bomb Nothing x)) -> do
-     lift $ putStrLnP $ "You place a bomb at your feet." 
-     showCmd x 
-    (Free (Bomb (Just d) x)) -> do
-     lift $ putStrLnP $ "You place a bomb " ++ 
-       (case d of 
-         U -> "on the ceiling" -- | only with paste...
-         D -> "on the floor"
-         x -> "near the " ++ show x ++ " wall")
-     showCmd x
-    (Free (OpenGoldChest x)) -> do
-     lift $ putStrLnP $ "You open the gold chest." 
-     showCmd x
-    (Free (OpenChest x)) -> do
-     lift $ putStrLnP $ "You open a chest."
-     showCmd x 
-    (Free (ExitLevel x)) -> do
-     lift $ putStrLnP $ "You exit the level!"
-     showCmd x
-    (Free (DropDown x)) -> do
-     lift $ putStrLnP $ "You drop down to the next level."
-     showCmd x 
-    (Free (Look d x)) -> do
+    Free (Bomb Nothing x) -> do
+      lift $ putStrLnP $ "You place a bomb at your feet." 
+      showCmd x 
+    Free (Bomb (Just d) x) -> do
+      lift $ putStrLnP $ "You place a bomb " ++ 
+        (case d of 
+          U -> "on the ceiling" -- | only with paste...
+          D -> "on the floor"
+          x -> "near the " ++ show x ++ " wall")
+      showCmd x
+    Free (OpenGoldChest x) -> do
+      lift $ putStrLnP $ "You open the gold chest." 
+      showCmd x
+    Free (OpenChest x) -> do
+      lift $ putStrLnP $ "You open a chest."
+      showCmd x 
+    Free (ExitLevel x) -> do
+      lift $ putStrLnP $ "You exit the level!"
+      showCmd x
+    Free (DropDown x) -> do
+      lift $ putStrLnP $ "You drop down to the next level."
+      showCmd x 
+    Free (Look d x) -> do
      let show' U = "above you"
          show' D = "below you"
          show' x = "to your " ++ show x
@@ -180,7 +179,7 @@ showCmd t = do
       lift $ putStrLn  $ showEntities (st^.room._2)
       showCmd x
     Free (ShowFull x) -> do
-      lift $ putStrLnP $ "A description of the room you're in:\n"
+      lift $ putStrLnP $ "You see:\n"
       lift $ putStrLn  $ show (st^.room._2)
       showCmd x
     (Free End) -> lift $ putStrLnP "Goodbye!" >> return ()

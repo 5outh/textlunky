@@ -92,6 +92,15 @@ parseShootSelf xs =   parseUnary shoot     ShootSelf xs
                   <|> parseUnary attack    ShootSelf xs
                   <|> parseUnary shootself ShootSelf xs
 
+parseDropDown xs = case "drop" `elem` xs of 
+  True -> case "down" `elem` xs of 
+            True -> Just $ liftF $ DropDown ()
+            _    -> Nothing
+  _    -> case any (`elem` dropDown) xs of
+            True -> Just $ liftF $ DropDown ()
+            _    -> Nothing
+  where dropDown = ["fall", "godown"]
+
 -- check for desire to open gold chest 
 parseOpenChest  xs = case any (`elem` open) xs of 
   True -> case "gold" `elem` xs of
@@ -117,19 +126,30 @@ parseCommands (x:xs) =
   case parseCommand x of
         Just f -> do f
                      parseCommands xs
-        _      -> do lift . lift . putStrLn $ ">> Command not recognized."
-                     parseCommands xs
+        _      -> parseCommands xs
 
 --TODO: Parse Enemy and Entity actions
 parseCommand :: [String] -> Maybe (Textlunky ())
 parseCommand xs = foldr1 (<|>) 
                 . map ($ xs)
-                $ [ parseMoveB    , parseShootB   , parseLook     , 
-                    parseThrow    , parseBombB    , parseDropItem ,
-                    parsePickupU  , parseJumpU    , parseAttackU  ,
-                    parseShowEnts , parseShowRoom , parseWalls    ,
-                    parseRope     , parseShootSelf, parseExitLevel,
-                    parseOpenChest, parseEnd ]
+                $ [ parseMoveB    , 
+                    parseShootB   , 
+                    parseLook     ,
+                    parseDropDown , 
+                    parseThrow    , 
+                    parseBombB    , 
+                    parseDropItem ,
+                    parseShowRoom , 
+                    parsePickupU  , 
+                    parseJumpU    , 
+                    parseAttackU  , 
+                    parseShowEnts , 
+                    parseWalls    ,
+                    parseRope     , 
+                    parseShootSelf, 
+                    parseExitLevel,
+                    parseOpenChest, 
+                    parseEnd       ]
 
 {- ************ END PARSERS ************** -}
 
