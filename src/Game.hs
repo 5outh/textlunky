@@ -22,6 +22,15 @@ import Data.Char(toLower)
 import Control.Lens
 import TextlunkyParser
 
+-- | An unwrapped `TextlunkyCommand`
+type UnwrappedCommand = FreeF TextlunkyCommand () (Textlunky ())
+
+-- | A `Process` used to update the game
+type Process = 
+     GameState
+  -> UnwrappedCommand
+  -> Global GameState ()
+
 makeLenses ''GameState
 makeLenses ''Player
 
@@ -88,98 +97,129 @@ stepGame = return ()
 -- Show a command with access to global state
 showCmd :: Textlunky () -> Global GameState ()
 showCmd t = do
-  x  <- runFreeT t
-  st <- get
-  case x of
-    Pure _ -> return ()
-    Free (Move d x) -> do
-      lift $ putStrLnP $ "You move " ++ show d
-      showCmd x
-    Free (MoveTo e x) -> do
-      lift $ putStrLnP $ "You move to the " ++ show e
-      showCmd x
-    Free (Pickup Nothing x) -> do
-      lift $ putStrLnP "There is nothing to pick up."
-      showCmd x
-    Free (Pickup (Just e) x) -> do
-      lift $ putStrLnP $ "You pick up a " ++ show e
-      showCmd x
-    Free (DropItem x) -> do
-      let itm = st^.player^.holding
-      lift $ putStrLnP $ case itm of
-        Just e ->  "You drop your " ++ show e
-        Nothing -> "You have nothing to drop."
-      showCmd x
-    Free (Jump Nothing x) -> do
-      lift $ putStrLnP $ "You jump in the air."
-      showCmd x
-    Free (Jump (Just e) x) -> do
-      lift $ putStrLnP $ "You jump on a " ++ show e
-      showCmd x 
-    Free (Attack Nothing x) -> do
-      lift $ putStrLnP $ "You attack."
-      showCmd x
-    Free (Attack (Just e) x) -> do
-      lift $ putStrLnP $ "You attack a " ++ show e
-      showCmd x
-    Free (ShootD d x) -> do
-      lift $ putStrLnP $ "You shoot " ++ show d 
-      showCmd x 
-    Free (ShootE e x) -> do
-      lift $ putStrLnP $ "You shoot a " ++  show e
-      showCmd x 
-    Free (ShootSelf x) -> do
-      lift $ putStrLnP $ "You kill yourself."
-      showCmd x
-    Free (Throw d x) -> do
-      lift $ putStrLnP $ "You throw your item " ++ show d
-      showCmd x 
-    {- This is an example of modifying data based on input, for later! -}
-    Free (Rope x) -> do
+  cmd <- runFreeT t
+  st  <- get
+  case cmd of
+    Pure _   -> return ()
+    Free End -> lift $ putStrLnP $ "Goodbye!"
+    x        -> go showCmd process st cmd
+
+next :: UnwrappedCommand -> Textlunky ()
+next (Pure _)                 = return ()
+next (Free End)               = return ()
+next (Free (Move d x))        = x
+next (Free (MoveTo e x))      = x
+next (Free (Pickup _ x))      = x
+next (Free (DropItem x))      = x
+next (Free (Jump _ x))        = x
+next (Free (Attack _ x))      = x
+next (Free (ShootD _ x))      = x
+next (Free (ShootE _ x))      = x
+next (Free (ShootSelf x))     = x
+next (Free (Throw _ x))       = x
+next (Free (Rope x))          = x
+next (Free (Bomb _ x))        = x
+next (Free (OpenGoldChest x)) = x
+next (Free (OpenChest x))     = x
+next (Free (ExitLevel x))     = x
+next (Free (DropDown x))      = x
+next (Free (Look _ x))        = x
+next (Free (Walls x))         = x
+next (Free (ShowEntities x))  = x
+next (Free (ShowFull x))      = x
+
+process :: Process
+process st (Pure _)                 = return ()
+
+process st (Free End)               = return ()
+
+process st (Free (Move d x))        = 
+  lift $ putStrLnP $ "You move " ++ show d
+
+process st (Free (MoveTo e x))      = 
+  lift $ putStrLnP $ "You move to the " ++ show e
+
+process st (Free (Pickup a x))      = case a of
+  Just e -> lift $ putStrLnP $ "You pick up a " ++ show e
+  _      -> lift $ putStrLnP "There is nothing to pick up."
+
+process st (Free (DropItem x))      = do
+  let itm = st^.player^.holding
+  lift $ putStrLnP $ case itm of
+    Just e ->  "You drop your " ++ show e
+    Nothing -> "You have nothing to drop."
+
+process st (Free (Jump a x))        = case a of
+  Just e  -> lift $ putStrLnP $ "You jump on a " ++ show e
+  Nothing -> lift $ putStrLnP $ "You jump in the air."
+
+process st (Free (Attack a x))      = case a of
+  Just e  -> lift $ putStrLnP $ "You jump on a " ++ show e
+  Nothing -> lift $ putStrLnP $ "You jump in the air."
+
+process st (Free (ShootD d x))      = 
+  lift $ putStrLnP $ "You shoot " ++ show d 
+
+process st (Free (ShootE e x))      = 
+  lift $ putStrLnP $ "You shoot a " ++  show e
+
+process st (Free (ShootSelf x))     = 
+  lift $ putStrLnP $ "You kill yourself."
+
+process st (Free ( Throw d x))       = 
+  lift $ putStrLnP $ "You throw your item " ++ show d
+
+process st (Free (Rope x))          = do
       if st^.player^.ropes > 0 
       then do 
         lift $ putStrLnP "You toss a rope up."
         player.ropes -= 1     -- Weirdly imperative in my Haskell..!
       else lift $ putStrLnP "You don't have any ropes!"
-      showCmd x 
-    Free (Bomb Nothing x) -> do
-      lift $ putStrLnP $ "You place a bomb at your feet." 
-      showCmd x 
-    Free (Bomb (Just d) x) -> do
-      lift $ putStrLnP $ "You place a bomb " ++ 
+
+process st (Free (Bomb a x))        = case a of
+  Just d  -> 
+    lift $ putStrLnP $ "You place a bomb " ++ 
         (case d of 
           U -> "on the ceiling" -- | only with paste...
           D -> "on the floor"
-          x -> "near the " ++ show x ++ " wall")
-      showCmd x
-    Free (OpenGoldChest x) -> do
-      lift $ putStrLnP $ "You open the gold chest." 
-      showCmd x
-    Free (OpenChest x) -> do
-      lift $ putStrLnP $ "You open a chest."
-      showCmd x 
-    Free (ExitLevel x) -> do
-      lift $ putStrLnP $ "You exit the level!"
-      showCmd x
-    Free (DropDown x) -> do
-      lift $ putStrLnP $ "You drop down to the next level."
-      showCmd x 
-    Free (Look d x) -> do
-     let show' U = "above you"
-         show' D = "below you"
-         show' x = "to your " ++ show x
-     lift $ putStrLnP $ "You look in the room " ++ show' d
-     showCmd x
-    Free (Walls x) -> do
-      lift $ putStrLnP $ "You see the following walls:\n"
-      lift $ putStrLn  $ showWalls (st^.room._2)
-      showCmd x
-    Free (ShowEntities x) -> do
-      lift $ putStrLnP $ "You see the following entities:\n"
-      lift $ putStrLn  $ showEntities (st^.room._2)
-      showCmd x
-    Free (ShowFull x) -> do
-      lift $ putStrLnP $ "You see:\n"
-      lift $ putStrLn  $ show (st^.room._2)
-      showCmd x
-    (Free End) -> lift $ putStrLnP "Goodbye!" >> return ()
+          w -> "near the " ++ show w ++ " wall")
+  Nothing -> lift $ putStrLnP $ "You place a bomb at your feet." 
+
+process st (Free (OpenGoldChest x)) = 
+  lift $ putStrLnP $ "You open the gold chest." 
+
+process st (Free (OpenChest x))     = 
+  lift $ putStrLnP $ "You open a chest."
+
+process st (Free (ExitLevel x))     = 
+  lift $ putStrLnP $ "You exit the level!"
+
+process st (Free (DropDown x))      = 
+  lift $ putStrLnP $ "You drop down to the next level."
+
+process st (Free (Look d x))        = do
+  let show' U = "above you"
+      show' D = "below you"
+      show' x = "to your " ++ show x
+  lift $ putStrLnP $ "You look in the room " ++ show' d
+
+process st (Free (Walls x))         = do
+  lift $ putStrLnP $ "You see the following walls:\n"
+  lift $ putStrLn  $ showWalls (st^.room._2)
+
+process st (Free (ShowEntities x))  = do
+  lift $ putStrLnP $ "You see the following entities:\n"
+  lift $ putStrLn  $ showEntities (st^.room._2)
+
+process st (Free (ShowFull x))      = do
+  lift $ putStrLnP $ "You see:\n"
+  lift $ putStrLn  $ show (st^.room._2)
+
+go :: (Textlunky () -> Global GameState ())
+     -> Process
+     -> GameState
+     -> UnwrappedCommand
+     -> Global GameState ()
+go f g st cmd = do
+  g st cmd
+  f (next cmd)

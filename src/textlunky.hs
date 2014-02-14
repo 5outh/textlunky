@@ -35,6 +35,12 @@ gs troom = player   .~ plr
             $ def :: Player
 
 main = do
+  --initialize
+  g  <- newStdGen
+  let room = evalRand randMinesRoom g
+  G.runGame (gs room)
+
+initialize = do
   hSetBuffering stdout NoBuffering
   forM_ "The walls are shifting............\n" $ \c ->
     do putChar c
@@ -44,6 +50,3 @@ main = do
     concat $ ["You find yourself in some dark, wet mines with 4 ropes and 4 bombs",
               " in your backpack. You must survive. You may want to take a look around.",
               " What do you do?"]
-  g  <- newStdGen
-  let room = evalRand randMinesRoom g
-  G.runGame (gs room)
