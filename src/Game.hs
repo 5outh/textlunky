@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Game(
   stepGame,
   game,
@@ -33,11 +32,11 @@ runGame gs = flip evalStateT gs $ (runCommand game >> stepGame)
 -- |     a function GameState -> GameState)
 -- |  6. Repeat.
 game :: Textlunky ()
-game = forever $ (lift . lift $ putStr "> ") >> prompt
+game = forever $ (liftIO $ putStr "> ") >> prompt
 
 -- | Build a textlunky command from the command line
 prompt :: Textlunky ()
-prompt = parseInput =<< (lift . lift $ getLine)
+prompt = liftIO getLine >>= parseInput
 
 -- | Step game one round
 -- | TODO: implement

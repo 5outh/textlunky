@@ -15,11 +15,24 @@ import Types.TextlunkyCommand
 import Types.GameState
 import Control.Monad.Trans.Free
 
+-- process Id
+idP :: Process
+idP = \_ _ -> return ()
+
 -- compose processes
 (<.>) :: Process -> Process -> Process
 pA <.> pB = \st cmd -> do
   pA st cmd
   pB st cmd
+
+recursively :: (Textlunky () -> Global GameState ())
+            -> Process
+            -> GameState
+            -> UnwrappedCommand
+            -> Global GameState ()
+recursively f g st cmd = do
+  g st cmd
+  f (next cmd)
 
 next :: UnwrappedCommand -> Textlunky ()
 next (Pure _)                 = return ()
@@ -44,12 +57,3 @@ next (Free (Look _ x))        = x
 next (Free (Walls x))         = x
 next (Free (ShowEntities x))  = x
 next (Free (ShowFull x))      = x
-
-recursively :: (Textlunky () -> Global GameState ())
-            -> Process
-            -> GameState
-            -> UnwrappedCommand
-            -> Global GameState ()
-recursively f g st cmd = do
-  g st cmd
-  f (next cmd)
