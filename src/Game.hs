@@ -52,5 +52,5 @@ runCommand t = do
   cmd <- runFreeT t
   case cmd of
     Pure _   -> return ()
-    Free End -> lift $ putStrLnP $ "Goodbye!"
+    Free End -> liftIO $ putStrLnP $ "Goodbye!"
     _        -> recursively runCommand (updateP <.> showP) st cmd

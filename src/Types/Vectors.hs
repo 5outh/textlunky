@@ -6,13 +6,28 @@ module Types.Vectors(
 	Vector3(..),
   Vector(..),
   fromTuple,
-  fromTriple
+  fromTriple,
+  toInt2,
+  toInt3
 ) where
 
 data Axis = X | Y | Z deriving (Show, Eq)
 
 data Vector2 a = Vector2 a a   deriving (Show, Eq)
 data Vector3 a = Vector3 a a a deriving (Show, Eq)
+
+-- | NB. toInt2, toInt3 only for use with vectors that can be represented in base 3!
+-- | This is an ad-hoc way for representing space IDs
+
+-- base 3 representation of a Vector2
+toInt2 :: Vector2 Int -> Int
+toInt2 (Vector2 x y) = y + 3 * x
+
+-- base 3 representation of a Vector3
+-- x, y in 0..2
+-- z in 0..1
+toInt3 :: Vector3 Int -> Int
+toInt3 (Vector3 x y z) = 9 * z + 3 * y + x
 
 class Vector v where
   vmap :: Axis -> (a -> a) -> v a -> Maybe (v a)
@@ -49,4 +64,3 @@ fromTuple (x, y) = Vector2 x y
 
 fromTriple :: (a, a, a) -> Vector3 a
 fromTriple (x, y, z) = Vector3 x y z
-

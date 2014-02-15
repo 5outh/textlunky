@@ -254,3 +254,8 @@ So there is a mapping between ({0, 2} ({0,1} (z [ud]), x [emw]), {0,2} (y [nms])
 I need readers for Enemies and, unfortunately, Entities, in order to parse commands like "pickup pot," etc. Also I need to be able to handle ambiguities (i.e. if there are two of the same enemy in a single room, which one do I attack?).
 
 Enemy reader is a little messed up right now, I think I might need a more fully featured parser...
+
+## Saturday, February 15th
+
+From Feb. 10th (above), an obvious choice for assigning IDs to entities would be to just convert their `Vector3` representation to a value in base 2 -- all of the numbers will be between 0 and 2, so we can easily map this to the values 0..17 (or 1..18) and have the player just choose when there is an ambiguity.
+
