@@ -5,7 +5,8 @@ module Types.Room(
   randMinesRoom,
   demolish,
   showWalls,
-  showEntities
+  showEntities,
+  showEntitiesWithIds
 ) where
 
 import Data.Default
@@ -80,6 +81,10 @@ showEntities :: Room -> String
 showEntities r = concatMap show' (r^.entities)
   where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
 
+showEntitiesWithIds :: Room -> String
+showEntitiesWithIds r = concatMap show' (r^.entities)
+  where show' (spc, entity) = show (toInt3 spc) ++ ": " ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
+
 instance Universe RoomType where
   universe = enumFrom NormalRoom
   
@@ -113,7 +118,7 @@ demolish d r = r'
 randMinesRoom :: MonadRandom m => m Room
 randMinesRoom = do
   [n, s, e, w]    <- replicateM 4 $     liftM Just randWall
-  [tops, bottoms] <- replicateM 2 $     descending [1..4]
+  [tops, bottoms] <- replicateM 2 $     descending [1..5]
   topEs           <- replicateM tops    randMinesTopEntity
   bottomEs        <- replicateM bottoms randMinesBottomEntity
   topSpaces       <- choose     tops    (map toVector3 topDirs)

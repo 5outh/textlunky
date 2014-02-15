@@ -257,5 +257,8 @@ Enemy reader is a little messed up right now, I think I might need a more fully 
 
 ## Saturday, February 15th
 
-From Feb. 10th (above), an obvious choice for assigning IDs to entities would be to just convert their `Vector3` representation to a value in base 2 -- all of the numbers will be between 0 and 2, so we can easily map this to the values 0..17 (or 1..18) and have the player just choose when there is an ambiguity.
+From Feb. 10th (above), an obvious choice for assigning IDs to entities would be to just convert their `Vector3` representation to a value in base 2 -- all of the numbers will be between 0 and 2, so we can easily map this to the values 0..17 (or 1..18) and have the player just choose when there is an ambiguity. (done)
 
+Need a way to validate user commands. For example, players can't go up unless there is a rope/ladder in the room or if they have a jetpack (or climbing gloves and aren't in the center of the room)...etc.
+
+Need a way to select entities based on id values

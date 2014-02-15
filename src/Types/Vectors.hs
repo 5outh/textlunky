@@ -8,8 +8,12 @@ module Types.Vectors(
   fromTuple,
   fromTriple,
   toInt2,
-  toInt3
+  fromInt2,
+  toInt3,
+  fromInt3
 ) where
+
+import Data.List
 
 data Axis = X | Y | Z deriving (Show, Eq)
 
@@ -20,14 +24,40 @@ data Vector3 a = Vector3 a a a deriving (Show, Eq)
 -- | This is an ad-hoc way for representing space IDs
 
 -- base 3 representation of a Vector2
+-- | NB. toInt2 . fromInt2 = id
+-- |     fromInt2 . toInt2 = id
 toInt2 :: Vector2 Int -> Int
-toInt2 (Vector2 x y) = y + 3 * x
+toInt2 (Vector2 x y) = 3 * y + x
+
+toBase3 :: Int -> [Int]
+toBase3 0 = [0]
+toBase3 1 = [1]
+toBase3 2 = [2]
+toBase3 x = (x `mod` 3)  : toBase3 (x `div` 3)
+
+fromInt2 :: Int -> Vector2 Int
+fromInt2 x = Vector2 x' y'
+  where [x', y'] = 
+          case toBase3 x of
+            [x']    -> [x', 0]
+            a@[_,_] -> a
+            _       -> error "Cannot convert number larger than 8 to Vector2."
 
 -- base 3 representation of a Vector3
--- x, y in 0..2
--- z in 0..1
+-- x, y, z in 0..2 (though z will typically be 0 or 1)
+-- | NB. toInt3 . fromInt3 = id
+-- |     fromInt3 . toInt3 = id
 toInt3 :: Vector3 Int -> Int
 toInt3 (Vector3 x y z) = 9 * z + 3 * y + x
+
+fromInt3 :: Int -> Vector3 Int
+fromInt3 x = Vector3 x' y' z'
+  where [x', y', z'] =
+          case toBase3 x of
+            [x']      -> [x', 0, 0]
+            [x', y']  -> [x', y', 0]
+            a@[_,_,_] -> a
+            _         -> error "Cannot convert number larger than 26 to Vector3"
 
 class Vector v where
   vmap :: Axis -> (a -> a) -> v a -> Maybe (v a)

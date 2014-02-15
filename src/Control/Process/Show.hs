@@ -97,8 +97,8 @@ showP st (Free (Walls x)) = do
   liftIO $ putStrLn  $ showWalls (st^.room._2)
 
 showP st (Free (ShowEntities x)) = do
-  liftIO $ putStrLnP $ "You see the following entities:\n"
-  liftIO $ putStrLn  $ showEntities (st^.room._2)
+  liftIO $ putStrLnP $ "You see the following things:\n"
+  liftIO $ putStrLn  $ showEntitiesWithIds (st^.room._2)
 
 showP st (Free (ShowFull x)) = do
   liftIO $ putStrLnP $ "You see:\n"
