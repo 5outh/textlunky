@@ -30,15 +30,16 @@ data Area = Mines
             deriving (Show, Eq)
 
 data GameState = GameState{
-  _player   :: Player,
-  _levelNum :: Int   ,
-  _level    :: Level ,
-  _area     :: Area  ,
-  _room     :: (Vector2 Int, Room)
+  _player    :: Player,
+  _levelNum  :: Int   ,
+  _round     :: Int   ,
+  _level     :: Level ,
+  _area      :: Area  ,
+  _room      :: (Vector2 Int, Room)
 }
 
 instance Default GameState where
-  def = GameState (def :: Player) 0 undefined Mines undefined
+  def = GameState (def :: Player) 0 0 undefined Mines undefined
             
 makeLenses ''GameState
 makeLenses ''Level
@@ -59,7 +60,7 @@ moveRoomToV gs v =
   let rms = gs^.level^.rooms
   in case lookup v rms of
       Just r -> room .~ (v, r) $ gs
-      Nothing -> gs   
+      Nothing -> gs
 
 -- | For testing only
 showGS = (\(_, r) -> show r) . view room

@@ -26,6 +26,9 @@ data GroundItem =  Key
                  | ItemCrate Item
                  | Chest [Jewel] 
                  | Floor Consumable
+                   -- these aren't randomly generated!
+                 | GBomb  Int -- # rounds until explosion
+                 | GRope
                  deriving Eq
 
 instance Show GroundItem where
@@ -39,6 +42,10 @@ instance Show GroundItem where
   show GoldChest            = "a golden treasure chest"        -- | Special
   show Damsel               = "a terrified damsel in distress" -- | One/Level, gen separately
   show Idol                 = "a shiny, golden idol head"      -- | Special
+  show (GBomb 2)            = "a bomb with a long fuse"
+  show (GBomb 1)            = "a bomb with a very short fuse"
+  show (GBomb 0)            = "an exploding bomb"
+  show GRope                = "a long rope extending upwards"
   show (Floor c)            = show c
                  
 instance Universe GroundItem where

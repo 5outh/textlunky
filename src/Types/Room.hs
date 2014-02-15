@@ -6,7 +6,8 @@ module Types.Room(
   demolish,
   showWalls,
   showEntities,
-  showEntitiesWithIds
+  showEntitiesWithIds,
+  addEntityAt
 ) where
 
 import Data.Default
@@ -84,6 +85,9 @@ showEntities r = concatMap show' (r^.entities)
 showEntitiesWithIds :: Room -> String
 showEntitiesWithIds r = concatMap show' (r^.entities)
   where show' (spc, entity) = show (toInt3 spc) ++ ": " ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
+
+addEntityAt :: Vector3 Int -> Entity -> Room -> Room
+addEntityAt v e room = entities .~ ((v, e) : room^.entities) $ room
 
 instance Universe RoomType where
   universe = enumFrom NormalRoom

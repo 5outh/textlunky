@@ -55,14 +55,12 @@ showP st (Free (ShootE e x)) =
 showP st (Free (ShootSelf x)) = 
   liftIO $ putStrLnP $ "You kill yourself."
 
-showP st (Free ( Throw d x)) = 
+showP st (Free (Throw d x)) = 
   liftIO $ putStrLnP $ "You throw your item " ++ show d
 
 showP st (Free (Rope x)) = do
       if st^.player^.ropes > 0 
-      then do 
-        liftIO $ putStrLnP "You toss a rope up."
-        player.ropes -= 1     -- Weirdly imperative in my Haskell..!
+      then liftIO $ putStrLnP "You toss a rope up."
       else liftIO $ putStrLnP "You don't have any ropes!"
 
 showP st (Free (Bomb a x)) = case a of
@@ -72,10 +70,18 @@ showP st (Free (Bomb a x)) = case a of
           U -> "on the ceiling" -- | only with paste...
           D -> "on the floor"
           w -> "near the " ++ show w ++ " wall")
-  Nothing -> liftIO $ putStrLnP $ "You place a bomb at your feet."
+  Nothing -> liftIO $ putStrLnP $ 
+              if st^.player^.bombs > 0 
+              then "You place a bomb at your feet."
+              else "You don't have any bombs!"
 
-showP st (Free (OpenGoldChest x)) = 
-  liftIO $ putStrLnP $ "You open the gold chest." 
+-- still need to validate if Gold Chest is even in the room.
+showP st (Free (OpenGoldChest x)) = liftIO $ putStrLnP $
+  case st^.player^.holding of
+    Just (GroundItem' Key) -> 
+      "You open the gold chest! Something shiny pops out." 
+    _                      -> 
+      "It's locked! There may be a key laying around here somewhere..."
 
 showP st (Free (OpenChest x)) = 
   liftIO $ putStrLnP $ "You open a chest."
@@ -103,3 +109,6 @@ showP st (Free (ShowEntities x)) = do
 showP st (Free (ShowFull x)) = do
   liftIO $ putStrLnP $ "You see:\n"
   liftIO $ putStrLn  $ show (st^.room._2)
+
+showP st (Free (ShowMe x)) = do
+  liftIO $ putStrLnP $ show (st^.player)

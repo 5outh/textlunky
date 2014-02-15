@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Game(
   stepGame,
   game,
@@ -17,10 +18,14 @@ import Types
 import Control.Monad(forever)
 import TextlunkyParser
 import Control.Process
+import Control.Lens hiding ((<.>))
+import Prelude hiding (round)
+
+makeLenses ''GameState
 
 -- | See below for details
 runGame :: GameState -> IO ()
-runGame gs = flip evalStateT gs $ (runCommand game >> stepGame)
+runGame gs = flip evalStateT gs $ (runCommand game)
 
 -- |  What we wnat to do here is:
 -- |  0. Print a description of the room the player is in
@@ -38,11 +43,6 @@ game = forever $ (liftIO $ putStr "> ") >> prompt
 prompt :: Textlunky ()
 prompt = liftIO getLine >>= parseInput
 
--- | Step game one round
--- | TODO: implement
-stepGame :: Global GameState ()
-stepGame = return ()
-
 -- Process command with access to global state
 -- | NB. updateP <.> showP should (will?) update and show each command.
 -- | These reside in Control.Process
@@ -53,4 +53,4 @@ runCommand t = do
   case cmd of
     Pure _   -> return ()
     Free End -> liftIO $ putStrLnP $ "Goodbye!"
-    _        -> recursively runCommand (updateP <.> showP) st cmd
+    _        -> recursively runCommand (stepGame <.> updateP <.> showP) st cmd

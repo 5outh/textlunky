@@ -11,9 +11,10 @@ import Data.List(intercalate)
 import Types.Direction
 import Types.Item
 import Types.Entity
+import Types.Vectors
 
 data Player = Player{
-  _loc   :: Space,
+  _loc   :: Vector3 Int,
   _hp    :: Int,
   _bombs :: Int,
   _ropes :: Int,
@@ -25,7 +26,7 @@ data Player = Player{
 
 -- | Starting Player
 instance Default Player where
-  def = Player (D,S,E) 4 4 4 0 [] Nothing 0
+  def = Player (fromTriple (0,0,0)) 4 4 4 0 [] Nothing 0
   
 makeLenses ''Player
 
@@ -39,14 +40,14 @@ instance Show Player where
       else "You have collected the following items: " ++ (intercalate ", " $ map show (p^.items)),
      case (p^.holding) of 
       Nothing -> []
-      Just a  -> "You are holding : " ++ show (p^.holding)
+      Just a  -> "You are holding : " ++ show a
     ]
 
 -- | Information to show on each round
 playerSnippet :: Player -> String
 playerSnippet p = 
   "You are in the " 
-    ++ (showRelativeDirection (p^.loc)) ++ "."
+    ++ (showRelativeDirection (fromVector3 $ p^.loc)) ++ "."
     ++ case p^.holding of
          Just x -> "\nYou are holding a " ++ show x ++ "."
          _      -> []

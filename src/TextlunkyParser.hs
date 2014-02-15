@@ -86,6 +86,7 @@ parseExitLevel    = parseUnary leave    ExitLevel
 parseShowRoom     = parseUnary showRoom ShowFull
 parseShowEnts     = parseUnary showEnts ShowEntities
 parseWalls        = parseUnary showWall Walls
+parseMe           = parseUnary me       ShowMe
 
 -- kill self if user doesn't specify what to shoot
 parseShootSelf xs =   parseUnary shoot     ShootSelf xs
@@ -107,7 +108,6 @@ parseOpenChest  xs = case any (`elem` open) xs of
             True -> Just $ liftF $ OpenGoldChest ()
             _    -> Just $ liftF $ OpenChest ()
   _    -> Nothing
-
 
 -- Binary (Direction) Parsers
 -- TODO: Enemy and Entity parsers
@@ -132,7 +132,8 @@ parseCommands (x:xs) =
 parseCommand :: [String] -> Maybe (Textlunky ())
 parseCommand xs = foldr1 (<|>) 
                 . map ($ xs)
-                $ [ parseMoveB    , 
+                $ [ parseMe       ,
+                    parseMoveB    , 
                     parseShootB   , 
                     parseLook     ,
                     parseDropDown , 
@@ -155,6 +156,7 @@ parseCommand xs = foldr1 (<|>)
 
 {- ************ START COMMAND LISTS ************** -}
 
+me        = ["me", "stats", "items", "my", "collection"]
 move      = ["move", "m", "walk", "go", "mv"]
 moveTo    = ["move to", "go to", "mvto", "goto"]
 pickup    = ["pickup", "take", "grab"]

@@ -57,3 +57,4 @@ next (Free (Look _ x))        = x
 next (Free (Walls x))         = x
 next (Free (ShowEntities x))  = x
 next (Free (ShowFull x))      = x
+next (Free (ShowMe x))        = x

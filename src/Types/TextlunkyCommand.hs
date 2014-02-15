@@ -30,6 +30,7 @@ data TextlunkyCommand a =
   | Walls                  a -- | Show walls
   | ShowFull               a -- | Show full room
   | ShowEntities           a -- | Show contents of room
+  | ShowMe                 a -- | Show Player
   | End
     deriving (Show, Eq, Functor)
 
