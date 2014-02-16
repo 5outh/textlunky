@@ -32,5 +32,11 @@ data TextlunkyCommand a =
   | ShowEntities           a -- | Show contents of room
   | ShowMe                 a -- | Show Player
   | End
+  {-
+  | Explosion (Vector3 Int) a -- | something explodes
+  | Movement  (Vector3 Int) Direction a -- | move entity in some direction
+  | EntityAttack Entity     a -- | Some entity attacks their location
+  | ...etc.
+  -}
     deriving (Show, Eq, Functor)
 
