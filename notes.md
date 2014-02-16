@@ -262,3 +262,7 @@ From Feb. 10th (above), an obvious choice for assigning IDs to entities would be
 Need a way to validate user commands. For example, players can't go up unless there is a rope/ladder in the room or if they have a jetpack (or climbing gloves and aren't in the center of the room)...etc.
 
 Need a way to select entities based on id values
+
+## Sunday, February 16th
+
+Some actions are passive and shouldn't pass a round. For example, examining your character stats. This makes it useful to have `stepGame` wrapped in a `Process`.

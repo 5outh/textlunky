@@ -63,17 +63,17 @@ showP st (Free (Rope x)) = do
       then liftIO $ putStrLnP "You toss a rope up."
       else liftIO $ putStrLnP "You don't have any ropes!"
 
-showP st (Free (Bomb a x)) = case a of
-  Just d  -> 
-    liftIO $ putStrLnP $ "You place a bomb " ++ 
-        (case d of 
-          U -> "on the ceiling" -- | only with paste...
-          D -> "on the floor"
-          w -> "near the " ++ show w ++ " wall")
-  Nothing -> liftIO $ putStrLnP $ 
-              if st^.player^.bombs > 0 
-              then "You place a bomb at your feet."
-              else "You don't have any bombs!"
+showP st (Free (Bomb a x)) = liftIO $ putStrLn $
+  if st^.player^.bombs > 0 then str else "You don't have any bombs!"
+  where 
+    str = case a of
+            Just d  -> case d of
+              U -> if Paste `elem` (st^.player^.items) 
+                   then "You place a bomb on the ceiling."
+                   else "You find yourself unable to get the bomb to stay on the ceiling..."
+              D -> "You place a bomb on the floor."
+              w -> "You place a bomb near the " ++ show w ++ " wall."
+            Nothing -> "You place a bomb at your feet."
 
 -- still need to validate if Gold Chest is even in the room.
 showP st (Free (OpenGoldChest x)) = liftIO $ putStrLnP $

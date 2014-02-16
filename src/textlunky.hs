@@ -35,7 +35,7 @@ gs troom = player   .~ plr
             $ def :: Player
 
 main = do
-  --initialize
+  initialize
   g  <- newStdGen
   let room = evalRand randMinesRoom g
   G.runGame (gs room)
