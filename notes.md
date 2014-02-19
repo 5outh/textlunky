@@ -266,3 +266,15 @@ Need a way to select entities based on id values
 ## Sunday, February 16th
 
 Some actions are passive and shouldn't pass a round. For example, examining your character stats. This makes it useful to have `stepGame` wrapped in a `Process`.
+
+## Tuesday, February 19th
+
+Steps necessary to add a command:
+
+1. Add new command to `Types.TextlunkyCommand`
+2. Add new parse mechanism to `TextlunkyParser`
+3. Insert parse function into parse heirarchy in `parseCmd`
+4. Add new section to `showP` in `Control.Process.Show`
+5. Add new section to `updateP` in `Control.Process.Show`
+
+This has come up several times and I always forget one of the steps and it baffles me for a bit. Use this reference in the future.
