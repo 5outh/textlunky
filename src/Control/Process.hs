@@ -1,4 +1,5 @@
 module Control.Process(
+  idP,
   (<.>),
   next,
   recursively,
@@ -27,17 +28,10 @@ import Control.Monad.Trans.Free
 
 -- process Id
 idP :: Process
-idP = \_ -> return ()
+idP = const $ return ()
 
--- compose processes
--- Note: This WILL update the state twice if we have two state updates;
--- Tested 2/18
--- NB. I have a hunch this is associative (almost definitely)
---     it is NOT commutative.
 (<.>) :: Process -> Process -> Process
-pA <.> pB = \cmd -> do
-  pA cmd
-  pB cmd
+pA <.> pB = \cmd -> pA cmd >> pB cmd
 
 recursively :: (Textlunky () -> Global GameState ())
             -> Process
