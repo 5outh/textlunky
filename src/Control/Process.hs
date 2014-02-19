@@ -4,11 +4,13 @@ module Control.Process(
   recursively,
 
   module Control.Process.Show,
-  module Control.Process.Update
+  module Control.Process.Update,
+  module Control.Process.Class
 ) where
 
 import Control.Process.Show
 import Control.Process.Update
+import Control.Process.Class
 
 import Types.Synonyms
 import Types.TextlunkyCommand
@@ -25,7 +27,7 @@ import Control.Monad.Trans.Free
 
 -- process Id
 idP :: Process
-idP = \_ _ -> return ()
+idP = \_ -> return ()
 
 -- compose processes
 -- Note: This WILL update the state twice if we have two state updates;
@@ -33,17 +35,16 @@ idP = \_ _ -> return ()
 -- NB. I have a hunch this is associative (almost definitely)
 --     it is NOT commutative.
 (<.>) :: Process -> Process -> Process
-pA <.> pB = \st cmd -> do
-  pA st cmd
-  pB st cmd
+pA <.> pB = \cmd -> do
+  pA cmd
+  pB cmd
 
 recursively :: (Textlunky () -> Global GameState ())
             -> Process
-            -> GameState
             -> UnwrappedCommand
             -> Global GameState ()
-recursively f g st cmd = do
-  g st cmd
+recursively f g cmd = do
+  g cmd
   f (next cmd)
 
 next :: UnwrappedCommand -> Textlunky ()

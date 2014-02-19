@@ -6,6 +6,8 @@ module Control.Process.Update (
 ) where
 
 import Types
+import Control.Process.Class
+
 import Control.Lens hiding (Level)
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Free
@@ -22,21 +24,22 @@ makeLenses ''Room
 -- | This is the only way that the game will NOT update
 -- | when user command is Invalid
 stepGame :: Process
-stepGame st _ = do
-  liftIO $ putStrLn $ "round: " ++ show (st^.round)
+stepGame _ = do
+  r <- use round
+  liftIO $ putStrLn $ "round: " ++ show r
   round += 1
 
 -- | Modify the game based on user command
 -- | TODO: implement
 updateP :: Process
 
-updateP st (Free (YOLO _)) = do
+updateP (Free (YOLO _)) = do
   a <- randDir
   return ()
 
 -- | Move the player one space in some direction
 -- | TODO: Fix "go up" allowance
-updateP st (Free (Move dir _)) = do
+updateP (Free (Move dir _)) = do
   v@(Vector3 x y z) <- use $ player.loc
   let loc' = case dir of
         -- will want to actually move rooms...
@@ -53,10 +56,10 @@ updateP st (Free (Move dir _)) = do
 
 -- | Move the player to some entity
 -- | NB. Want to actually make `e` a Vector3 Int
-updateP st (Free (MoveTo e _)) = return ()
+updateP (Free (MoveTo e _)) = return ()
 
 -- | Pick up the thing that at the player's feet if it can be held
-updateP st (Free (Pickup Nothing _)) = do
+updateP (Free (Pickup Nothing _)) = do
   loc  <- use $ player.loc
   ents <- use $ room._2.entities -- stuff in the current room
   case lookup loc ents of
@@ -67,15 +70,15 @@ updateP st (Free (Pickup Nothing _)) = do
     Nothing -> return ()
 
 -- | Drop whatever the player is currently holding
-updateP st (Free (DropItem _)) = dropItem
+updateP (Free (DropItem _)) = dropItem
 
 -- | Bomb the ground at player location
-updateP st (Free (Bomb Nothing _)) = placeBombAt =<< use (player.loc)
+updateP (Free (Bomb Nothing _)) = placeBombAt =<< use (player.loc)
 
 -- | Bomb some location in the room
 -- | NB. Drop bomb on floor if not on the ground,
 -- |     Don't use bomb if player attempts to bomb up w/o paste
-updateP st (Free (Bomb (Just dir) _)) = do
+updateP (Free (Bomb (Just dir) _)) = do
   (Vector3 x y z) <- use $ player.loc
   itms            <- use $ player.items
   let lvl = 
@@ -94,7 +97,7 @@ updateP st (Free (Bomb (Just dir) _)) = do
     U -> when (Paste `elem` itms) (placeBombAt loc')
     _ -> placeBombAt loc'
 
-updateP _ _ = return ()
+updateP _ = return ()
 
 -- It's very important that we can do this kind of thing...
 placeBombAt :: Vector3 Int -> Global GameState ()

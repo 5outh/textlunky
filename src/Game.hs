@@ -48,9 +48,8 @@ prompt = liftIO getLine >>= parseInput
 -- | These reside in Control.Process
 runCommand :: Textlunky () -> Global GameState ()
 runCommand t = do
-  st  <- get
   cmd <- runFreeT t
   case cmd of
     Pure _   -> return ()
     Free End -> liftIO $ putStrLnP $ "Goodbye!"
-    _        -> recursively runCommand (stepGame <.> showP <.> updateP) st cmd
+    _        -> recursively runCommand (stepGame <.> showP <.> updateP) cmd
