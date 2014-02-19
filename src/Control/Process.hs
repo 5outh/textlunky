@@ -15,11 +15,23 @@ import Types.TextlunkyCommand
 import Types.GameState
 import Control.Monad.Trans.Free
 
+-- NB. if we change the type to:
+-- type Process state cmd r = state -> FreeF cmd r () (FreeT cmd (state) r) -> StateT state IO r
+-- then the current Process is:
+-- Process GameState TextlunkyCommand ()
+-- which is interesting because we might be able to form something new from it,
+-- but this is on the backburner because I don't really care that much. 
+-- Just think it's interesting for discussion later.
+
 -- process Id
 idP :: Process
 idP = \_ _ -> return ()
 
 -- compose processes
+-- Note: This WILL update the state twice if we have two state updates;
+-- Tested 2/18
+-- NB. I have a hunch this is associative (almost definitely)
+--     it is NOT commutative.
 (<.>) :: Process -> Process -> Process
 pA <.> pB = \st cmd -> do
   pA st cmd
@@ -58,3 +70,4 @@ next (Free (Walls x))         = x
 next (Free (ShowEntities x))  = x
 next (Free (ShowFull x))      = x
 next (Free (ShowMe x))        = x
+next (Free (YOLO x))          = x

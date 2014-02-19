@@ -53,4 +53,4 @@ runCommand t = do
   case cmd of
     Pure _   -> return ()
     Free End -> liftIO $ putStrLnP $ "Goodbye!"
-    _        -> recursively runCommand (stepGame <.> updateP <.> showP) st cmd
+    _        -> recursively runCommand (stepGame <.> showP <.> updateP) st cmd

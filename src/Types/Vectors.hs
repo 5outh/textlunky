@@ -1,5 +1,4 @@
--- NB. I would like to use Vector2 for room locations (definitely)
--- and Vector3 for square locations within rooms (maybe)
+{-# LANGUAGE TemplateHaskell #-}
 module Types.Vectors(
 	Axis(..),
 	Vector2(..),
@@ -14,11 +13,15 @@ module Types.Vectors(
 ) where
 
 import Data.List
+import Control.Lens
 
 data Axis = X | Y | Z deriving (Show, Eq)
 
 data Vector2 a = Vector2 a a   deriving (Show, Eq)
 data Vector3 a = Vector3 a a a deriving (Show, Eq)
+
+makeLenses ''Vector2
+makeLenses ''Vector3
 
 -- | NB. toInt2, toInt3 only for use with vectors that can be represented in base 3!
 -- | This is an ad-hoc way for representing space IDs
@@ -61,8 +64,8 @@ fromInt3 x = Vector3 x' y' z'
 
 class Vector v where
   vmap :: Axis -> (a -> a) -> v a -> Maybe (v a)
-  set  :: Axis -> a -> v a -> Maybe (v a)
-  set axis x = vmap axis (const x)
+  setV  :: Axis -> a -> v a -> Maybe (v a)
+  setV axis x = vmap axis (const x)
   getAxis  :: Axis -> v a -> (Maybe a)
   smult :: (Functor v, Num n) => n -> v n -> v n
   smult n v = fmap (*n) v

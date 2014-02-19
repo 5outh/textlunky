@@ -12,6 +12,7 @@ import Control.Monad.Trans.Free
 
 makeLenses ''GameState
 makeLenses ''Player
+makeLenses ''Room
 
 -- | Print a string with a prompt token prefix    
 putStrLnP = putStrLn . (token++)
@@ -28,9 +29,19 @@ showP st (Free (Move d x)) =
 showP st (Free (MoveTo e x)) = 
   liftIO $ putStrLnP $ "You move to the " ++ show e
 
+-- TODO: Make sure we can actually pick up the things we're picking up...
 showP st (Free (Pickup a x)) = case a of
   Just e -> liftIO $ putStrLnP $ "You pick up a " ++ show e
-  _      -> liftIO $ putStrLnP "There is nothing to pick up."
+  _      -> do 
+    loc  <- use $ player.loc
+    hdg  <- use $ player.holding
+    ents <- use $ room._2.entities -- stuff in the current room
+    case lookup loc ents of
+      Just x  -> liftIO $ putStrLnP $ 
+        case hdg of
+          Just h -> "You drop your " ++ show h ++ " and pick up " ++ show x ++ "."
+          _      -> "You pick up "   ++ show x ++ "."
+      Nothing -> liftIO $ putStrLnP "There is nothing to pick up."
 
 showP st (Free (DropItem x)) = do
   let itm = st^.player^.holding
@@ -63,17 +74,18 @@ showP st (Free (Rope x)) = do
       then liftIO $ putStrLnP "You toss a rope up."
       else liftIO $ putStrLnP "You don't have any ropes!"
 
-showP st (Free (Bomb a x)) = liftIO $ putStrLn $
-  if st^.player^.bombs > 0 then str else "You don't have any bombs!"
-  where 
-    str = case a of
-            Just d  -> case d of
-              U -> if Paste `elem` (st^.player^.items) 
-                   then "You place a bomb on the ceiling."
-                   else "You find yourself unable to get the bomb to stay on the ceiling..."
-              D -> "You place a bomb on the floor."
-              w -> "You place a bomb near the " ++ show w ++ " wall."
-            Nothing -> "You place a bomb at your feet."
+-- | TODO: Can place bomb "near the middle wall" right now...
+showP st (Free (Bomb a x)) = do
+  liftIO $ putStrLn $ if st^.player^.bombs > 0 then str else "You don't have any bombs!"
+    where 
+      str = case a of
+              Just d  -> case d of
+                U -> if Paste `elem` (st^.player^.items) 
+                     then "You place a bomb on the ceiling."
+                     else "You find yourself unable to get the bomb to stay on the ceiling..."
+                D -> "You place a bomb on the floor."
+                w -> "You place a bomb near the " ++ show w ++ " wall."
+              Nothing -> "You place a bomb at your feet."
 
 -- still need to validate if Gold Chest is even in the room.
 showP st (Free (OpenGoldChest x)) = liftIO $ putStrLnP $
@@ -112,3 +124,11 @@ showP st (Free (ShowFull x)) = do
 
 showP st (Free (ShowMe x)) = do
   liftIO $ putStrLnP $ show (st^.player)
+
+showP st (Free (YOLO x))   = do
+  liftIO $ putStrLnP $ concat $
+    [ "You start flailing your arms in the air,",
+      " wailing \"YOLO\" at the top of your lungs.",
+      " You throw your remaining bombs and ropes around the room ",
+      " in a fit of joy. YOLO, right?"
+    ]

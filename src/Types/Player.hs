@@ -33,7 +33,8 @@ makeLenses ''Player
 -- | Full show, exclude favor since it's a hidden stat
 instance Show Player where
   show p = intercalate "\n" $ filter (not . null)
-    ["You have " ++ show (p^.hp) ++ " hp remaining.",
+    ["You are in the " ++ (showRelativeDirection (fromVector3 $ p^.loc)) ++ " of the room.",
+     "You have " ++ show (p^.hp) ++ " hp remaining.",
      "You have " ++ show (p^.bombs)  ++ " bombs remaining.",
      "You have collected " ++ show (p^.gold) ++ " gold so far.",
      if null (p^.items) then [] 

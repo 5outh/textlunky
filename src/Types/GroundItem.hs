@@ -1,5 +1,6 @@
 module Types.GroundItem(
   GroundItem(..),
+  newBomb,
   randChest,
   randPot,
   randCrate,
@@ -47,7 +48,10 @@ instance Show GroundItem where
   show (GBomb 0)            = "an exploding bomb"
   show GRope                = "a long rope extending upwards"
   show (Floor c)            = show c
-                 
+
+-- Convenience for spawning new live bombs              
+newBomb = GBomb 2
+
 instance Universe GroundItem where
   universe =  ([Key, GoldChest, Damsel, Idol, PotEmpty]++) . join $ 
                   [ PotJewel        <$> js,

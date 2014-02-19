@@ -77,6 +77,7 @@ parseEnd xs = if any (`elem` end) xs
               else Nothing
 
 -- Unary parsers
+parseYOLO         = parseUnary ["yolo"] YOLO
 parseDropItem     = parseUnary dropItem DropItem
 parsePickupU      = parseUnary pickup   (Pickup  Nothing)
 parseJumpU        = parseUnary jump     (Jump    Nothing)
@@ -150,7 +151,8 @@ parseCommand xs = foldr1 (<|>)
                     parseShootSelf, 
                     parseExitLevel,
                     parseOpenChest, 
-                    parseEnd       ]
+                    parseEnd      ,
+                    parseYOLO       ]
 
 {- ************ END PARSERS ************** -}
 
