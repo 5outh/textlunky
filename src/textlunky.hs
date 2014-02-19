@@ -24,15 +24,12 @@ testRoom =  rType    .~ KaliAltar
           $ def :: Room
 
 gs :: Room -> GameState
-gs troom = player   .~ plr
+gs troom = player   .~ (def :: Player)
          $ levelNum .~ 0
          $ level    .~ (rooms .~ [(fromTuple (0, 0), troom)] $ def)
          $ area     .~ Mines
          $ room     .~ (fromTuple (0, 0), troom)
          $ def :: GameState
-  where plr = holding .~ ( Just (GroundItem' PotEmpty) ) 
-            $ items   .~ [ClimbingGloves] 
-            $ def :: Player
 
 main = do
   initialize
