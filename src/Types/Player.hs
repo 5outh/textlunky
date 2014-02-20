@@ -12,6 +12,7 @@ import Types.Direction
 import Types.Item
 import Types.Entity
 import Types.Vectors
+import Types.PState
 
 data Player = Player{
   _loc   :: Vector3 Int,
@@ -21,12 +22,13 @@ data Player = Player{
   _gold  :: Int,
   _items :: [Item],         -- | Passive items
   _holding :: Maybe Entity, -- | Current Item in hands
-  _favor :: Int             -- | Kali favor
+  _favor :: Int,            -- | Kali favor
+  _p_state :: PState
 } deriving Eq
 
 -- | Starting Player
 instance Default Player where
-  def = Player (fromTriple (0,0,0)) 4 4 4 0 [] Nothing 0
+  def = Player (fromTriple (0,0,0)) 4 4 4 0 [] Nothing 0 Standing
   
 makeLenses ''Player
 

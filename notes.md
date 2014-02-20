@@ -278,3 +278,10 @@ Steps necessary to add a command:
 5. Add new section to `updateP` in `Control.Process.Show`
 
 This has come up several times and I always forget one of the steps and it baffles me for a bit. Use this reference in the future.
+
+## Wednesday, February 20th
+
+While I was sleeping last night I thought of an idea.
+
+Give the Player a "PState" (`Jumping`, `Whipping`, `Shooting Direction`, `Stunned`, (etc?) ). The Player will have this state activated during the current round, and will be affected by it during the TRANSITION to the next round. That is, if an enemy tries to attack the player, but the player is in the `Whipping` state, the enemy will instead get hit, and so on. `Falling` will be useful if a player is over a spike pit, `Shooting Direction` will take out any enemies in line of sight during `stepGame`, and `Stunned` will prevent the player from moving the next round, and also help determine what happens when the player gets hit (maybe get knocked back when stunned). Also sacrifice self if get stunned in Kali room.
+
