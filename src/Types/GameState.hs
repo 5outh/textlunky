@@ -14,6 +14,7 @@ import Types.Level
 import Types.Direction
 import Types.Room
 import Types.Vectors
+import System.Random
 
 data Area = Mines
           | Jungle
@@ -35,11 +36,12 @@ data GameState = GameState{
   _round     :: Int   ,
   _level     :: Level ,
   _area      :: Area  ,
-  _room      :: (Vector2 Int, Room)
+  _room      :: (Vector2 Int, Room),
+  _rng       :: StdGen
 }
 
 instance Default GameState where
-  def = GameState (def :: Player) 0 0 undefined Mines undefined
+  def = GameState (def :: Player) 0 0 undefined Mines undefined undefined
             
 makeLenses ''GameState
 makeLenses ''Level
@@ -48,15 +50,15 @@ makeLenses ''Level
 moveRoom :: Direction -> GameState -> GameState
 moveRoom d gs = 
   let (Vector2 x y, r) = gs^.room
-  in moveRoomToV gs $ case d of
+  in flip moveRoomToV gs $ case d of
       U -> Vector2 x (pred y)
       D -> Vector2 x (succ y)
       E -> Vector2 (pred x) y
       W -> Vector2 (succ x) y
       d -> error $ "Cannot move " ++ show d ++ "during moveRoom"
 
-moveRoomToV :: GameState -> Vector2 Int -> GameState
-moveRoomToV gs v = 
+moveRoomToV :: Vector2 Int -> GameState -> GameState
+moveRoomToV v gs =  
   let rms = gs^.level^.rooms
   in case lookup v rms of
       Just r -> room .~ (v, r) $ gs

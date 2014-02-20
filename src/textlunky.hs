@@ -23,19 +23,20 @@ testRoom =  rType    .~ KaliAltar
           $ entities .~ [(fromTriple (0, 0, 0), Enemy' Spider )] 
           $ def :: Room
 
-gs :: Room -> GameState
-gs troom = player   .~ (def :: Player)
+gs :: Room -> StdGen -> GameState
+gs troom g = player   .~ (def :: Player)
          $ levelNum .~ 0
          $ level    .~ (rooms .~ [(fromTuple (0, 0), troom)] $ def)
          $ area     .~ Mines
          $ room     .~ (fromTuple (0, 0), troom)
+         $ rng      .~ g
          $ def :: GameState
 
 main = do
   initialize
   g  <- newStdGen
   let room = evalRand randMinesRoom g
-  G.runGame (gs room)
+  G.runGame (gs room g)
 
 initialize = do
   hSetBuffering stdout NoBuffering
