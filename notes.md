@@ -285,3 +285,4 @@ While I was sleeping last night I thought of an idea.
 
 Give the Player a "PState" (`Jumping`, `Whipping`, `Shooting Direction`, `Stunned`, (etc?) ). The Player will have this state activated during the current round, and will be affected by it during the TRANSITION to the next round. That is, if an enemy tries to attack the player, but the player is in the `Whipping` state, the enemy will instead get hit, and so on. `Falling` will be useful if a player is over a spike pit, `Shooting Direction` will take out any enemies in line of sight during `stepGame`, and `Stunned` will prevent the player from moving the next round, and also help determine what happens when the player gets hit (maybe get knocked back when stunned). Also sacrifice self if get stunned in Kali room.
 
+When generating random levels, add ladders and destroy walls. When adding a ladder down, add a ladder down from current room and a ladder up from the room below.
