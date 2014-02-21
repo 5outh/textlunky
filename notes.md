@@ -267,7 +267,7 @@ Need a way to select entities based on id values
 
 Some actions are passive and shouldn't pass a round. For example, examining your character stats. This makes it useful to have `stepGame` wrapped in a `Process`.
 
-## Tuesday, February 19th
+## Wednesday, February 19th
 
 Steps necessary to add a command:
 
@@ -279,10 +279,16 @@ Steps necessary to add a command:
 
 This has come up several times and I always forget one of the steps and it baffles me for a bit. Use this reference in the future.
 
-## Wednesday, February 20th
+## Thursday, February 20th
 
 While I was sleeping last night I thought of an idea.
 
 Give the Player a "PState" (`Jumping`, `Whipping`, `Shooting Direction`, `Stunned`, (etc?) ). The Player will have this state activated during the current round, and will be affected by it during the TRANSITION to the next round. That is, if an enemy tries to attack the player, but the player is in the `Whipping` state, the enemy will instead get hit, and so on. `Falling` will be useful if a player is over a spike pit, `Shooting Direction` will take out any enemies in line of sight during `stepGame`, and `Stunned` will prevent the player from moving the next round, and also help determine what happens when the player gets hit (maybe get knocked back when stunned). Also sacrifice self if get stunned in Kali room.
 
 When generating random levels, add ladders and destroy walls. When adding a ladder down, add a ladder down from current room and a ladder up from the room below.
+
+## Friday, February 21st
+
+Todo: Fix any stupid calls to `M.toList` and `M.fromList` in source code.
+
+Also, I noticed that there was a bug in the code, if there are two things in one location, `pickup` from that location would just get the one nearest to the front of the list. This isn't really what I want. Maps have a different problem, though, because if more than one thing exists, the other will just get overwritten. This is something to mull over. An obvious solution would be to keep a list of objects in each cell, but then we'd have to figure out a good way to differentiating items. 
