@@ -17,8 +17,8 @@ import Control.Lens
 
 data Axis = X | Y | Z deriving (Show, Eq)
 
-data Vector2 a = Vector2 a a   deriving (Show, Eq)
-data Vector3 a = Vector3 a a a deriving (Show, Eq)
+data Vector2 a = Vector2 a a   deriving (Show, Eq, Ord)
+data Vector3 a = Vector3 a a a deriving (Show, Eq, Ord)
 
 makeLenses ''Vector2
 makeLenses ''Vector3
