@@ -15,6 +15,7 @@ import Control.Monad.State.Class
 import Control.Monad
 import Prelude hiding (round)
 import Data.List(delete)
+import qualified Data.Map as M
 
 makeLenses ''GameState
 makeLenses ''Player
@@ -62,11 +63,11 @@ updateP (Free (MoveTo e _)) = return ()
 updateP (Free (Pickup Nothing _)) = do
   loc  <- use $ player.loc
   ents <- use $ room._2.entities -- stuff in the current room
-  case lookup loc ents of
+  case M.lookup loc ents of
     Just x  -> do
-      dropItem                              -- drop current item
-      room._2.entities %= (delete (loc, x)) -- remove new item from room
-      player.holding .= (Just x)            -- put item in hands
+      dropItem                           -- drop current item
+      room._2.entities %= (M.delete loc) -- remove new item from room
+      player.holding .= (Just x)         -- put item in hands
     Nothing -> return ()
 
 -- | Drop whatever the player is currently holding
@@ -102,8 +103,7 @@ updateP _ = return ()
 -- It's very important that we can do this kind of thing...
 placeBombAt :: Vector3 Int -> Global GameState ()
 placeBombAt l = do
-  let bomb = (l, GroundItem' newBomb)
-  room._2.entities %= (bomb:)
+  room._2.entities %= (M.insert l (GroundItem' newBomb))
   player.bombs -= 1
 
 dropItem :: Global GameState ()
@@ -111,6 +111,6 @@ dropItem =  do
   loc  <- use $ player.loc
   hdg  <- use $ player.holding
   case hdg of 
-    Just h -> room._2.entities %= ((loc, h) :)
+    Just h -> room._2.entities %= (M.insert loc h)
     _      -> return ()
   player.holding .= Nothing

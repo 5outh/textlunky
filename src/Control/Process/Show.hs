@@ -11,6 +11,7 @@ import Control.Monad.Trans
 import Control.Monad.Trans.State
 import Control.Lens
 import Control.Monad.Trans.Free
+import qualified Data.Map as M
 
 makeLenses ''GameState
 makeLenses ''Player
@@ -38,7 +39,7 @@ showP (Free (Pickup a x)) = case a of
     loc  <- use $ player.loc
     hdg  <- use $ player.holding
     ents <- use $ room._2.entities -- stuff in the current room
-    case lookup loc ents of
+    case M.lookup loc ents of
       Just x  -> liftIO $ putStrLnP $ 
         case hdg of
           Just h -> "You drop your " ++ show h ++ " and pick up " ++ show x ++ "."

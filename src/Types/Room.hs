@@ -23,6 +23,7 @@ import Types.Vectors
 import Control.Lens
 import Control.Monad(replicateM, liftM)
 import Random.Probability
+import qualified Data.Map as M
 
 data RoomType = NormalRoom
               | KaliAltar
@@ -32,26 +33,23 @@ data RoomType = NormalRoom
 
 
 data Room = Room{
-    _entities :: [(Vector3 Int, Entity)],
-    _rType    :: RoomType,
-    -- | See 1/19 notes
-    -- | Define like this for absolute correctness,
-    -- | Don't allow for an Up wall, for example
-    _ladderU   :: Bool      ,
-    _ladderD   :: Bool      ,
-    _wallN     :: Maybe Wall,
-    _wallS     :: Maybe Wall,
-    _wallE     :: Maybe Wall,
-    _wallW     :: Maybe Wall,
-    _ceilHole  :: Bool      ,
-    _floorHole :: Bool      
+      _entities  :: M.Map (Vector3 Int) Entity
+    , _rType     :: RoomType   
+    , _ladderU   :: Bool      
+    , _ladderD   :: Bool      
+    , _wallN     :: Maybe Wall
+    , _wallS     :: Maybe Wall
+    , _wallE     :: Maybe Wall
+    , _wallW     :: Maybe Wall
+    , _ceilHole  :: Bool      
+    , _floorHole :: Bool      
 }
 
 makeLenses ''Room
 
 -- full room show
 instance Show Room where
-    show r = concat $ (walls : ladders : holes : t : map show' (r^.entities))
+    show r = concat $ (walls : ladders : holes : t : map show' (M.toList (r^.entities)))
         where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
               t = case (r^.rType) of
                 KaliAltar      -> "You see an altar to Kali.\n"
@@ -81,15 +79,15 @@ showWalls r =
         showJust (Just a) = show a
 
 showEntities :: Room -> String
-showEntities r = concatMap show' (r^.entities)
+showEntities r = concatMap show' $ M.toList (r^.entities)
   where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
 
 showEntitiesWithIds :: Room -> String
-showEntitiesWithIds r = concatMap show' (r^.entities)
+showEntitiesWithIds r = concatMap show' $ M.toList (r^.entities)
   where show' (spc, entity) = show (toInt3 spc) ++ ": " ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
 
 addEntityAt :: Vector3 Int -> Entity -> Room -> Room
-addEntityAt v e room = entities .~ ((v, e) : room^.entities) $ room
+addEntityAt v e = entities %~ (M.insert v e)
 
 instance Universe RoomType where
   universe = enumFrom NormalRoom
@@ -97,7 +95,7 @@ instance Universe RoomType where
 -- completely void room
 instance Default Room where
   def = Room 
-          []          -- | Entities
+          M.empty     -- | Entities
           NormalRoom  -- | Room Type
           False False -- | Ladders
           Nothing Nothing Nothing Nothing -- | Walls
@@ -135,7 +133,7 @@ randMinesRoom = do
   bottomSpaces    <- choose     bottoms (map toVector3 bottomDirs)
   [lu, ld]        <- replicateM 2 $     fromList [(True, 1), (False, 10)]
   let es = (zip topSpaces topEs) ++ (zip bottomSpaces bottomEs)
-  return $ entities .~ es
+  return $ entities .~ (M.fromList es)
          $ wallN    .~ n
          $ wallS    .~ s
          $ wallE    .~ e
