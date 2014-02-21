@@ -15,6 +15,7 @@ import Types.Direction
 import Types.Room
 import Types.Vectors
 import System.Random
+import qualified Data.Map as M
 
 data Area = Mines
           | Jungle
@@ -60,7 +61,7 @@ moveRoom d gs =
 moveRoomToV :: Vector2 Int -> GameState -> GameState
 moveRoomToV v gs =  
   let rms = gs^.level^.rooms
-  in case lookup v rms of
+  in case M.lookup v rms of
       Just r -> room .~ (v, r) $ gs
       Nothing -> gs
 

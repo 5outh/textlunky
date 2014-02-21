@@ -17,6 +17,7 @@ import Control.Monad
 import Data.Maybe(fromJust)
 import Control.Lens hiding (Level)
 import Control.Monad.Trans.State
+import qualified Data.Map as M
 
 makeLenses ''Room
 
@@ -28,7 +29,7 @@ data LevelType = NormalLevel
                  deriving (Enum, Eq)
                  
 data Level = Level{
-  _rooms :: [(Vector2 Int, Room)],
+  _rooms :: M.Map (Vector2 Int) Room,
   _lType :: LevelType
 } 
 
@@ -36,7 +37,7 @@ instance Universe LevelType where
   universe = enumFrom NormalLevel
 
 instance Default Level where
-  def = Level [] NormalLevel
+  def = Level M.empty NormalLevel
 
 -- NB. Shows message upon entrance
 levelMessage :: LevelType -> String
@@ -75,7 +76,7 @@ randMinesLevel = do
       walk          = randWalk startRoomLoc endRoomLoc
       setEndRoom (x, r) = if x == endRoomLoc then (x, rType .~ LevelExit $ r) else (x, r)
       roomData = map setEndRoom roomsAndLocs
-  return $ Level roomData t
+  return $ Level (M.fromList roomData) t
 
 -- find current and next room, demolish walls in both, add ladders in both if moving u/d.
 demolishWallsAndAddLadders :: [(Direction, Vector2 Int)] -> [(Direction, Vector2 Int)] -> [(Direction, Vector2 Int)]
