@@ -1,4 +1,4 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE NoMonomorphismRestriction, TemplateHaskell #-}
 module Types.Level(
   Level(..),
   LevelType(..),
@@ -14,6 +14,11 @@ import Types.Vectors
 import Random.Probability
 import Control.Applicative
 import Control.Monad
+import Data.Maybe(fromJust)
+import Control.Lens hiding (Level)
+import Control.Monad.Trans.State
+
+makeLenses ''Room
 
 data LevelType = NormalLevel
                | Dark
@@ -50,28 +55,58 @@ randMinesLevelType = fromList $
 -- TODO: Demolish walls as appropriate to get a path from start room to exit room.
 -- need to get a random walk from (x, 2) to (x', 0)
 -- Steps, something like:
--- 1. Set start and end nodes
--- 2. Generate a random walk (of Vectors with directions) from start to end (maybe modified)
+-- 1. Set start and end nodes (check)
+-- 2. Generate a random walk (of Vectors with directions) from start to end (maybe modified) (check)
 -- 3. Run through each one, demolishing walls in rooms according to directions
 -- 4. Set start and end levels as starting block and ending block
+-- -- r_type .~ LevelExit $ end
 randMinesLevel :: MonadRandom m => m Level
 randMinesLevel = do
   let roomLocs = Vector2 <$> [0..2] <*> [0..2] :: [Vector2 Int]
   t      <- randMinesLevelType
   rs     <- replicateM 9 randMinesRoom
   startX <- uniform [0..2]
-  let roomsAndLocs = zip roomLocs rs
-      startRoomLoc = Vector2 startX 2 -- random room from the top
-  return $ Level roomsAndLocs t
+  endX   <- uniform [0..2]
+  let roomsAndLocs  = zip roomLocs rs
+      startRoomLoc  = Vector2 startX 2 -- random top room
+      endRoomLoc    = Vector2 endX   0 -- random bottom room
+      startRoom     = fromJust $ lookup startRoomLoc roomsAndLocs -- I only use fromJust here since it is GUARANTEED that such a value exists.
+      endRoom       = fromJust $ lookup endRoomLoc   roomsAndLocs
+      walk          = randWalk startRoomLoc endRoomLoc
+      setEndRoom (x, r) = if x == endRoomLoc then (x, rType .~ LevelExit $ r) else (x, r)
+      roomData = map setEndRoom roomsAndLocs
+  return $ Level roomData t
 
-randDirForWalk = fromList [(D, 10), (E, 5), (W, 5), (U, 1)]
+-- find current and next room, demolish walls in both, add ladders in both if moving u/d.
+demolishWallsAndAddLadders :: [(Direction, Vector2 Int)] -> [(Direction, Vector2 Int)] -> [(Direction, Vector2 Int)]
+demolishWallsAndAddLadders ((dir, v):ds) rms = undefined
+
+randDirForWalk :: (MonadRandom m, Ord a, Show a) => Vector2 a -> Vector2 a -> m Direction
+randDirForWalk (Vector2 x y) (Vector2 x' y')
+  | x < x'    = fromList [(E, 10), (U, 1), (D, 5)] -- left of
+  | x > x'    = fromList [(W, 10), (U, 1), (D, 5)] -- right of
+  | y > y'    = fromList [(D, 5), (E, 5), (W, 5), (U, 1)] -- above
+  | y < y'    = error $ "y value " ++ show y ++ " is less than minimum y value should be."-- below; should never happen in our scenario
+  | otherwise = error "source and target are the same; no more walking should be done at this point."
+
+moveVect :: (Num a, Ord a) => Direction -> Vector2 a -> Vector2 a
+moveVect W (Vector2 x y) = Vector2 (max 0 (x-1)) y
+moveVect E (Vector2 x y) = Vector2 (min 2 (x+1)) y
+moveVect D (Vector2 x y) = Vector2 x (max 0 (y-1))
+moveVect U (Vector2 x y) = Vector2 x (min 2 (y+1))
+moveVect d _ = error $ "Attempt to move in direction: " ++ show d ++ ". Impossible on a 2d game board!"
 
 -- random walk from source to target
-randWalk :: MonadRandom m => Vector2 Int -> Vector2 Int -> m [(Direction, Vector2 Int)]
-randWalk s@(Vector2 x y) d =
-  if s == d then return []
+randWalk :: (MonadRandom m, Num a, Show a, Ord a) => 
+            Vector2 a  -- source 
+         -> Vector2 a  -- target
+         -> m [(Direction, Vector2 a)]
+randWalk s@(Vector2 x y) t@(Vector2 x' y') =
+  if s == t then return []
   else do 
-    dir <- randDirForWalk
-    return []
+    dir  <- randDirForWalk s t
+    next <- randWalk (moveVect dir s) t
+    return ((dir, s) : next)
 
-
+-- NB. Run 100,000 times, the average walk length was 7 squares, which is pretty much perfect.
+test = randWalk (Vector2 1 2) (Vector2 2 0)

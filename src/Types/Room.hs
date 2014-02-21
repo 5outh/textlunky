@@ -4,6 +4,8 @@ module Types.Room(
   RoomType(..),
   randMinesRoom,
   demolish,
+  addLadderU,
+  addLadderD,
   showWalls,
   showEntities,
   showEntitiesWithIds,
@@ -112,6 +114,10 @@ demolish d r = r'
                 U -> ceilHole  .~ True    $ r
                 D -> floorHole .~ True    $ r
                 _ -> r
+
+addLadderU, addLadderD :: Room -> Room
+addLadderU r = ladderU .~ True $ r
+addLadderD r = ladderD .~ True $ r
 
 -- random rooms are:
 -- 100% normal
