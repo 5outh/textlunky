@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, NoMonomorphismRestriction #-}
 module DevTools.BoxDisplay(
 ) where
 
@@ -10,8 +10,9 @@ import Types.Vectors
 import Data.Function
 import Control.Applicative
 import Data.Maybe(isJust)
+import Control.Monad
+import Control.Monad.IO.Class
 import qualified Data.Map as M
-
 
 makeLenses ''Room
 makeLenses ''Level
@@ -43,15 +44,20 @@ lookupBy eq a ((b, x):xs) = if a `eq` b then Just x else lookupBy eq a xs
 -- | Up, Down, East, West
 -- | ceilHole, floorHole, wallE, wallW
 showLevel :: Level -> String
-showLevel l = unlines ( map showRoomAll $ reverse $ threes $ rms )
-  where rms = map snd $ M.toList $ l^.rooms -- :: M.Map (Vector2 Int) Room; Note: already sorted!
+showLevel lvl = unlines ( map showRoomAll $ reverse $ transpose $ threes $ rms )
+  where rms = M.toList $ lvl^.rooms
         threes xs | length xs <= 3 = [xs]
                   | otherwise      = take 3 xs : threes (drop 3 xs)
-        showCeil rm = if rm^.ceilHole        then "    " else " -- "
-        showFloor rm = if rm^.floorHole      then "    " else " -- "
-        showWallE rm = if isJust (rm^.wallE) then " |" else "  "
-        showWallW rm = if isJust (rm^.wallW) then "| " else "  "
+        showCeil  (Vector2 x y, rm) = if rm^.ceilHole       then "    " else " -- "
+        showFloor (Vector2 x y, rm) = if rm^.floorHole      then "    " else " -- "
+        showWallE (Vector2 x y, rm) = if isJust (rm^.wallE) then [start, '|'] else [start, ' ']
+          where start = if rm^.rType == StartRoom then 'S' else ' '
+        showWallW (Vector2 x y, rm) = if isJust (rm^.wallW) then [ '|', end] else [' ', end]
+          where end = if rm^.rType == LevelExit then 'E' else ' '
         showCeilAll  = concatMap showCeil
         showWallsAll = concatMap (\x -> showWallW x ++ showWallE x)
         showFloorAll = concatMap showFloor
-        showRoomAll  r = unlines [showCeilAll r, showWallsAll r, showFloorAll r] 
+        showRoomAll  r = unlines [showCeilAll r, showWallsAll r, showFloorAll r]
+
+printLevelLayout :: Level -> IO ()
+printLevelLayout = putStrLn . showLevel

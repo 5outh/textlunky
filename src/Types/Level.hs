@@ -3,7 +3,9 @@ module Types.Level(
   Level(..),
   LevelType(..),
   randMinesLevel,
-  levelMessage
+  levelMessage,
+  randWalk,
+  demolishWalls
 ) where
 
 import Data.Universe
@@ -54,14 +56,6 @@ randMinesLevelType = fromList $
       withWeight 5 [NormalLevel]
   ++  withWeight 1 [Dark, SkinCrawling, SnakePit, ChestAndKey] 
 
--- TODO: Demolish walls as appropriate to get a path from start room to exit room.
--- need to get a random walk from (x, 2) to (x', 0)
--- Steps, something like:
--- 1. Set start and end nodes (check)
--- 2. Generate a random walk (of Vectors with directions) from start to end (maybe modified) (check)
--- 3. Run through each one, demolishing walls in rooms according to directions
--- 4. Set start and end levels as starting block and ending block
--- -- r_type .~ LevelExit $ end
 randMinesLevel :: MonadRandom m => m Level
 randMinesLevel = do
   let roomLocs = Vector2 <$> [0..2] <*> [0..2] :: [Vector2 Int]
@@ -76,10 +70,11 @@ randMinesLevel = do
       endRoom       = fromJust $ lookup endRoomLoc   roomsAndLocs
       start         = (startRoomLoc, startRoom)
       setEndRoom (x, r) = if x == endRoomLoc then (x, rType .~ LevelExit $ r) else (x, r)
+      setStartRoom (x, r) = if x == startRoomLoc then (x, rType .~ StartRoom $ r) else (x, r)
   walk   <- randWalk startRoomLoc endRoomLoc
   return $ 
     Level
-    ( demolishWalls walk (M.fromList $ map setEndRoom roomsAndLocs) )
+    ( demolishWalls walk (M.fromList $ map (setStartRoom . setEndRoom) roomsAndLocs) )
     start
     t
 
@@ -88,7 +83,9 @@ demolishWalls :: [(Direction, Vector2 Int)] -> M.Map (Vector2 Int) Room -> M.Map
 demolishWalls []            rms = rms
 demolishWalls ((dir, v):ds) rms = 
   demolishWalls ds $ ( M.update (Just . demolish dir) v 
-                     . M.update (Just . demolish (opposite dir)) v' ) rms
+                     . (if v' /= v then 
+                        M.update (Just . demolish (opposite dir)) v'
+                        else id ) ) rms
   where v' = moveVect dir v
         opposite U = D
         opposite D = U
@@ -122,6 +119,3 @@ randWalk s@(Vector2 x y) t@(Vector2 x' y') =
     dir  <- randDirForWalk s t
     next <- randWalk (moveVect dir s) t
     return ((dir, s) : next)
-
--- NB. Run 100,000 times, the average walk length was 7 squares, which is pretty much perfect.
-test = randWalk (Vector2 1 2) (Vector2 2 0)

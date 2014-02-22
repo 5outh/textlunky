@@ -29,6 +29,7 @@ data RoomType = NormalRoom
               | KaliAltar
               | Shop
               | LevelExit
+              | StartRoom
                 deriving (Enum, Eq)
 
 
@@ -43,7 +44,7 @@ data Room = Room{
     , _wallW     :: Maybe Wall
     , _ceilHole  :: Bool      
     , _floorHole :: Bool      
-}
+} deriving (Eq)
 
 makeLenses ''Room
 
