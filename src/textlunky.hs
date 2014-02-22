@@ -19,15 +19,9 @@ makeLenses ''Room
 makeLenses ''Level
 makeLenses ''GameState
 
--- | A simple test room
-testRoom :: Room
-testRoom =  rType    .~ KaliAltar 
-          $ entities .~ ( M.fromList [(fromTriple (0, 0, 0), Enemy' Spider )] )
-          $ def :: Room
-
 main = do
   initialize
-  gen       <- newStdGen
+  gen <- newStdGen
   let gs = evalRand (randGameState gen) gen -- Make sure to use gen to generate global GameState
   G.runGame gs
 
