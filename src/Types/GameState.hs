@@ -4,7 +4,8 @@ module Types.GameState(
   GameState(..),
   moveRoom,
   -- | For testing
-  showGS
+  showGS,
+  randGameState
 ) where
 
 import Control.Lens hiding (Level)
@@ -16,6 +17,7 @@ import Types.Room
 import Types.Vectors
 import System.Random
 import qualified Data.Map as M
+import Random
 
 data Area = Mines
           | Jungle
@@ -35,14 +37,14 @@ data GameState = GameState{
   _player    :: Player,
   _levelNum  :: Int   ,
   _round     :: Int   ,
-  _level     :: Level ,
   _area      :: Area  ,
+  _level     :: Level ,
   _room      :: (Vector2 Int, Room),
   _rng       :: StdGen
 }
 
 instance Default GameState where
-  def = GameState (def :: Player) 0 0 undefined Mines undefined undefined
+  def = GameState (def :: Player) 0 0 Mines undefined undefined undefined
             
 makeLenses ''GameState
 makeLenses ''Level
@@ -67,3 +69,13 @@ moveRoomToV v gs =
 
 -- | For testing only
 showGS = (\(_, r) -> show r) . view room
+
+-- Random starting GameState
+randGameState :: (MonadRandom m) => StdGen -> m GameState
+randGameState gen = do
+  lvl <- randMinesLevel
+  return 
+    $ room  .~ (lvl^.start_room)
+    $ level .~ lvl
+    $ rng   .~ gen
+    $ def

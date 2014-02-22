@@ -25,20 +25,11 @@ testRoom =  rType    .~ KaliAltar
           $ entities .~ ( M.fromList [(fromTriple (0, 0, 0), Enemy' Spider )] )
           $ def :: Room
 
-gs :: Room -> StdGen -> GameState
-gs troom g = player   .~ (def :: Player)
-         $ levelNum .~ 0
-         $ level    .~ (rooms .~ ( M.fromList [(fromTuple (0, 0), troom)] ) $ def)
-         $ area     .~ Mines
-         $ room     .~ (fromTuple (0, 0), troom)
-         $ rng      .~ g
-         $ def :: GameState
-
 main = do
   initialize
-  g  <- newStdGen
-  let room = evalRand randMinesRoom g
-  G.runGame (gs room g)
+  gen       <- newStdGen
+  let gs = evalRand (randGameState gen) gen -- Make sure to use gen to generate global GameState
+  G.runGame gs
 
 initialize = do
   hSetBuffering stdout NoBuffering

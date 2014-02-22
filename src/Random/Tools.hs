@@ -6,7 +6,6 @@ module Random.Tools(
 ) where
 
 import qualified System.Random as R
-import Types
 import Control.Monad.Trans.State
 import Control.Monad
 import Data.Universe

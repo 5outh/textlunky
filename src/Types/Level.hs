@@ -30,6 +30,7 @@ data LevelType = NormalLevel
                  
 data Level = Level{
   _rooms :: M.Map (Vector2 Int) Room,
+  _start_room :: (Vector2 Int, Room),
   _lType :: LevelType
 } 
 
@@ -37,7 +38,7 @@ instance Universe LevelType where
   universe = enumFrom NormalLevel
 
 instance Default Level where
-  def = Level M.empty NormalLevel
+  def = Level M.empty undefined NormalLevel
 
 -- NB. Shows message upon entrance
 levelMessage :: LevelType -> String
@@ -73,11 +74,13 @@ randMinesLevel = do
       endRoomLoc    = Vector2 endX   0 -- random bottom room
       startRoom     = fromJust $ lookup startRoomLoc roomsAndLocs -- I only use fromJust here since it is GUARANTEED that such a value exists.
       endRoom       = fromJust $ lookup endRoomLoc   roomsAndLocs
+      start         = (startRoomLoc, startRoom)
       setEndRoom (x, r) = if x == endRoomLoc then (x, rType .~ LevelExit $ r) else (x, r)
   walk   <- randWalk startRoomLoc endRoomLoc
   return $ 
-    Level 
-    ( demolishWallsAndAddLadders walk (M.fromList $ map setEndRoom roomsAndLocs) ) 
+    Level
+    ( demolishWallsAndAddLadders walk (M.fromList $ map setEndRoom roomsAndLocs) )
+    start
     t
 
 -- find current and next room, demolish walls in both, add ladders in both if moving u/d.
