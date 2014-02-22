@@ -19,6 +19,7 @@ import           Control.Monad.Trans.State
 import           Types
 import           Control.Monad(forever)
 import qualified TextlunkyParser as TP
+import qualified Data.Map as M
 
 -- | See below for details
 runGame :: GameState -> IO ()

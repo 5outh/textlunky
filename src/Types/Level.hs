@@ -79,15 +79,16 @@ randMinesLevel = do
   walk   <- randWalk startRoomLoc endRoomLoc
   return $ 
     Level
-    ( demolishWallsAndAddLadders walk (M.fromList $ map setEndRoom roomsAndLocs) )
+    ( demolishWalls walk (M.fromList $ map setEndRoom roomsAndLocs) )
     start
     t
 
 -- find current and next room, demolish walls in both, add ladders in both if moving u/d.
-demolishWallsAndAddLadders :: [(Direction, Vector2 Int)] -> M.Map (Vector2 Int) Room -> M.Map (Vector2 Int) Room
-demolishWallsAndAddLadders []            rms = rms
-demolishWallsAndAddLadders ((dir, v):ds) rms = demolishWallsAndAddLadders ds $ (  M.update (Just . demolish dir) v 
-                                                                                . M.update (Just . demolish dir) v' ) rms
+demolishWalls :: [(Direction, Vector2 Int)] -> M.Map (Vector2 Int) Room -> M.Map (Vector2 Int) Room
+demolishWalls []            rms = rms
+demolishWalls ((dir, v):ds) rms = 
+  demolishWalls ds $ ( M.update (Just . demolish dir) v 
+                     . M.update (Just . demolish (opposite dir)) v' ) rms
   where v' = moveVect dir v
         opposite U = D
         opposite D = U

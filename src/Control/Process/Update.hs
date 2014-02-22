@@ -123,7 +123,7 @@ exitLevel = do
   levelNum += 1
   lvNum <- use levelNum
   -- NB. Not handling special levels yet
-  when lvNum > 4  $ area .= Jungle
-  when lvNum > 8  $ area .= IceCaves
-  when lvNum > 12 $ area .= Temple
-  when lvNum > 16 $ area .= Hell
+  when (lvNum > 4)  $ area .= Jungle
+  when (lvNum > 8 ) $ area .= IceCaves
+  when (lvNum > 12) $ area .= Temple
+  when (lvNum > 16) $ area .= Hell
