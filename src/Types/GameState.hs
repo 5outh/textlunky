@@ -47,7 +47,7 @@ data GameState = GameState{
 }
 
 instance Default GameState where
-  def = GameState (def :: Player) 0 0 Mines undefined undefined undefined
+  def = GameState (def :: Player) 1 1 Mines undefined undefined undefined
             
 makeLenses ''GameState
 makeLenses ''Level
