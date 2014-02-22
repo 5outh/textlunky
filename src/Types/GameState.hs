@@ -6,7 +6,7 @@ module Types.GameState(
   -- | For testing
   showGS,
   randGameState,
-  updateStdGen,
+  newRNG,
   newMinesLevel
 ) where
 
@@ -84,15 +84,13 @@ randGameState gen = do
     $ def
 
 -- | These will get used during actual game execution
-updateStdGen :: (Monad m, RandomGen g) => StateT g m ()
-updateStdGen = do
-  gen <- get
-  let (_, g') = next gen in put g'
+newRNG :: (Monad m, RandomGen g) => StateT g m ()
+newRNG = state next >> return ()
 
 newMinesLevel :: Monad m => StateT GameState m ()
 newMinesLevel = do
   gs <- get
-  zoom rng updateStdGen
+  zoom rng newRNG
   gen <- use rng
   let lvl = evalRand randMinesLevel gen
   level .= lvl
