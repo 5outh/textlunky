@@ -98,6 +98,8 @@ updateP (Free (Bomb (Just dir) _)) = do
     U -> when (Paste `elem` itms) (placeBombAt loc')
     _ -> placeBombAt loc'
 
+updateP (Free (ExitLevel _)) = exitLevel
+
 updateP _ = return ()
 
 -- It's very important that we can do this kind of thing...
@@ -114,3 +116,14 @@ dropItem =  do
     Just h -> room._2.entities %= (M.insert loc h)
     _      -> return ()
   player.holding .= Nothing
+
+exitLevel :: Global GameState ()
+exitLevel = do
+  newMinesLevel
+  levelNum += 1
+  lvNum <- use levelNum
+  -- NB. Not handling special levels yet
+  when lvNum > 4  $ area .= Jungle
+  when lvNum > 8  $ area .= IceCaves
+  when lvNum > 12 $ area .= Temple
+  when lvNum > 16 $ area .= Hell

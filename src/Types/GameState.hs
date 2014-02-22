@@ -5,7 +5,9 @@ module Types.GameState(
   moveRoom,
   -- | For testing
   showGS,
-  randGameState
+  randGameState,
+  newRNG,
+  newMinesLevel
 ) where
 
 import Control.Lens hiding (Level)
@@ -16,6 +18,7 @@ import Types.Direction
 import Types.Room
 import Types.Vectors
 import System.Random
+import Control.Monad.Trans.State
 import qualified Data.Map as M
 import Random
 
@@ -44,7 +47,7 @@ data GameState = GameState{
 }
 
 instance Default GameState where
-  def = GameState (def :: Player) 0 0 Mines undefined undefined undefined
+  def = GameState (def :: Player) 1 1 Mines undefined undefined undefined
             
 makeLenses ''GameState
 makeLenses ''Level
@@ -79,3 +82,18 @@ randGameState gen = do
     $ level .~ lvl
     $ rng   .~ gen
     $ def
+
+-- | These will get used during actual game execution
+newRNG :: (Monad m, RandomGen g) => StateT g m ()
+newRNG = state next >> return ()
+
+newMinesLevel :: Monad m => StateT GameState m ()
+newMinesLevel = do
+  gs <- get
+  zoom rng newRNG
+  gen <- use rng
+  let lvl = evalRand randMinesLevel gen
+  level .= lvl
+
+
+
