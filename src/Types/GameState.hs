@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, NoMonomorphismRestriction #-}
 module Types.GameState(
   Area(..),
   GameState(..),
@@ -19,6 +19,7 @@ import Types.Room
 import Types.Vectors
 import System.Random
 import Control.Monad.Trans.State
+import Control.Monad.IO.Class
 import qualified Data.Map as M
 import Random
 
@@ -43,11 +44,12 @@ data GameState = GameState{
   _area      :: Area  ,
   _level     :: Level ,
   _room      :: (Vector2 Int, Room),
-  _rng       :: StdGen
+  _rng       :: StdGen,
+  _debug     :: Bool
 }
 
 instance Default GameState where
-  def = GameState (def :: Player) 1 1 Mines undefined undefined undefined
+  def = GameState (def :: Player) 1 1 Mines undefined undefined undefined False
             
 makeLenses ''GameState
 makeLenses ''Level
@@ -87,13 +89,10 @@ randGameState gen = do
 newRNG :: (Monad m, RandomGen g) => StateT g m ()
 newRNG = state next >> return ()
 
-newMinesLevel :: Monad m => StateT GameState m ()
+-- newMinesLevel :: Monad m => StateT GameState m ()
 newMinesLevel = do
-  gs <- get
   zoom rng newRNG
   gen <- use rng
   let lvl = evalRand randMinesLevel gen
   level .= lvl
-
-
-
+  room  .= (lvl^.start_room)

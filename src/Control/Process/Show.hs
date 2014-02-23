@@ -104,8 +104,13 @@ showP (Free (OpenGoldChest x)) = do
 showP (Free (OpenChest x)) = 
   liftIO $ putStrLnP $ "You open a chest."
 
-showP (Free (ExitLevel x)) = 
-  liftIO $ putStrLnP $ "You exit the level!"
+showP (Free (ExitLevel x)) = do
+  dbg      <- use debug
+  roomType <- use $ room._2.rType
+  liftIO $ putStrLnP $ 
+    if (dbg || roomType == LevelExit) 
+    then "You exit the level!"
+    else "You haven't found the exit yet."
 
 showP (Free (DropDown x)) = 
   liftIO $ putStrLnP $ "You drop down to the next level."

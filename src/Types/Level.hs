@@ -34,7 +34,7 @@ data Level = Level{
   _rooms :: M.Map (Vector2 Int) Room,
   _start_room :: (Vector2 Int, Room),
   _lType :: LevelType
-} 
+} deriving Eq
 
 instance Universe LevelType where
   universe = enumFrom NormalLevel

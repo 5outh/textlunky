@@ -20,13 +20,13 @@ makeLenses ''Level
 makeLenses ''GameState
 
 main = do
-  initialize
+  hSetBuffering stdout NoBuffering
   gen <- newStdGen
-  let gs = evalRand (randGameState gen) gen -- Make sure to use gen to generate global GameState
+  let gs = debug .~ False $ evalRand (randGameState gen) gen -- Set debug flag
+  when (not $ gs^.debug) initialize
   G.runGame gs
 
 initialize = do
-  hSetBuffering stdout NoBuffering
   forM_ "The walls are shifting............\n" $ \c ->
     do putChar c
        threadDelay 100000

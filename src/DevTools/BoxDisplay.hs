@@ -1,5 +1,7 @@
 {-# LANGUAGE TemplateHaskell, NoMonomorphismRestriction #-}
 module DevTools.BoxDisplay(
+  showLevelLayout,
+  printLevelLayout
 ) where
 
 import Types.Room
@@ -21,8 +23,8 @@ makeLenses ''Level
 -- | Normal Room: --
 -- |             |  |
 -- |              --
-showLevel :: Level -> String
-showLevel lvl = unlines ( map showRoomAll $ reverse $ transpose $ threes $ rms )
+showLevelLayout :: Level -> String
+showLevelLayout lvl = unlines ( map showRoomAll $ reverse $ transpose $ threes $ rms )
   where rms = M.toList $ lvl^.rooms
         threes xs | length xs <= 3 = [xs]
                   | otherwise      = take 3 xs : threes (drop 3 xs)
@@ -38,4 +40,4 @@ showLevel lvl = unlines ( map showRoomAll $ reverse $ transpose $ threes $ rms )
         showRoomAll  r = unlines [showCeilAll r, showWallsAll r, showFloorAll r]
 
 printLevelLayout :: Level -> IO ()
-printLevelLayout = putStrLn . showLevel
+printLevelLayout = putStrLn . showLevelLayout

@@ -3,9 +3,10 @@
 ## Things
 #### Random generation
 
+## Mines Random Generation is complete!
 * Condition: ~~(mostly) nonexistent~~ Almost finished
 * Next steps:
-  * Level generation!
+  * ~~Level generation!~~
   * ~~Move random generators to appropriate `Types` modules~~
   * ~~Make use of a probability distribution monad for more control~~
 

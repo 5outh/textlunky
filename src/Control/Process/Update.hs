@@ -98,7 +98,10 @@ updateP (Free (Bomb (Just dir) _)) = do
     U -> when (Paste `elem` itms) (placeBombAt loc')
     _ -> placeBombAt loc'
 
-updateP (Free (ExitLevel _)) = exitLevel
+updateP (Free (ExitLevel _)) = do
+  dbg      <- use debug
+  roomType <- use $ room._2.rType
+  when (dbg || roomType == LevelExit) exitLevel
 
 updateP _ = return ()
 
