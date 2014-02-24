@@ -22,9 +22,6 @@ import Control.Monad.Random
 import Data.Universe
 import Data.List(delete)
 
-uniform :: (MonadRandom m) => [a] -> m a
-uniform = fromList . fmap (flip (,) 1)
-
 -- Things at beginning of list have lower weight
 ascending :: MonadRandom m => [a] -> m a
 ascending = fromList . flip zip [1..]

@@ -81,17 +81,14 @@ randMinesLevel = do
 -- find current and next room, demolish walls in both, add ladders in both if moving u/d.
 demolishWalls :: [(Direction, Vector2 Int)] -> M.Map (Vector2 Int) Room -> M.Map (Vector2 Int) Room
 demolishWalls []            rms = rms
-demolishWalls ((dir, v):ds) rms = 
-  demolishWalls ds $ ( M.update (Just . demolish dir) v 
-                     . (if v' /= v then 
-                        M.update (Just . demolish (opposite dir)) v'
-                        else id ) ) rms
+demolishWalls ((dir, v):ds) rms = demolishWalls ds $ update rms
   where v' = moveVect dir v
         opposite U = D
         opposite D = U
         opposite W = E
         opposite E = W
         opposite _ = error "attempt to move in invalid direction."
+        update     = if v' == v then id else M.update (Just . demolish dir) v . M.update (Just . demolish (opposite dir)) v'
 
 randDirForWalk :: (MonadRandom m, Ord a, Show a) => Vector2 a -> Vector2 a -> m Direction
 randDirForWalk (Vector2 x y) (Vector2 x' y')
