@@ -19,17 +19,19 @@ data Wall = NormalWall
           | JewelWall      Jewel
           | ItemWall       Item
           | ConsumableWall Consumable
+          | Concrete       -- indestructable
             deriving Eq
 
 instance Show Wall where
   show NormalWall = "a regular old wall"
+  show Concrete   = "an indestructable concrete wall"
   show w          = "a wall with " ++ innards w ++ " in it"
 
 instance Default Wall where
   def = NormalWall
 
 instance Universe Wall where
-  universe = (NormalWall :) $ concat 
+  universe = ([NormalWall, Concrete] ++ ) $ concat 
                 [GoldWall        <$> sizes,
                  JewelWall       <$> js   ,
                  ItemWall        <$> items,
@@ -46,7 +48,7 @@ innards (JewelWall j)      = "a " ++ show j
 innards (ItemWall  i)      = show i
 innards (ConsumableWall c) = "a " ++ show c
 
--- mostly normal and gold walls
+-- mostly normal and gold walls, no concrete randomly
 randWall :: MonadRandom m => m Wall
 randWall = fromList [ (return NormalWall,                   30)
                      , (liftM GoldWall       randSize,      10)
