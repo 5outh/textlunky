@@ -293,3 +293,30 @@ When generating random levels, add ladders and destroy walls. When adding a ladd
 Todo: Fix any stupid calls to `M.toList` and `M.fromList` in source code.
 
 Also, I noticed that there was a bug in the code, if there are two things in one location, `pickup` from that location would just get the one nearest to the front of the list. This isn't really what I want. Maps have a different problem, though, because if more than one thing exists, the other will just get overwritten. This is something to mull over. An obvious solution would be to keep a list of objects in each cell, but then we'd have to figure out a good way to differentiating items. 
+
+## Wednesday, February 26th
+
+Could add typeclasses `MovableTo` and `OnMoveTo`, such that:
+
+```haskell
+class MovableTo a where
+  isMovableto :: a -> Bool
+ 
+class (MovableTo a, Vector v) => OnMoveTo v a b where
+  onMoveTo :: v -> a -> (b -> b)
+```
+
+where `isMovableTo` would tell if a specific object is able to be moved to by the player (or enemy, what-have-you), and `moveTo` would take an `a` (say, a `GroundItem`), and modify a `b` (be it a `Player`, `Enemy`, or whatever) if it is sharing a space with it. Let `v` be the space the `a` is coming from.
+
+e.g
+
+```haskell
+instance Movable Block where 
+  isMovableto ArrowTrap = False
+  ...
+
+instance OnMoveTo (Vector2 Int) Block Player
+  onMoveTo v@(Vector2 x y) SpikePit = health .~ 0
+  ...
+
+```
