@@ -1,5 +1,6 @@
 module Types.Jewel(
   Jewel(..),
+  value,
   randJewel,
   randLargeJewel,
   randSmallJewel,
@@ -20,6 +21,13 @@ data Jewel =   Ruby     Size
              | Emerald  Size
              | Diamond --always big
              deriving Eq
+
+value :: Jewel -> Int
+value j = case j of
+  Ruby s     -> if s == Large then 1200 else 400
+  Sapphire s -> if s == Large then 1000 else 300
+  Emerald s  -> if s == Large then 800  else 200
+  Diamond    -> 5000
 
 instance Show Jewel where
   show (Ruby s)     = show s ++ " ruby"

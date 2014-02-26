@@ -6,7 +6,6 @@
     values out as necessary during the game. 
 -}
 module Random.Probability(
-  uniform,
   ascending,
   descending,
   permutation,
