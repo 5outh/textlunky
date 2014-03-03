@@ -22,7 +22,7 @@ makeLenses ''GameState
 main = do
   hSetBuffering stdout NoBuffering
   gen <- newStdGen
-  let gs = debug .~ False $ evalRand (randGameState gen) gen -- Set debug flag
+  let gs = debug .~ True $ evalRand (randGameState gen) gen -- Set debug flag
   when (not $ gs^.debug) initialize
   G.runGame gs
 

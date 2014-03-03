@@ -25,10 +25,16 @@ makeLenses ''Room
 -- | This is the only way that the game will NOT update
 -- | when user command is Invalid
 stepGame :: Process
-stepGame _ = do
+stepGame cmd = do
   r <- use round
   liftIO $ putStrLn $ "round: " ++ show r
-  round += 1
+  case cmd of 
+    Free (Look       _ _) -> return ()
+    Free (Walls        _) -> return ()
+    Free (ShowEntities _) -> return ()
+    Free (ShowFull     _) -> return ()
+    Free (ShowMe       _) -> return ()
+    Free c                -> round += 1
 
 -- | Modify the game based on user command
 -- | TODO: implement
