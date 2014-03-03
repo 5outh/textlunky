@@ -30,7 +30,9 @@ showP (Free (Move d x)) =
   liftIO $ putStrLnP $ "You move " ++ show d
 
 showP (Free (MoveTo e x)) = 
-  liftIO $ putStrLnP $ "You move to the " ++ show e
+  liftIO $ putStrLnP $ 
+    "You move to the " 
+    ++ (showRelativeDirection . fromVector3) e
 
 -- TODO: Make sure we can actually pick up the things we're picking up...
 showP (Free (Pickup a x)) = case a of

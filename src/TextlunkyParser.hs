@@ -10,6 +10,7 @@ import Control.Applicative hiding((<|>))
 import Types.TextlunkyCommand
 import Types.Direction
 import Types.Synonyms
+import Types.Vectors(Vector3(..))
 import qualified Data.Map as M
 import Control.Monad.Trans.Free
 import Control.Monad.Identity
@@ -121,6 +122,16 @@ parseBombB  xs = case any (== "bomb") xs of
   True -> Just $ liftF $ Bomb (parseDirection xs) ()
   _    -> Nothing
 
+-- @TODO: Make this more obvious, moveto nw should go to nw corner
+--        ...etc.
+parseMoveTo xs = case dirs of
+  ds@[x, y, z] -> let [x', y', z'] = map (fromJust . flip M.lookup directionMap) ds
+                  in case toVector3 (x', y', z') of
+                    Just v -> Just $ liftF $ MoveTo v ()
+                    _      -> Nothing
+  _            -> Nothing
+  where dirs = filter (`elem` directions) xs
+
 parseCommands :: [[String]] -> Textlunky ()
 parseCommands []     = return ()
 parseCommands (x:xs) = 
@@ -134,7 +145,8 @@ parseCommand :: [String] -> Maybe (Textlunky ())
 parseCommand xs = foldr1 (<|>) 
                 . map ($ xs)
                 $ [ parseMe       ,
-                    parseMoveB    , 
+                    parseMoveB    ,
+                    parseMoveTo   , 
                     parseShootB   , 
                     parseLook     ,
                     parseDropDown , 

@@ -7,11 +7,12 @@ module Types.TextlunkyCommand(
 import Types.Direction
 import Types.Enemy
 import Types.Entity
+import Types.Vectors (Vector3(..))
 
 -- | Derives Functor for Free usage in other areas.
 data TextlunkyCommand a = 
     Move   Direction       a
-  | MoveTo Entity          a -- | Maybe move to (Vector3 Int)
+  | MoveTo (Vector3 Int)   a -- | Maybe move to (Vector3 Int)
   | Pickup (Maybe Entity)  a -- | Same ^
   | Jump   (Maybe Enemy )  a -- | Same ^
   | Attack (Maybe Enemy )  a -- | Same ^

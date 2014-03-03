@@ -26,15 +26,26 @@ makeLenses ''Room
 -- | when user command is Invalid
 stepGame :: Process
 stepGame cmd = do
-  r <- use round
-  liftIO $ putStrLn $ "round: " ++ show r
+  -- Update round
   case cmd of 
     Free (Look       _ _) -> return ()
     Free (Walls        _) -> return ()
     Free (ShowEntities _) -> return ()
     Free (ShowFull     _) -> return ()
     Free (ShowMe       _) -> return ()
-    Free c                -> round += 1
+    Free c                -> round += 1 -- eventually stepEntities too
+
+  r    <- use round
+  ents <- use $ room._2.entities
+  v    <- use $ player.loc
+
+  liftIO $ putStrLn $ "round: " ++ show r
+  -- Process what happens to player based on 
+  -- entity he/she sharing space with
+  -- NB. Note that this happens last, so player can chain commands
+  case M.lookup v ents of
+    Just e -> player %= (moveToEntity v e)
+    _      -> return ()
 
 -- | Modify the game based on user command
 -- | TODO: implement
@@ -61,9 +72,9 @@ updateP (Free (Move dir _)) = do
     Nothing -> 
       error "There was a mistake calculating new position in `updateP` over `Move` instruction"
 
--- | Move the player to some entity
--- | NB. Want to actually make `e` a Vector3 Int
-updateP (Free (MoveTo e _)) = return ()
+-- | Move the player to some vector location,
+-- | NB. entity collision handling in stepGame
+updateP (Free (MoveTo v _)) = player.loc .= v
 
 -- | Pick up the thing that at the player's feet if it can be held
 updateP (Free (Pickup Nothing _)) = do

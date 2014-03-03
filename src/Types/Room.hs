@@ -9,12 +9,14 @@ module Types.Room(
   showWalls,
   showEntities,
   showEntitiesWithIds,
-  addEntityAt
+  addEntityAt,
+  getEntityAt
 ) where
 
 import Data.Default
 import Data.Universe
 import Data.List(intercalate)
+import Data.Maybe(fromJust)
 import Types.Direction
 import Types.Entity
 import Types.Item
@@ -90,6 +92,9 @@ showEntitiesWithIds r = concatMap show' $ M.toList (r^.entities)
 addEntityAt :: Vector3 Int -> Entity -> Room -> Room
 addEntityAt v e = entities %~ (M.insert v e)
 
+getEntityAt :: Vector3 Int -> Room -> Maybe Entity
+getEntityAt v r = M.lookup v (r^.entities)
+
 instance Universe RoomType where
   universe = enumFrom NormalRoom
   
@@ -130,8 +135,8 @@ randMinesRoom = do
   [tops, bottoms] <- replicateM 2 $     descending [1..5]
   topEs           <- replicateM tops    randMinesTopEntity
   bottomEs        <- replicateM bottoms randMinesBottomEntity
-  topSpaces       <- choose     tops    (map toVector3 topDirs)
-  bottomSpaces    <- choose     bottoms (map toVector3 bottomDirs)
+  topSpaces       <- choose     tops    (map (fromJust . toVector3) topDirs)
+  bottomSpaces    <- choose     bottoms (map (fromJust . toVector3) bottomDirs)
   [lu, ld]        <- replicateM 2 $     fromList [(True, 1), (False, 10)]
   let es = (zip topSpaces topEs) ++ (zip bottomSpaces bottomEs)
   return $ entities .~ (M.fromList es)

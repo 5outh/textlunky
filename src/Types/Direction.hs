@@ -20,6 +20,7 @@ import Control.Applicative
 import Data.List(sort)
 import Random.Probability
 import Types.Vectors
+import Data.Maybe(fromJust, isJust)
 
 data Direction = D | U | N | S | E | W | M  deriving (Bounded, Ord, Eq)
 
@@ -90,22 +91,25 @@ fromVector3 (Vector3 x y z) = (x', y', z')
               1 -> U
               a -> error $ "Invalid Z value" ++ show a ++ "in Vector3"
 
-toVector3 :: Space -> Vector3 Int
-toVector3 (ewm, nsm, du) = Vector3 x y z
+toVector3 :: Space -> Maybe (Vector3 Int)
+toVector3 (ewm, nsm, du) = v
   where x = case ewm of 
-              E -> 0
-              M -> 1
-              W -> 2
-              a -> error $ "Invalid x value" ++ show a ++ "in Vector3"
+              E -> Just 0
+              M -> Just 1
+              W -> Just 2
+              a -> Nothing
         y = case nsm of 
-              S -> 0
-              M -> 1
-              N -> 2
-              a -> error $ "Invalid y value" ++ show a ++ "in Vector3"
+              S -> Just 0
+              M -> Just 1
+              N -> Just 2
+              a -> Nothing
         z = case du of 
-              D -> 0
-              U -> 1
-              a -> error $ "Invalid z value" ++ show a ++ "in Vector3"
+              D -> Just 0
+              U -> Just 1
+              a -> Nothing
+        v = if all isJust [x, y, z] 
+            then Just $ Vector3 (fromJust x) (fromJust y) (fromJust z)
+            else Nothing 
 
 -- | Shows the direction of a space in a room (one of 18 spaces)
 showRelativeDirection :: Space -> String
