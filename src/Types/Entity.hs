@@ -6,11 +6,11 @@ module Types.Entity(
   randJewel',
   randItem',
   randMinesGroundItem',
-  randConsumable',
   randMinesBlock',
   randMinesEnemy',
   randMinesTopEnemy',
-  randMinesBottomEnemy'
+  randMinesBottomEnemy',
+  canPickUp
 ) where
 
 import Data.List(intercalate)
@@ -21,7 +21,6 @@ import Control.Monad(liftM)
 import Types.Jewel
 import Types.Item
 import Types.GroundItem
-import Types.Consumable
 import Types.Block
 import Types.Enemy
 import Types.Direction
@@ -31,7 +30,6 @@ data Entity =
    Jewel' Jewel
  | Item' Item
  | GroundItem' GroundItem
- | Consumable' Consumable
  | Block' Block
  | Enemy' Enemy
  | Empty
@@ -42,17 +40,15 @@ instance Show Entity where
   show (Item' i )      = show i
   show (GroundItem' g) = show g
   show (Enemy' e)      = show e
-  show (Consumable' c) = show c
   show (Block'      b) = show b
   show Empty           = []
 
 randJewel', randItem', randMinesGroundItem' ,
-  randConsumable'    , randMinesBlock'      , randMinesEnemy',
+  randMinesBlock'    , randMinesEnemy',
   randMinesTopEnemy' , randMinesBottomEnemy'
   :: MonadRandom m => m Entity
 randJewel'            = liftM Jewel'      randJewel
 randItem'             = liftM Item'       randItem
-randConsumable'       = liftM Consumable' randConsumable
 randMinesBlock'       = liftM Block'      randMinesBlock
 randMinesEnemy'       = liftM Enemy'      randMinesEnemy
 randMinesTopEnemy'    = liftM Enemy'      randMinesTopEnemy
@@ -61,8 +57,8 @@ randMinesGroundItem'  = liftM GroundItem' randMinesGroundItem
 
 randMinesEntity :: MonadRandom m => m Entity
 randMinesEntity = uniform 
-  [ randJewel'     , randItem'      , 
-    randMinesGroundItem', randConsumable', randMinesBlock', 
+  [ randJewel'         , randItem'      , 
+    randMinesGroundItem', randMinesBlock', 
     randMinesEnemy' ] >>= id
 
 -- | Only spawn things that can show up on the ground
@@ -72,3 +68,11 @@ randMinesBottomEntity = uniform
 
 randMinesTopEntity = uniform
   [ randMinesBlock', randMinesTopEnemy' ] >>= id
+
+canPickUp :: Entity -> Bool
+canPickUp (Jewel' _)      = True
+canPickUp (GroundItem' _) = True
+canPickUp (Item' _)       = True
+canPickUp (Block' _)      = False
+canPickUp (Enemy' _)      = False
+canPickUp Empty           = False

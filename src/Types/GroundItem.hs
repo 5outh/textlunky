@@ -27,6 +27,7 @@ data GroundItem =  Key
                  | ItemCrate Item
                  | Chest [Jewel] 
                  | Floor Consumable
+                 | BonePile
                    -- these aren't randomly generated!
                  | GBomb  Int -- # rounds until explosion
                  | GRope
@@ -48,12 +49,13 @@ instance Show GroundItem where
   show (GBomb 0)            = "an exploding bomb"
   show GRope                = "a long rope extending upwards"
   show (Floor c)            = show c
+  show BonePile             = "a heap of human bones"
 
 -- Convenience for spawning new live bombs              
 newBomb = GBomb 2
 
 instance Universe GroundItem where
-  universe =  ([Key, GoldChest, Damsel, Idol, PotEmpty]++) . join $ 
+  universe =  ([Key, GoldChest, Damsel, Idol, PotEmpty, BonePile]++) . join $ 
                   [ PotJewel        <$> js,
                     PotEnemy        <$> es,
                     ItemCrate       <$> items,
@@ -89,4 +91,4 @@ randCrate =
 
 randMinesGroundItem :: MonadRandom m => m GroundItem
 randMinesGroundItem = 
-  fromList [(randChest, 2), (randCrate, 1), (randPot, 5)] >>= id
+  fromList [(randChest, 2), (randCrate, 1), (randPot, 5), (return BonePile, 1)] >>= id

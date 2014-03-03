@@ -35,15 +35,15 @@ instance Show Enemy where
   show SpinSpider         = "a web-spinning spider"
   show (Skeleton True)    = "a walking skeleton"
   show (Skeleton False)   = "a heap of human bones"
-  show BigSpider          = "a huge spider"
+  show BigSpider          = "a huge spider" -- 2 dmg
   show Scorpion           = "a scorpion"
   show Caveman            = "a caveman"
-  show (Arrow True)       = "an arrow flying through the air"
+  show (Arrow True)       = "an arrow flying through the air" -- 2 dmg
   show (Arrow False)      = "an arrow resting on the ground"
   show (Shopkeeper False) = "a peaceful shopkeeper"
-  show (Shopkeeper True)  = "a very angry shopkeeper"
-  show (Boulder True)     = "a boulder, rolling quickly"
-  show (Boulder False)    = "an immobile boulder"
+  show (Shopkeeper True)  = "a very angry shopkeeper" -- stun + 1 dmg
+  show (Boulder True)     = "a boulder, rolling quickly" -- 5 dmg
+  show (Boulder False)    = "an immobile boulder" -- 0 dmg
 
 readEnemy :: String -> Enemy
 readEnemy "snake" = Snake

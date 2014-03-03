@@ -2,14 +2,20 @@
 module Types.Player(
   Player(..),
   playerSnippet,
-  alive
+  alive,
+  moveToEntity
 ) where
 
 import Data.Default
 import Control.Lens
 import Data.List(intercalate)
 import Types.Direction
+import Types.Consumable
 import Types.Item
+import Types.Block
+import Types.Enemy
+import Types.Jewel
+import Types.GroundItem
 import Types.Entity
 import Types.Vectors
 import Types.PState
@@ -59,3 +65,41 @@ playerSnippet p =
 ----- Extras -----
 alive :: Player -> Bool
 alive = (<=0) . view hp
+
+pickupConsumbale :: Consumable -> Player -> Player
+pickupConsumbale BombBox  = bombs +~ 12
+pickupConsumbale BombBag  = bombs +~ 4
+pickupConsumable RopePile = ropes +~ 4
+
+-- What when the player moves onto another an entity?
+-- NB. This should happen LAST: player should have the opportunity to
+--     whip or whatever on the current spot and move out of the way
+--     before this fires.
+moveToEntity ::  Vector3 Int -- | Location
+        -> Entity            -- | Target 
+        -> Player            -- | Source
+        -> Player            -- | Result
+
+moveToEntity v (Jewel' j) = (loc .~ v) . (gold +~ value j)
+
+moveToEntity v (Block' b) = case b of
+  Spikes    -> (loc .~ v) . (p_state .~ Falling)
+  Web       -> (loc .~ v) . (p_state .~ Stunned)
+  PowderKeg -> hp  .~ 0
+  Exit      -> loc .~ v  
+  _         -> id
+
+moveToEntity v (Enemy' e     ) = case e of
+  BigSpider       -> hp -~ 2
+  Arrow True      -> hp -~ 2
+  Arrow False     -> id 
+  Shopkeeper True -> (hp -~ 1) . (p_state .~ Stunned)
+  Boulder True    -> hp -~ 5
+  Boulder False   -> id
+  _               -> hp -~ 1
+
+moveToEntity v (GroundItem' g) = case g of
+  Floor c -> pickupConsumable c . (loc .~ v)
+  _       -> loc .~ v
+
+moveToEntity v _ = loc .~ v
