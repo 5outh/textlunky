@@ -320,3 +320,82 @@ instance OnMoveTo (Vector2 Int) Block Player
   ...
 
 ```
+
+## Tuesday, March 4th
+
+I (finally) want to add in state machines for `Entity` types. The following is a brainstorming session about what such a thing would look like.
+
+The first idea that pops into my head is to have some method...
+
+```haskell
+next :: Entity -> Entity
+```
+
+...that can be called on each `Entity` during `stepGame` through use of `traverse`. The problem here is that a) we don't have access to the state, so if we needed to interact with the environment, we couldn't. Also we'd have no way of interacting with IO in order to tell the player what is going on around him/her. This can be remedied immediately by changing the type of `next` to:
+
+```haskell
+next :: Entity -> Global GameState ()
+-- equivalently, next :: Entity -> StateT GameState IO ()
+next :: Global GameState () is the same (see below)
+```
+
+In this environment, we can modify the `GameState`, but we're not actually doing anything with the specific `Entity`. Obviously this is an issue. Maybe `Lens` will have something to help us out? Maybe. See `traversed`; I was able to get something like this:
+
+```haskell
+entities.traversed %~ id :: Room -> Room
+-- or, statefully
+entities.traversed %= id :: MonadState m => m ()
+
+\f -> entities.traversed %= f 
+  :: (MonadState Room m,
+      Indexable Int p) =>
+     p Entity Entity -> m ()
+```
+
+I don't really know what `p` is here, so it's hard for me to say what that is. Also we're still only updating entities, so that's not really correct. 
+
+************************
+I have no idea!
+************************
+
+Well, another thing is that I want to start using Free monads to capture `Entity` actions by giving them FSMs determined by Free "programs" with some set of possible instructions. I should be able to write a simple DSL to handle this similarly to how it's handled with `TextlunkyCommand`. An example might look like:
+
+```haskell
+moveLAndR :: Monad m => FreeT EntityCommand m ()
+moveLAndR = forever $ do
+  replicateM 3 moveLeft  -- i.e. liftF MoveLeft  ()
+  replicateM 3 moveRight -- i.e. liftF MoveRight ()
+```
+
+We can then process these within a `Process` (say `stepGame`) using the same ideas as before. I should be able to process each heading command for each individual `Entity` and use that to actually update the `GameState`. 
+
+Another approach would be to actually introduce a new stream of `EntityCommands` (boxed in a `FreeT`) into `Textlunky ()`. I think this would be ugly, however, and we'd have to keep track of the number of actions executed per round and process them all at once. I think changing some of the `Entity` code to include their own FSMs would be easier and cleaner; something like:
+
+```
+-- current:
+-- data Entity = 
+--    Jewel' Jewel
+--  | Item' Item
+--  | GroundItem' GroundItem
+--  | Block' Block
+--  | Enemy' Enemy
+--  | Empty
+--  deriving Eq
+
+-- new ?
+
+{-# LANGUAGE RankNTypes #-}
+data Entity' m = 
+   Jewel'      m Jewel
+ | Item'       m Item
+ | GroundItem' m GroundItem
+ | Block'      m Block
+ | Enemy'      m Enemy
+ | Empty
+ deriving Eq
+
+type Entity = (Monad m) => Entity' (FreeT EntityCommand m ())
+```
+
+My hope is that we'd be able to actually perform these `FreeT` actions within the global `Textlunky ()` (i.e. `stepGame`) and make modifications to the state of the game based on these commands at that point. I do think this is feasible but I do not know 100%.
+

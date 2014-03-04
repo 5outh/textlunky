@@ -30,6 +30,8 @@ import Control.Monad.Trans.Free
 idP :: Process
 idP = const $ return ()
 
+infixr 9 <.>
+
 (<.>) :: Process -> Process -> Process
 pA <.> pB = \cmd -> pA cmd >> pB cmd
 
