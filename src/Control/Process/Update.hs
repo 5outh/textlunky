@@ -35,9 +35,9 @@ stepGame cmd = do
     Free (ShowMe       _) -> return ()
     Free c                -> round += 1 -- eventually stepEntities too
 
-  r    <- use round
-  ents <- use $ room._2.entities
-  v    <- use $ player.loc
+  r     <- use round
+  ents  <- use $ room._2.entities
+  v     <- use $ player.loc
 
   liftIO $ putStrLn $ "round: " ++ show r
   -- Process what happens to player based on 
@@ -54,6 +54,8 @@ updateP :: Process
 updateP (Free (YOLO _)) = do
   a <- randDir
   return ()
+
+updateP (Free (ShootSelf _)) = player.hp .= 0
 
 -- | Move the player one space in some direction
 -- | TODO: Fix "go up" allowance
