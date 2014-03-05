@@ -67,8 +67,10 @@ instance Universe GroundItem where
           es    = universe :: [Enemy]
           items = universe :: [Item]
           cs    = universe :: [Consumable]
-          --NB. 1, 2, or 3 jewels per chest; each can be small or large (except diamonds).
-          jewelLists = join [ [ [a], [a,b], [a,b,c] ] | (a, b, c) <- zip3 js js js]
+          --NB. 1, 2, or 3 jewels per chest 
+          --    each can be small or large (except diamonds).
+          jewelLists = 
+            join [ [ [a], [a,b], [a,b,c] ] | (a, b, c) <- zip3 js js js]
 
 randPotEnemy', randPotJewel, randConsumableCrate, 
   randItemCrate, randFloorConsumable :: MonadRandom m => m GroundItem
@@ -91,4 +93,5 @@ randCrate =
 
 randMinesGroundItem :: MonadRandom m => m GroundItem
 randMinesGroundItem = 
-  fromList [(randChest, 2), (randCrate, 1), (randPot, 5), (return BonePile, 1)] >>= id
+  fromList [(randChest, 2), (randCrate, 1), (randPot, 5), (return BonePile, 1)] 
+  >>= id

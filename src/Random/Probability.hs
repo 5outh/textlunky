@@ -1,10 +1,3 @@
-{-  
-    Here we're basically just boxing up the Random monad and will add bits to it as necessary.
-    The coin example is included below for reference. 
-
-    The idea will be to have probability distributions for each item in the game, and get random 
-    values out as necessary during the game. 
--}
 module Random.Probability(
   ascending,
   descending,
@@ -52,7 +45,8 @@ weightedPermutation f xs = do
 choose :: (Eq a, MonadRandom m, Integral n) => n -> [a] -> m [a]
 choose = weightedChoose uniform
 
-weightedChoose :: (Eq a, MonadRandom m, Integral n) => ([a] -> m a) -> n -> [a] -> m [a]
+weightedChoose :: 
+  (Eq a, MonadRandom m, Integral n) => ([a] -> m a) -> n -> [a] -> m [a]
 weightedChoose _ 0 _  = return []
 weightedChoose f n xs = do
   x <- f xs

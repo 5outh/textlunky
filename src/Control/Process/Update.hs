@@ -1,5 +1,8 @@
 
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE   TemplateHaskell 
+             , NoMonomorphismRestriction
+             , FlexibleContexts #-}
+
 module Control.Process.Update (
   updateP,
   stepGame
@@ -13,6 +16,7 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.Free
 import Control.Monad.State.Class
 import Control.Monad
+import Types.PState
 import Prelude hiding (round)
 import Data.List(delete)
 import qualified Data.Map as M
@@ -40,12 +44,15 @@ stepGame cmd = do
   v     <- use $ player.loc
 
   liftIO $ putStrLn $ "round: " ++ show r
+
   -- Process what happens to player based on 
   -- entity he/she sharing space with
   -- NB. Note that this happens last, so player can chain commands
   case M.lookup v ents of
     Just e -> player %= (moveToEntity v e)
     _      -> return ()
+
+  stepPlayer
 
 -- | Modify the game based on user command
 -- | TODO: implement
@@ -72,7 +79,8 @@ updateP (Free (Move dir _)) = do
   case loc' of
     Just l  -> player.loc .= l
     Nothing -> 
-      error "There was a mistake calculating new position in `updateP` over `Move` instruction"
+      error $ "There was a mistake calculating new position in `updateP` over" 
+            ++ " `Move` instruction"
 
 -- | Move the player to some vector location,
 -- | NB. entity collision handling in stepGame
@@ -149,3 +157,14 @@ exitLevel = do
   when (lvNum > 8 ) $ area .= IceCaves
   when (lvNum > 12) $ area .= Temple
   when (lvNum > 16) $ area .= Hell
+
+-- @TODO: Implement
+stepPlayer :: MonadState GameState m => m ()
+stepPlayer = do
+  st <- use $ player.p_state
+  case st of
+    Falling    -> return ()
+    Standing   -> return ()
+    Whipping   -> return ()
+    Shooting d -> return ()
+    Stunned    -> return ()

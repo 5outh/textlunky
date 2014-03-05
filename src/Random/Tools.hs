@@ -19,7 +19,8 @@ randomFromList' xs = do
   put gen'
   return x
 
--- | Statefully get an infinite list of random values from a list of possibilities
+-- | Statefully get an infinite list of random values from a list of
+-- | possibilities
 randomsFromList' :: [a] -> State R.StdGen [a]
 randomsFromList' = (sequence . repeat) . randomFromList'
 

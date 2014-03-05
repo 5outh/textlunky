@@ -32,6 +32,8 @@ initialize = do
        threadDelay 100000
   threadDelay 500000
   putStrLn $ 
-    concat $ ["You find yourself in some dark, wet mines with 4 ropes and 4 bombs",
-              " in your backpack. You must survive. You may want to take a look around.",
-              " What do you do?"]
+    concat $ 
+      ["You find yourself in some dark, wet mines with 4 ropes and 4 bombs",
+       " in your backpack. You must survive.",
+       " You may want to take a look around.",
+        " What do you do?"]

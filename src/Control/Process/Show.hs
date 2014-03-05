@@ -87,11 +87,14 @@ showP (Free (Bomb a x)) = do
               Just d  -> case d of
                 U -> if Paste `elem` (plr^.items) 
                      then "You place a bomb on the ceiling."
-                     else "You find yourself unable to get the bomb to stay on the ceiling..."
+                     else "You find yourself unable to get the bomb "
+                       ++ "to stay on the ceiling..."
                 D -> "You place a bomb on the floor."
                 w -> "You place a bomb near the " ++ show w ++ " wall."
               Nothing -> "You place a bomb at your feet."
-  liftIO $ putStrLn $ if plr^.bombs > 0 then str else "You don't have any bombs!"
+  liftIO $ putStrLn $ if plr^.bombs > 0 
+                      then str 
+                      else "You don't have any bombs!"
 
 -- still need to validate if Gold Chest is even in the room.
 showP (Free (OpenGoldChest x)) = do

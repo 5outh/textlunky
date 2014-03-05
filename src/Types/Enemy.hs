@@ -64,14 +64,16 @@ readEnemy "boulder" = Boulder True
 readEnemy "immobile boulder" = Boulder False -- TODO: idk.
 
 instance Universe Enemy where
-  universe = [Snake, Bat, Spider, Cobra, SpinSpider, BigSpider, Scorpion, Caveman]
-         ++ ([Skeleton, Shopkeeper, Boulder, Arrow] <*> [True, False])
+  universe = 
+    [Snake, Bat, Spider, Cobra, SpinSpider, BigSpider, Scorpion, Caveman]
+    ++ ([Skeleton, Shopkeeper, Boulder, Arrow] <*> [True, False])
 
 {- Random Generation -}
 -- Any enemy that can randomly spawn in the mines
 randMinesEnemy :: MonadRandom m => m Enemy
 randMinesEnemy = fromList $ 
-     withWeight 10 [Snake, Bat, Spider, Cobra, SpinSpider, Skeleton False, Scorpion, Caveman]
+  withWeight 10 [ Snake, Bat, Spider, Cobra, SpinSpider, 
+                  Skeleton False, Scorpion, Caveman    ]
   ++ withWeight 1 [BigSpider]
 
 -- Enemies that spawn on the ceiling

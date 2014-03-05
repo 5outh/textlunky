@@ -19,7 +19,8 @@ import Types.GameState
 import Control.Monad.Trans.Free
 
 -- NB. if we change the type to:
--- type Process state cmd r = FreeF cmd r () (FreeT cmd (state) r) -> StateT state IO r
+-- type Process state cmd r = 
+--   FreeF cmd r () (FreeT cmd (state) r) -> StateT state IO r
 -- then the current Process is:
 -- Process GameState TextlunkyCommand ()
 -- which is interesting because we might be able to form something new from it,

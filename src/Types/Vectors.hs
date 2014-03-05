@@ -23,8 +23,8 @@ data Vector3 a = Vector3 a a a deriving (Show, Eq, Ord)
 makeLenses ''Vector2
 makeLenses ''Vector3
 
--- | NB. toInt2, toInt3 only for use with vectors that can be represented in base 3!
--- | This is an ad-hoc way for representing space IDs
+-- | NB. toInt2, toInt3 only for use with vectors that can be represented
+-- |     in base 3! This is an ad-hoc way for representing space IDs
 
 -- base 3 representation of a Vector2
 -- | NB. toInt2 . fromInt2 = id

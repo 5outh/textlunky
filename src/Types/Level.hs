@@ -69,17 +69,28 @@ randMinesLevel = do
       startRoom     = fromJust $ lookup startRoomLoc roomsAndLocs -- I only use fromJust here since it is GUARANTEED that such a value exists.
       endRoom       = fromJust $ lookup endRoomLoc   roomsAndLocs
       start         = (startRoomLoc, startRoom)
-      setEndRoom (x, r) = if x == endRoomLoc then (x, rType .~ LevelExit $ r) else (x, r)
-      setStartRoom (x, r) = if x == startRoomLoc then (x, rType .~ StartRoom $ r) else (x, r)
+      setEndRoom (x, r) = 
+        if x == endRoomLoc 
+        then (x, rType .~ LevelExit $ r) 
+        else (x, r)
+      setStartRoom (x, r) = 
+        if x == startRoomLoc 
+        then (x, rType .~ StartRoom $ r) 
+        else (x, r)
   walk   <- randWalk startRoomLoc endRoomLoc
   return $ 
     Level
-    ( demolishWalls walk (M.fromList $ map (setStartRoom . setEndRoom) roomsAndLocs) )
+    ( demolishWalls 
+        walk 
+        (M.fromList $ map (setStartRoom . setEndRoom) roomsAndLocs) 
+    )
     start
     t
 
--- find current and next room, demolish walls in both, add ladders in both if moving u/d.
-demolishWalls :: [(Direction, Vector2 Int)] -> M.Map (Vector2 Int) Room -> M.Map (Vector2 Int) Room
+-- find current and next room, demolish walls in both
+demolishWalls :: [(Direction, Vector2 Int)] 
+              -> M.Map (Vector2 Int) Room 
+              -> M.Map (Vector2 Int) Room
 demolishWalls []            rms = rms
 demolishWalls ((dir, v):ds) rms = demolishWalls ds $ update rms
   where v' = moveVect dir v
@@ -88,22 +99,33 @@ demolishWalls ((dir, v):ds) rms = demolishWalls ds $ update rms
         opposite W = E
         opposite E = W
         opposite _ = error "attempt to move in invalid direction."
-        update     = if v' == v then id else M.update (Just . demolish dir) v . M.update (Just . demolish (opposite dir)) v'
+        update     = if v' == v 
+                     then id 
+                     else M.update (Just . demolish dir) v 
+                        . M.update (Just . demolish (opposite dir)) v'
 
 randDirForWalk :: (MonadRandom m, Ord a, Show a) => Vector2 a -> Vector2 a -> m Direction
 randDirForWalk (Vector2 x y) (Vector2 x' y')
   | x < x'    = fromList [(E, 10), (U, 1), (D, 5)] -- left of
   | x > x'    = fromList [(W, 10), (U, 1), (D, 5)] -- right of
   | y > y'    = fromList [(D, 5), (E, 5), (W, 5), (U, 1)] -- above
-  | y < y'    = error $ "y value " ++ show y ++ " is less than minimum y value should be."-- below; should never happen in our scenario
-  | otherwise = error "source and target are the same; no more walking should be done at this point."
+  | y < y'    = error $ 
+                  "y value " 
+                  ++ show y 
+                  ++ " is less than minimum y value should be."
+  | otherwise = error $ 
+       "source and target are the same; " 
+    ++ "no more walking should be done at this point."
 
 moveVect :: (Num a, Ord a) => Direction -> Vector2 a -> Vector2 a
 moveVect W (Vector2 x y) = Vector2 (max 0 (x-1)) y
 moveVect E (Vector2 x y) = Vector2 (min 2 (x+1)) y
 moveVect D (Vector2 x y) = Vector2 x (max 0 (y-1))
 moveVect U (Vector2 x y) = Vector2 x (min 2 (y+1))
-moveVect d _ = error $ "Attempt to move in direction: " ++ show d ++ ". Impossible on a 2d game board!"
+moveVect d _ = error $ 
+     "Attempt to move in direction: " 
+  ++ show d 
+  ++ ". Impossible on a 2d game board!"
 
 -- random walk from source to target
 randWalk :: (MonadRandom m, Num a, Show a, Ord a) => 

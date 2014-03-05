@@ -17,6 +17,6 @@ makeLenses ''Player
 class (Vector v) => MovableTo v a b where
   onMoveTo :: v x -> a -> (b -> b)
 
--- since we can move into a Jewel space, we don't really care what the old vector is
+-- since can move into a Jewel space, don't really care what the old vector is
 instance MovableTo Vector2 Jewel Player where
   onMoveTo _ j = gold +~ (value j)

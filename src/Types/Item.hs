@@ -68,5 +68,6 @@ randKaliItem :: MonadRandom m => [Item] -> m Item
 randKaliItem itms = if null xs then randItem else fromList xs
   where xs = withWeight 1 ([Jetpack] \\ itms) 
           ++ withWeight 2 ([Cape] \\ itms)
-          ++ withWeight 5 ([ClimbingGloves, PitchersMitt, SpikeShoes, SpringShoes] \\ itms)
+          ++ withWeight 5 
+            ([ClimbingGloves, PitchersMitt, SpikeShoes, SpringShoes] \\ itms)
           ++ withWeight 8 ([Paste, Compass, Spectacles, Parachute] \\ itms)

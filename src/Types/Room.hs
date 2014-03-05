@@ -52,8 +52,14 @@ makeLenses ''Room
 
 -- full room show
 instance Show Room where
-    show r = concat $ (walls : ladders : holes : t : map show' (M.toList (r^.entities)))
-        where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
+    show r = concat $ 
+      (walls : ladders : holes : t : map show' (M.toList (r^.entities)))
+        where show' (spc, entity) = 
+                   "There is "  
+                ++ show entity 
+                ++ " in the " 
+                ++ showRelativeDirection (fromVector3 spc) 
+                ++ ".\n"
               t = case (r^.rType) of
                 KaliAltar      -> "You see an altar to Kali.\n"
                 Shop           -> "You have found a shop!\n"
@@ -83,11 +89,22 @@ showWalls r =
 
 showEntities :: Room -> String
 showEntities r = concatMap show' $ M.toList (r^.entities)
-  where show' (spc, entity) = "There is "  ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
+  where show' (spc, entity) = 
+          "There is "  
+          ++ show entity 
+          ++ " in the " 
+          ++ showRelativeDirection (fromVector3 spc) 
+          ++ ".\n"
 
 showEntitiesWithIds :: Room -> String
 showEntitiesWithIds r = concatMap show' $ M.toList (r^.entities)
-  where show' (spc, entity) = show (toInt3 spc) ++ ": " ++ show entity ++ " in the " ++ showRelativeDirection (fromVector3 spc) ++ ".\n"
+  where show' (spc, entity) = 
+          show (toInt3 spc) 
+          ++ ": " 
+          ++ show entity 
+          ++ " in the " 
+          ++ showRelativeDirection (fromVector3 spc) 
+          ++ ".\n"
 
 addEntityAt :: Vector3 Int -> Entity -> Room -> Room
 addEntityAt v e = entities %~ (M.insert v e)

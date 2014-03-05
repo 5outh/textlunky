@@ -64,10 +64,12 @@ randMinesEntity = uniform
 -- | Only spawn things that can show up on the ground
 randMinesBottomEntity, randMinesTopEntity  :: MonadRandom m => m Entity
 randMinesBottomEntity = uniform
-  [ randJewel', randMinesGroundItem', randMinesBlock', randMinesBottomEnemy' ] >>= id
+  [ randJewel', randMinesGroundItem', randMinesBlock', randMinesBottomEnemy' ] 
+  >>= id
 
 randMinesTopEntity = uniform
-  [ randMinesBlock', randMinesTopEnemy' ] >>= id
+  [ randMinesBlock', randMinesTopEnemy' ] 
+  >>= id
 
 canPickUp :: Entity -> Bool
 canPickUp (Jewel' _)      = True
