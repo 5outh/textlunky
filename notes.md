@@ -399,3 +399,38 @@ type Entity = (Monad m) => Entity' (FreeT EntityCommand m ())
 
 My hope is that we'd be able to actually perform these `FreeT` actions within the global `Textlunky ()` (i.e. `stepGame`) and make modifications to the state of the game based on these commands at that point. I do think this is feasible but I do not know 100%.
 
+## Sunday, March 16th
+
+Just make `AI` a free monad, traverse each entity, then `runFree` to extract on every pass. There shouldn't be much harm in doing so. Also Entity locations should probably be part of their types, instead of in a tuple only for the gamestate to see.
+
+```haskell
+type AI cmd = Free cmd ()
+
+data Entity = ...
+  Enemy' (AI EnemyCmd) (Vector3 Int) Enemy
+  ...
+```
+
+Then we can have a function :
+
+```
+updateEntity :: State Entity ()
+updateEntity = do
+  e <- get
+  case e of 
+    e@(Enemy' ai pos e_type) -> 
+      case runFree ai of 
+        Move d -> moveEntity d e -- eg.
+        ...
+```
+
+which will update the entity, and another :
+
+```
+updateGame :: AI EnemyCmd -> Textlunky ()
+updateGame cmd = case runFree cmd of
+  Attack loc = destroyStuffAt loc
+  ...
+```
+
+Again, just an idea, but this might be the direction I end up taking.
