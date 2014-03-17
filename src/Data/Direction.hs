@@ -1,4 +1,4 @@
-module Types.Direction(
+module Data.Direction(
   Direction(..),
   Space(..), 
   moveVertical,
@@ -19,7 +19,7 @@ import Data.Universe
 import Control.Applicative
 import Data.List(sort)
 import Random.Probability
-import Types.Vectors
+import Data.Vectors
 import Data.Maybe(fromJust, isJust)
 
 data Direction = D | U | N | S | E | W | M  deriving (Bounded, Ord, Eq)

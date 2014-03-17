@@ -14,9 +14,9 @@ import Control.Lens hiding (Level)
 import Data.Default
 import Types.Player
 import Types.Level
-import Types.Direction
+import Data.Direction
 import Types.Room
-import Types.Vectors
+import Data.Vectors
 import System.Random
 import Control.Monad.Trans.State
 import Control.Monad.IO.Class

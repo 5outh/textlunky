@@ -2,7 +2,7 @@ module Types.PState(
   PState(..)
 ) where
 
-import Types.Direction
+import Data.Direction
 
 data PState = Standing
             | Falling

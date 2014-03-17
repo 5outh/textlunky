@@ -23,7 +23,7 @@ import Types.Item
 import Types.GroundItem
 import Types.Block
 import Types.Enemy
-import Types.Direction
+import Data.Direction
 import Random.Probability
 
 data Entity = 

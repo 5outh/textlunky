@@ -4,10 +4,10 @@ module Types.TextlunkyCommand(
   TextlunkyCommand(..)
 ) where
 
-import Types.Direction
+import Data.Direction
 import Types.Enemy
 import Types.Entity
-import Types.Vectors (Vector3(..))
+import Data.Vectors (Vector3(..))
 
 -- | Derives Functor for Free usage in other areas.
 data TextlunkyCommand a = 

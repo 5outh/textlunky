@@ -8,7 +8,7 @@ import Types.Room
 import Types.Level
 import Data.List
 import Control.Lens hiding (Level)
-import Types.Vectors
+import Data.Vectors
 import Data.Function
 import Control.Applicative
 import Data.Maybe(isJust)

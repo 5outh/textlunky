@@ -10,9 +10,9 @@ module Types.Level(
 
 import Data.Universe
 import Data.Default
-import Types.Direction
+import Data.Direction
 import Types.Room
-import Types.Vectors
+import Data.Vectors
 import Random.Probability
 import Control.Applicative
 import Control.Monad

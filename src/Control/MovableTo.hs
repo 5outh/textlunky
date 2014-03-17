@@ -3,7 +3,7 @@ module Control.MovableTo(
   MovableTo(..)
 ) where
 
-import Types.Vectors
+import Data.Vectors
 import Types.Jewel
 import Types.Player
 import Control.Lens

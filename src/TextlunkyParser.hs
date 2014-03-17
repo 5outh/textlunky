@@ -8,9 +8,9 @@ where
 import Data.List.Split
 import Control.Applicative hiding((<|>))
 import Types.TextlunkyCommand
-import Types.Direction
+import Data.Direction
 import Types.Synonyms
-import Types.Vectors(Vector3(..))
+import Data.Vectors(Vector3(..))
 import qualified Data.Map as M
 import Control.Monad.Trans.Free
 import Control.Monad.Identity

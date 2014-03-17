@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Types.Vectors(
+module Data.Vectors(
 	Axis(..),
 	Vector2(..),
 	Vector3(..),

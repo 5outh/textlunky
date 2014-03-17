@@ -1,5 +1,5 @@
 module Types (
-  module Types.Direction            ,
+  module Data.Direction            ,
   module Types.Size                 ,
   module Types.Jewel                ,
   module Types.Item                 ,
@@ -14,11 +14,11 @@ module Types (
   module Types.Player               ,
   module Types.TextlunkyCommand     ,
   module Types.GameState            ,
-  module Types.Vectors              ,
+  module Data.Vectors              ,
   module Types.Synonyms
 ) where
 
-import Types.Direction
+import Data.Direction
 import Types.Size
 import Types.Jewel
 import Types.Item
@@ -33,5 +33,5 @@ import Types.Level
 import Types.Player
 import Types.TextlunkyCommand
 import Types.GameState
-import Types.Vectors
+import Data.Vectors
 import Types.Synonyms

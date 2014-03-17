@@ -17,11 +17,11 @@ import Data.Default
 import Data.Universe
 import Data.List(intercalate)
 import Data.Maybe(fromJust)
-import Types.Direction
+import Data.Direction
 import Types.Entity
 import Types.Item
 import Types.Wall
-import Types.Vectors
+import Data.Vectors
 import Control.Lens
 import Control.Monad(replicateM, liftM)
 import Random.Probability

@@ -9,7 +9,7 @@ module Types.Player(
 import Data.Default
 import Control.Lens
 import Data.List(intercalate)
-import Types.Direction
+import Data.Direction
 import Types.Consumable
 import Types.Item
 import Types.Block
@@ -17,7 +17,7 @@ import Types.Enemy
 import Types.Jewel
 import Types.GroundItem
 import Types.Entity
-import Types.Vectors
+import Data.Vectors
 import Types.PState
 
 data Player = Player{
