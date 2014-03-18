@@ -56,12 +56,14 @@ executable textlunky
   build-depends:  base ==4.6.*,
                   universe == 0.4.*,
                   transformers == 0.3.*,
+                  containers,
+                  split,
                   lens < 3.10,
                   data-default == 0.5.*,
                   random == 1.*,
                   mtl == 2.1.*,
                   free < 4,
-                  MonadRandom < 1
+                  MonadRandom >= 0.1.13
 
   -- Directories containing source files.
   hs-source-dirs:      src

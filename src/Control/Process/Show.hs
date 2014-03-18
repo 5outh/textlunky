@@ -10,6 +10,7 @@ import Control.Process.Class
 import Control.Monad.Trans
 import Control.Monad.Trans.State
 import Control.Lens
+import Control.Monad
 import Control.Monad.Trans.Free
 import qualified Data.Map as M
 
@@ -77,8 +78,8 @@ showP (Free (Throw d x)) =
 showP (Free (Rope x)) = do
     rps <- use $ player.ropes
     if rps > 0 
-    then liftIO $ putStrLnP "You toss a rope up."
-    else liftIO $ putStrLnP "You don't have any ropes!"
+      then liftIO $ putStrLnP "You toss a rope up."
+      else liftIO $ putStrLnP "You don't have any ropes!"
 
 -- | TODO: Can place bomb "near the middle wall" right now...
 showP (Free (Bomb a x)) = do
@@ -98,13 +99,15 @@ showP (Free (Bomb a x)) = do
 
 -- still need to validate if Gold Chest is even in the room.
 showP (Free (OpenGoldChest x)) = do
-  hdg <- use $ player.holding
-  liftIO $ putStrLnP $
-    case hdg of
-      Just (GroundItem' Key) -> 
-        "You open the gold chest! Something shiny pops out." 
-      _                      -> 
-        "It's locked! There may be a key laying around here somewhere..."
+  hdg  <- use $ player.holding
+  ents <- liftM M.elems $ use $ room._2.entities
+  unless (GroundItem' GoldChest `notElem` ents) $ 
+    liftIO $ putStrLnP $
+      case hdg of
+        Just (GroundItem' Key) -> 
+          "You open the gold chest! Something shiny pops out." 
+        _                      -> 
+          "It's locked! There may be a key laying around here somewhere..."
 
 showP (Free (OpenChest x)) = 
   liftIO $ putStrLnP $ "You open a chest."

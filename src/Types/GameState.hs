@@ -69,7 +69,7 @@ moveRoomToV :: Vector2 Int -> GameState -> GameState
 moveRoomToV v gs =  
   let rms = gs^.level^.rooms
   in case M.lookup v rms of
-      Just r -> room .~ (v, r) $ gs
+      Just r  -> room .~ (v, r) $ gs
       Nothing -> gs
 
 -- | For testing only
@@ -89,7 +89,7 @@ randGameState gen = do
 newRNG :: (Monad m, RandomGen g) => StateT g m ()
 newRNG = state next >> return ()
 
--- newMinesLevel :: Monad m => StateT GameState m ()
+newMinesLevel :: Monad m => StateT GameState m ()
 newMinesLevel = do
   zoom rng newRNG
   gen <- use rng
