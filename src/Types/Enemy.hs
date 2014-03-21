@@ -28,6 +28,8 @@ data Enemy =  Snake      { _ehp :: Int, _ai :: AI () }
             | Arrow      { _resting :: Bool, _ehp :: Int, _ai :: AI () } 
             deriving Eq
 
+-- data EnemyMetadata = EnemyMetadata { _ehp :: Int, _edmg :: Int, _ai :: AI () } 
+
 mk :: (Int -> AI () -> Enemy) -> Enemy
 mk e = e 5 doNothing
 
