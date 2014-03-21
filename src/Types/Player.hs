@@ -92,13 +92,13 @@ moveToEntity v (Block' b) = case b of
   Exit      -> loc .~ v  
   _         -> id
 
-moveToEntity v (Enemy' e     ) = case e of
-  BigSpider       -> hp -~ 2
-  Arrow True      -> hp -~ 2
-  Arrow False     -> id 
-  Shopkeeper True -> (hp -~ 1) . (p_state .~ Stunned)
-  Boulder True    -> hp -~ 5
-  Boulder False   -> id
+moveToEntity v (Enemy' e) = case e of
+  (BigSpider       _ _) -> hp -~ 2
+  (Arrow True      _ _) -> hp -~ 2
+  (Arrow False     _ _) -> id 
+  (Shopkeeper True _ _) -> (hp -~ 1) . (p_state .~ Stunned)
+  (Boulder True    _ _) -> hp -~ 5
+  (Boulder False   _ _) -> id
   _               -> hp -~ 1
 
 moveToEntity v (GroundItem' g) = case g of
